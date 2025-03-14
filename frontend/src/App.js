@@ -5,6 +5,8 @@ import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import { QBusinessClient, SearchRelevantContentCommand } from "@aws-sdk/client-qbusiness";
 
 function App() {
+  // State Management
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState(() => {
     const savedData = localStorage.getItem('formData');
     return savedData ? JSON.parse(savedData) : {
@@ -19,14 +21,37 @@ function App() {
   const [code, setCode] = useState(null);
   const [idToken, setIdToken] = useState(null);
   const [searchResults, setSearchResults] = useState(null);
+  const [stsCredentials, setSTSCredentials] = useState(null);
 
+  // Step Indicator Update Effects
+  useEffect(() => {
+    if (code) {
+      setCurrentStep(2);
+    }
+  }, [code]);
+
+  useEffect(() => {
+    if (idToken) {
+      setCurrentStep(3);
+    }
+  }, [idToken]);
+
+  useEffect(() => {
+    if (searchResults) {
+      setCurrentStep(5);
+    }
+  }, [searchResults]);
+
+  // Main Process Effect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const authCode = params.get('code');
     const state = params.get('state');
 
+    // Step 3: Get ID Token and Process Further Steps
     const getIdToken = async (authCode) => {
       try {
+        // Initialize STS Client
         const stsClient = new STSClient({
           region: formData.iamIdcRegion,
           credentials: {
@@ -36,6 +61,7 @@ function App() {
           }
         });
 
+        // Step 4: Initial Role Assumption
         let assumeRoleResponse;
         try {
           const assumeRoleCommand = new AssumeRoleCommand({
@@ -43,12 +69,23 @@ function App() {
             RoleSessionName: 'automated-session'
           });
           assumeRoleResponse = await stsClient.send(assumeRoleCommand);
+          setCurrentStep(4);
           console.log('Successfully assumed role:', assumeRoleResponse);
+
+          // Store initial credentials
+          setSTSCredentials({
+            accessKeyId: assumeRoleResponse.Credentials.AccessKeyId,
+            secretAccessKey: assumeRoleResponse.Credentials.SecretAccessKey,
+            sessionToken: assumeRoleResponse.Credentials.SessionToken,
+            expiration: new Date(assumeRoleResponse.Credentials.Expiration)
+          });
+
         } catch (error) {
           console.error('Error assuming role:', error);
           throw error;
         }
 
+        // Create OIDC Client
         const client = new SSOOIDCClient({
           region: formData.iamIdcRegion,
           credentials: {
@@ -58,6 +95,7 @@ function App() {
           }
         });
 
+        // Get ID Token
         const command = new CreateTokenWithIAMCommand({
           clientId: formData.idcApplicationArn,
           code: authCode,
@@ -68,17 +106,18 @@ function App() {
         const response = await client.send(command);
         setIdToken(response.idToken);
 
+        // Step 5: Process ID Token and Search
         if (response.idToken) {
           const tokenParts = response.idToken.split('.');
           const payload = JSON.parse(atob(tokenParts[1]));
           const identityContext = payload['sts:identity_context'];
-          console.log('Identity Context:', identityContext);
 
           const providedContexts = [{
             ProviderArn: 'arn:aws:iam::aws:contextProvider/IdentityCenter',
             ContextAssertion: identityContext
           }];
 
+          // Second Role Assumption with Context
           const assumeRoleCommand = new AssumeRoleCommand({
             RoleArn: 'arn:aws:iam::820242917643:role/QIndexCrossAccountRole',
             RoleSessionName: 'automated-session',
@@ -87,13 +126,14 @@ function App() {
 
           const assumeRoleResponse = await stsClient.send(assumeRoleCommand);
 
+          // Update credentials with new ones
           const credentials = {
             accessKeyId: assumeRoleResponse.Credentials.AccessKeyId,
             secretAccessKey: assumeRoleResponse.Credentials.SecretAccessKey,
             sessionToken: assumeRoleResponse.Credentials.SessionToken,
             expiration: new Date(assumeRoleResponse.Credentials.Expiration)
           };
-          console.log('Assumed Role - ', credentials);
+          setSTSCredentials(credentials);
 
           const qbusinessClient = new QBusinessClient({
             region: formData.applicationRegion,
@@ -102,7 +142,7 @@ function App() {
 
           const searchCommand = new SearchRelevantContentCommand({
             applicationId: formData.qBusinessAppId,
-            queryText: "What is Amazon Q?",
+            queryText: "List of connectos for Amazon Q Business",
             contentSource: {
               retriever: {
                 retrieverId: formData.retrieverId
@@ -151,6 +191,16 @@ function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // Check if all required fields are filled
+    const requiredFields = ['idcApplicationArn', 'applicationRegion', 'iamIdcRegion', 'qBusinessAppId', 'retrieverId'];
+    const emptyFields = requiredFields.filter(field => !formData[field]);
+    
+    if (emptyFields.length > 0) {
+      alert('Please fill in all required fields before proceeding.');
+      return;
+    }
+
     const idcRegion = formData.iamIdcRegion;
     const redirectUrl = 'https://localhost:8081';
     const oauthState = btoa(JSON.stringify(formData));
@@ -167,62 +217,34 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {code ? (
-          <div className="success-container">
-            <div className="success-message">
-              <h2>✅ Authentication Successful!</h2>
-              <p className="code-text">Auth Code: {code}</p>
-              {idToken && (
-                <div className="token-container">
-                  <p className="token-text">ID Token received!</p>
-                  <textarea
-                    readOnly
-                    value={idToken}
-                    className="token-display"
-                    rows={4}
-                    style={{
-                      width: '100%',
-                      maxWidth: '600px',
-                      padding: '10px',
-                      marginTop: '10px',
-                      wordBreak: 'break-all'
-                    }}
-                  />
-                </div>
-              )}
-
-              <div className="form-data">
-                <h3>Form Data:</h3>
-                <p>IDC Application ARN: {formData.idcApplicationArn}</p>
-                <p>Application Region: {formData.applicationRegion}</p>
-                <p>IAM IDC Region: {formData.iamIdcRegion}</p>
-              </div>
-
-              {searchResults && (
-                <div className="search-results">
-                  <h3>Search Results</h3>
-                  <div className="results-container">
-                    {searchResults.relevantContent.map((content, index) => (
-                      <div key={index} className="result-item">
-                        <h4>Result {index + 1}</h4>
-                        <p><strong>Content:</strong> {content.content}</p>
-                        <p><strong>Score:</strong> {content.score}</p>
-                        {content.metadata && (
-                          <div className="metadata">
-                            <p><strong>Metadata:</strong></p>
-                            <pre>{JSON.stringify(content.metadata, null, 2)}</pre>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+        <h1 className="page-title">ISV - Cross-Account Data Retrieval Tester</h1>
+        <div className="step-indicator">
+          <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>
+            <div className="step-number">1</div>
+            <div className="step-label">Form Input</div>
           </div>
-        ) : (
-          <div className="form-container">
-            <h2>Cross-Account Client Authorization</h2>
+          <div className={`step ${currentStep >= 2 ? 'active' : ''}`}>
+            <div className="step-number">2</div>
+            <div className="step-label">OIDC Auth</div>
+          </div>
+          <div className={`step ${currentStep >= 3 ? 'active' : ''}`}>
+            <div className="step-number">3</div>
+            <div className="step-label">IDC Token</div>
+          </div>
+          <div className={`step ${currentStep >= 4 ? 'active' : ''}`}>
+            <div className="step-number">4</div>
+            <div className="step-label">STS Credentials</div>
+          </div>
+          <div className={`step ${currentStep >= 5 ? 'active' : ''}`}>
+            <div className="step-number">5</div>
+            <div className="step-label">SRC API</div>
+          </div>
+          <div className="progress-line"></div>
+        </div>
+  
+        {!code ? (
+          <div className="step-form-container">
+            <h3>Step 1: Enter Configuration Details</h3>
             <form onSubmit={handleSubmit} className="auth-form">
               <div className="input-group">
                 <input
@@ -279,10 +301,194 @@ function App() {
               </button>
             </form>
           </div>
-        )}
-      </header>
-    </div>
-  );
+        ) : (
+          <div className="success-container">
+            <div className="process-flow">
+              <div className="process-step">
+                <h3>Step 2: OIDC Authentication</h3>
+                <div className="step-content">
+                  <div className="status-indicator status-complete">
+                    Authentication Complete
+                  </div>
+                  <p className="code-text">Auth Code: {code}</p>
+                </div>
+              </div>
+  
+              <div className="process-step">
+                <h3>Step 3: IDC Token Generation</h3>
+                <div className="step-content">
+                  {idToken ? (
+                    <>
+                      <div className="status-indicator status-complete">
+                        Token Generated
+                      </div>
+                      <div className="token-container">
+                        <textarea
+                          readOnly
+                          value={idToken}
+                          className="token-display"
+                          rows={4}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="status-indicator status-pending">
+                      Generating Token...
+                    </div>
+                  )}
+                </div>
+              </div>
+  
+              <div className="process-step">
+                <h3>Step 4: STS Temporary Credentials</h3>
+                <div className="step-content">
+                  {stsCredentials ? (
+                    <>
+                      <div className="status-indicator status-complete">
+                        Credentials Obtained
+                      </div>
+                      <div className="credentials-container">
+                        <div className="credentials-details">
+                          <div className="credential-item">
+                            <label>Access Key ID:</label>
+                            <input
+                              type="text"
+                              readOnly
+                              value={stsCredentials.accessKeyId}
+                              className="credential-display"
+                            />
+                          </div>
+                          <div className="credential-item">
+                            <label>Secret Access Key:</label>
+                            <input
+                              type="password"
+                              readOnly
+                              value={stsCredentials.secretAccessKey}
+                              className="credential-display"
+                            />
+                            <button
+                              className="toggle-visibility"
+                              onClick={(e) => {
+                                const input = e.target.previousSibling;
+                                input.type = input.type === 'password' ? 'text' : 'password';
+                              }}
+                            >
+                              👁️
+                            </button>
+                          </div>
+                          <div className="credential-item">
+                            <label>Session Token:</label>
+                            <textarea
+                              readOnly
+                              value={stsCredentials.sessionToken}
+                              className="credential-display token-area"
+                              rows={3}
+                            />
+                          </div>
+                          <div className="credential-item">
+                            <label>Expiration:</label>
+                            <input
+                              type="text"
+                              readOnly
+                              value={stsCredentials.expiration.toLocaleString()}
+                              className="credential-display"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="status-indicator status-pending">
+                      Obtaining Credentials...
+                    </div>
+                  )}
+                </div>
+              </div>
+  
+              <div className="process-step">
+                <h3>Step 5: Search Results</h3>
+                <div className="step-content">
+                  {/* Add new search form */}
+                  <div className="search-form">
+                    <form onSubmit={async (e) => {
+                      e.preventDefault();
+                      const queryText = e.target.queryText.value;
+                      
+                      const qbusinessClient = new QBusinessClient({
+                        region: formData.applicationRegion,
+                        credentials: stsCredentials
+                      });
+  
+                      const searchCommand = new SearchRelevantContentCommand({
+                        applicationId: formData.qBusinessAppId,
+                        queryText: queryText,
+                        contentSource: {
+                          retriever: {
+                            retrieverId: formData.retrieverId
+                          }
+                        }
+                      });
+  
+                      try {
+                        const searchResponse = await qbusinessClient.send(searchCommand);
+                        setSearchResults(searchResponse);
+                      } catch (error) {
+                        console.error('Error searching content:', error);
+                      }
+                    }}>
+                      <div className="search-input-group">
+                        <input
+                          type="text"
+                          name="queryText"
+                          placeholder="Enter your search query"
+                          className="search-input"
+                        />
+                        <button type="submit" className="search-button">
+                          Search
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+  
+                  {searchResults ? (
+                  <>
+                    <div className="status-indicator status-complete">
+                      Search Complete
+                    </div>
+                    <div className="search-results">
+                      {searchResults.relevantContent ? (
+                        <div className="results-container">
+                          {searchResults.relevantContent.map((item, index) => (
+                            <div key={index} className="result-item">
+                              <h4>{item.documentTitle}</h4>
+                              <p><strong>URI:</strong> <a href={item.documentUri} target="_blank" rel="noopener noreferrer">{item.documentUri}</a></p>
+                              <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
+                              <div className="content-preview">
+                                <strong>Content:</strong>
+                                <p>{item.content.substring(0, 200)}...</p>
+                              </div>
+                              <hr />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <pre>{JSON.stringify(searchResults, null, 2)}</pre>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <div className="status-indicator status-pending">
+                    Searching...
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </header>
+  </div>
+);
 }
 
 export default App;
