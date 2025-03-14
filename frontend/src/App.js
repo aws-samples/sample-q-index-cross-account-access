@@ -22,6 +22,13 @@ function App() {
   const [idToken, setIdToken] = useState(null);
   const [searchResults, setSearchResults] = useState(null);
   const [stsCredentials, setSTSCredentials] = useState(null);
+  const [errors, setErrors] = useState({
+    step1: null,
+    step2: null,
+    step3: null,
+    step4: null,
+    step5: null
+  });
 
   // Step Indicator Update Effects
   useEffect(() => {
@@ -70,7 +77,7 @@ function App() {
           });
           assumeRoleResponse = await stsClient.send(assumeRoleCommand);
           setCurrentStep(4);
-          console.log('Successfully assumed role:', assumeRoleResponse);
+          setErrors(prev => ({ ...prev, step4: null }));
 
           // Store initial credentials
           setSTSCredentials({
@@ -79,9 +86,8 @@ function App() {
             sessionToken: assumeRoleResponse.Credentials.SessionToken,
             expiration: new Date(assumeRoleResponse.Credentials.Expiration)
           });
-
         } catch (error) {
-          console.error('Error assuming role:', error);
+          setErrors(prev => ({ ...prev, step4: `Error assuming role: ${error.message}` }));
           throw error;
         }
 
@@ -105,61 +111,66 @@ function App() {
 
         const response = await client.send(command);
         setIdToken(response.idToken);
+        setErrors(prev => ({ ...prev, step3: null }));
 
         // Step 5: Process ID Token and Search
         if (response.idToken) {
-          const tokenParts = response.idToken.split('.');
-          const payload = JSON.parse(atob(tokenParts[1]));
-          const identityContext = payload['sts:identity_context'];
-
-          const providedContexts = [{
-            ProviderArn: 'arn:aws:iam::aws:contextProvider/IdentityCenter',
-            ContextAssertion: identityContext
-          }];
-
-          // Second Role Assumption with Context
-          const assumeRoleCommand = new AssumeRoleCommand({
-            RoleArn: 'arn:aws:iam::820242917643:role/QIndexCrossAccountRole',
-            RoleSessionName: 'automated-session',
-            ProvidedContexts: providedContexts
-          });
-
-          const assumeRoleResponse = await stsClient.send(assumeRoleCommand);
-
-          // Update credentials with new ones
-          const credentials = {
-            accessKeyId: assumeRoleResponse.Credentials.AccessKeyId,
-            secretAccessKey: assumeRoleResponse.Credentials.SecretAccessKey,
-            sessionToken: assumeRoleResponse.Credentials.SessionToken,
-            expiration: new Date(assumeRoleResponse.Credentials.Expiration)
-          };
-          setSTSCredentials(credentials);
-
-          const qbusinessClient = new QBusinessClient({
-            region: formData.applicationRegion,
-            credentials: credentials
-          });
-
-          const searchCommand = new SearchRelevantContentCommand({
-            applicationId: formData.qBusinessAppId,
-            queryText: "List of connectos for Amazon Q Business",
-            contentSource: {
-              retriever: {
-                retrieverId: formData.retrieverId
-              }
-            }
-          });
-
           try {
-            const searchResponse = await qbusinessClient.send(searchCommand);
-            console.log('Search Response:', searchResponse);
-            setSearchResults(searchResponse);
+            const tokenParts = response.idToken.split('.');
+            const payload = JSON.parse(atob(tokenParts[1]));
+            const identityContext = payload['sts:identity_context'];
+
+            const providedContexts = [{
+              ProviderArn: 'arn:aws:iam::aws:contextProvider/IdentityCenter',
+              ContextAssertion: identityContext
+            }];
+
+            // Second Role Assumption with Context
+            const assumeRoleCommand = new AssumeRoleCommand({
+              RoleArn: 'arn:aws:iam::820242917643:role/QIndexCrossAccountRole',
+              RoleSessionName: 'automated-session',
+              ProvidedContexts: providedContexts
+            });
+
+            const assumeRoleResponse = await stsClient.send(assumeRoleCommand);
+
+            // Update credentials with new ones
+            const credentials = {
+              accessKeyId: assumeRoleResponse.Credentials.AccessKeyId,
+              secretAccessKey: assumeRoleResponse.Credentials.SecretAccessKey,
+              sessionToken: assumeRoleResponse.Credentials.SessionToken,
+              expiration: new Date(assumeRoleResponse.Credentials.Expiration)
+            };
+            setSTSCredentials(credentials);
+
+            const qbusinessClient = new QBusinessClient({
+              region: formData.applicationRegion,
+              credentials: credentials
+            });
+
+            const searchCommand = new SearchRelevantContentCommand({
+              applicationId: formData.qBusinessAppId,
+              queryText: "List of connectos for Amazon Q Business",
+              contentSource: {
+                retriever: {
+                  retrieverId: formData.retrieverId
+                }
+              }
+            });
+
+            try {
+              const searchResponse = await qbusinessClient.send(searchCommand);
+              setSearchResults(searchResponse);
+              setErrors(prev => ({ ...prev, step5: null }));
+            } catch (error) {
+              setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
+            }
           } catch (error) {
-            console.error('Error searching content:', error);
+            setErrors(prev => ({ ...prev, step5: `Error processing token: ${error.message}` }));
           }
         }
       } catch (error) {
-        console.error('Error getting ID token:', error);
+        setErrors(prev => ({ ...prev, step3: `Error getting ID token: ${error.message}` }));
       }
     };
 
@@ -175,7 +186,7 @@ function App() {
         setFormData(decodedState);
         localStorage.setItem('formData', JSON.stringify(decodedState));
       } catch (error) {
-        console.error('Error decoding state:', error);
+        setErrors(prev => ({ ...prev, step2: `Error decoding state: ${error.message}` }));
       }
     }
   }, [formData.iamIdcRegion, formData.idcApplicationArn, formData.applicationRegion, formData.qBusinessAppId, formData.retrieverId]);
@@ -197,7 +208,10 @@ function App() {
     const emptyFields = requiredFields.filter(field => !formData[field]);
     
     if (emptyFields.length > 0) {
-      alert('Please fill in all required fields before proceeding.');
+      setErrors(prev => ({
+        ...prev,
+        step1: `Required fields missing: ${emptyFields.join(', ')}`
+      }));
       return;
     }
 
@@ -241,10 +255,11 @@ function App() {
           </div>
           <div className="progress-line"></div>
         </div>
-  
+
         {!code ? (
           <div className="step-form-container">
             <h3>Step 1: Enter Configuration Details</h3>
+            {errors.step1 && <div className="error-message">{errors.step1}</div>}
             <form onSubmit={handleSubmit} className="auth-form">
               <div className="input-group">
                 <input
@@ -306,6 +321,7 @@ function App() {
             <div className="process-flow">
               <div className="process-step">
                 <h3>Step 2: OIDC Authentication</h3>
+                {errors.step2 && <div className="error-message">{errors.step2}</div>}
                 <div className="step-content">
                   <div className="status-indicator status-complete">
                     Authentication Complete
@@ -313,9 +329,10 @@ function App() {
                   <p className="code-text">Auth Code: {code}</p>
                 </div>
               </div>
-  
+
               <div className="process-step">
                 <h3>Step 3: IDC Token Generation</h3>
+                {errors.step3 && <div className="error-message">{errors.step3}</div>}
                 <div className="step-content">
                   {idToken ? (
                     <>
@@ -338,9 +355,10 @@ function App() {
                   )}
                 </div>
               </div>
-  
+
               <div className="process-step">
                 <h3>Step 4: STS Temporary Credentials</h3>
+                {errors.step4 && <div className="error-message">{errors.step4}</div>}
                 <div className="step-content">
                   {stsCredentials ? (
                     <>
@@ -404,21 +422,19 @@ function App() {
                   )}
                 </div>
               </div>
-  
+
               <div className="process-step">
-                <h3>Step 5: Search Results</h3>
+                <h3>Step 5: SearchRelevantContent API</h3>
+                {errors.step5 && <div className="error-message">{errors.step5}</div>}
                 <div className="step-content">
-                  {/* Add new search form */}
                   <div className="search-form">
                     <form onSubmit={async (e) => {
                       e.preventDefault();
                       const queryText = e.target.queryText.value;
-                      
                       const qbusinessClient = new QBusinessClient({
                         region: formData.applicationRegion,
                         credentials: stsCredentials
                       });
-  
                       const searchCommand = new SearchRelevantContentCommand({
                         applicationId: formData.qBusinessAppId,
                         queryText: queryText,
@@ -428,12 +444,12 @@ function App() {
                           }
                         }
                       });
-  
                       try {
                         const searchResponse = await qbusinessClient.send(searchCommand);
                         setSearchResults(searchResponse);
+                        setErrors(prev => ({ ...prev, step5: null }));
                       } catch (error) {
-                        console.error('Error searching content:', error);
+                        setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
                       }
                     }}>
                       <div className="search-input-group">
@@ -449,46 +465,45 @@ function App() {
                       </div>
                     </form>
                   </div>
-  
                   {searchResults ? (
-                  <>
-                    <div className="status-indicator status-complete">
-                      Search Complete
-                    </div>
-                    <div className="search-results">
-                      {searchResults.relevantContent ? (
-                        <div className="results-container">
-                          {searchResults.relevantContent.map((item, index) => (
-                            <div key={index} className="result-item">
-                              <h4>{item.documentTitle}</h4>
-                              <p><strong>URI:</strong> <a href={item.documentUri} target="_blank" rel="noopener noreferrer">{item.documentUri}</a></p>
-                              <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
-                              <div className="content-preview">
-                                <strong>Content:</strong>
-                                <p>{item.content.substring(0, 200)}...</p>
+                    <>
+                      <div className="status-indicator status-complete">
+                        Search Complete
+                      </div>
+                      <div className="search-results">
+                        {searchResults.relevantContent ? (
+                          <div className="results-container">
+                            {searchResults.relevantContent.map((item, index) => (
+                              <div key={index} className="result-item">
+                                <h4>{item.documentTitle}</h4>
+                                <p><strong>URI:</strong> <a href={item.documentUri} target="_blank" rel="noopener noreferrer">{item.documentUri}</a></p>
+                                <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
+                                <div className="content-preview">
+                                  <strong>Content:</strong>
+                                  <p>{item.content.substring(0, 200)}...</p>
+                                </div>
+                                <hr />
                               </div>
-                              <hr />
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <pre>{JSON.stringify(searchResults, null, 2)}</pre>
-                      )}
+                            ))}
+                          </div>
+                        ) : (
+                          <pre>{JSON.stringify(searchResults, null, 2)}</pre>
+                        )}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="status-indicator status-pending">
+                      Searching...
                     </div>
-                  </>
-                ) : (
-                  <div className="status-indicator status-pending">
-                    Searching...
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </header>
-  </div>
-);
+        )}
+      </header>
+    </div>
+  );
 }
 
 export default App;
