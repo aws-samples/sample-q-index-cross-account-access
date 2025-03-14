@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import { SSOOIDCClient, CreateTokenWithIAMCommand } from "@aws-sdk/client-sso-oidc";
 import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
-import { QBusinessClient, SearchRelevantContentCommand } from "@aws-sdk/client-qbusiness"; 
+import { QBusinessClient, SearchRelevantContentCommand } from "@aws-sdk/client-qbusiness";
 
 function App() {
   const [formData, setFormData] = useState(() => {
@@ -18,6 +18,7 @@ function App() {
 
   const [code, setCode] = useState(null);
   const [idToken, setIdToken] = useState(null);
+  const [searchResults, setSearchResults] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -73,13 +74,11 @@ function App() {
           const identityContext = payload['sts:identity_context'];
           console.log('Identity Context:', identityContext);
 
-          // Add the provided contexts
           const providedContexts = [{
             ProviderArn: 'arn:aws:iam::aws:contextProvider/IdentityCenter',
             ContextAssertion: identityContext
           }];
 
-          // Assume role with the provided contexts
           const assumeRoleCommand = new AssumeRoleCommand({
             RoleArn: 'arn:aws:iam::820242917643:role/QIndexCrossAccountRole',
             RoleSessionName: 'automated-session',
@@ -88,40 +87,36 @@ function App() {
 
           const assumeRoleResponse = await stsClient.send(assumeRoleCommand);
 
-          // Format credentials as JSON
           const credentials = {
             accessKeyId: assumeRoleResponse.Credentials.AccessKeyId,
             secretAccessKey: assumeRoleResponse.Credentials.SecretAccessKey,
             sessionToken: assumeRoleResponse.Credentials.SessionToken,
             expiration: new Date(assumeRoleResponse.Credentials.Expiration)
           };
-          console.log('Assumed Role - ',credentials);
+          console.log('Assumed Role - ', credentials);
 
-          // After successful assume role response, create Q Business client 
-          const qbusinessClient = new QBusinessClient({ 
-            region: formData.applicationRegion, 
+          const qbusinessClient = new QBusinessClient({
+            region: formData.applicationRegion,
             credentials: credentials
-          }); 
-            
-          // Create and send the search command 
-          const searchCommand = new SearchRelevantContentCommand({ 
-            applicationId: formData.qBusinessAppId, 
-            queryText: "What is Amazon Q?", 
-            contentSource: { 
-              retriever: { 
-                retrieverId: formData.retrieverId
-              } 
-            } 
-          }); 
-            
-          try { 
-            const searchResponse = await qbusinessClient.send(searchCommand); 
-            console.log('Search Response:', searchResponse); 
-            // Handle the search results as needed 
-          } catch (error) { 
-            console.error('Error searching content:', error); 
-          } 
+          });
 
+          const searchCommand = new SearchRelevantContentCommand({
+            applicationId: formData.qBusinessAppId,
+            queryText: "What is Amazon Q?",
+            contentSource: {
+              retriever: {
+                retrieverId: formData.retrieverId
+              }
+            }
+          });
+
+          try {
+            const searchResponse = await qbusinessClient.send(searchCommand);
+            console.log('Search Response:', searchResponse);
+            setSearchResults(searchResponse);
+          } catch (error) {
+            console.error('Error searching content:', error);
+          }
         }
       } catch (error) {
         console.error('Error getting ID token:', error);
@@ -177,11 +172,10 @@ function App() {
             <div className="success-message">
               <h2>✅ Authentication Successful!</h2>
               <p className="code-text">Auth Code: {code}</p>
-              
               {idToken && (
                 <div className="token-container">
                   <p className="token-text">ID Token received!</p>
-                  <textarea 
+                  <textarea
                     readOnly
                     value={idToken}
                     className="token-display"
@@ -203,6 +197,27 @@ function App() {
                 <p>Application Region: {formData.applicationRegion}</p>
                 <p>IAM IDC Region: {formData.iamIdcRegion}</p>
               </div>
+
+              {searchResults && (
+                <div className="search-results">
+                  <h3>Search Results</h3>
+                  <div className="results-container">
+                    {searchResults.relevantContent.map((content, index) => (
+                      <div key={index} className="result-item">
+                        <h4>Result {index + 1}</h4>
+                        <p><strong>Content:</strong> {content.content}</p>
+                        <p><strong>Score:</strong> {content.score}</p>
+                        {content.metadata && (
+                          <div className="metadata">
+                            <p><strong>Metadata:</strong></p>
+                            <pre>{JSON.stringify(content.metadata, null, 2)}</pre>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -249,16 +264,16 @@ function App() {
                   className="form-input"
                 />
               </div>
-              <div className="input-group"> 
-                <input 
-                  type="text" 
-                  name="retrieverId" 
-                  value={formData.retrieverId} 
-                  onChange={handleInputChange} 
-                  placeholder="Retriever ID" 
-                  className="form-input" 
-                /> 
-              </div> 
+              <div className="input-group">
+                <input
+                  type="text"
+                  name="retrieverId"
+                  value={formData.retrieverId}
+                  onChange={handleInputChange}
+                  placeholder="Retriever ID"
+                  className="form-input"
+                />
+              </div>
               <button type="submit" className="submit-button">
                 Authorize
               </button>
