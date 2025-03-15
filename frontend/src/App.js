@@ -259,15 +259,33 @@ function App() {
         {!code ? (
           <div className="step-form-container">
             <h3>Step 1: Enter Configuration Details</h3>
+            <div className="form-header">
+              <div className="tooltip-container">
+                <span className="tooltip-icon">ℹ️</span>
+                <div className="tooltip-content">
+                  <h4>Where to find these values?</h4>
+                  <ul>
+                    <li><strong>Amazon Q Business application ID:</strong> Unique identifier of the Amazon Q Business application environment</li>
+                    <li><strong>Amazon Q Business application Region:</strong> AWS Region where the Amazon Q Business application environment is created</li>
+                    <li><strong>Amazon Q Business retriever ID:</strong> Unique identifier for the retriever that gets data from the Amazon Q index</li>
+                    <li><strong>Data accessor application ARN:</strong> ISV Amazon Resource Name (ARN) used to identify the ISV</li>
+                    <li><strong>IAM Identity Center Region:</strong> AWS Region where the IDC instance of the customer has been created</li>
+                  </ul>
+                  <a href="https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv-accessing-cross-account.html" target="_blank" rel="noopener noreferrer">
+                    Learn more →
+                  </a>
+                </div>
+              </div>
+            </div>
             {errors.step1 && <div className="error-message">{errors.step1}</div>}
             <form onSubmit={handleSubmit} className="auth-form">
               <div className="input-group">
                 <input
                   type="text"
-                  name="idcApplicationArn"
-                  value={formData.idcApplicationArn}
+                  name="qBusinessAppId"
+                  value={formData.qBusinessAppId}
                   onChange={handleInputChange}
-                  placeholder="IDC Application ARN"
+                  placeholder="Amazon Q Business application ID"
                   className="form-input"
                 />
               </div>
@@ -277,27 +295,7 @@ function App() {
                   name="applicationRegion"
                   value={formData.applicationRegion}
                   onChange={handleInputChange}
-                  placeholder="Amazon Q Business application region"
-                  className="form-input"
-                />
-              </div>
-              <div className="input-group">
-                <input
-                  type="text"
-                  name="iamIdcRegion"
-                  value={formData.iamIdcRegion}
-                  onChange={handleInputChange}
-                  placeholder="IAM IDC region"
-                  className="form-input"
-                />
-              </div>
-              <div className="input-group">
-                <input
-                  type="text"
-                  name="qBusinessAppId"
-                  value={formData.qBusinessAppId}
-                  onChange={handleInputChange}
-                  placeholder="Q Business Application ID"
+                  placeholder="Amazon Q Business application Region"
                   className="form-input"
                 />
               </div>
@@ -307,7 +305,27 @@ function App() {
                   name="retrieverId"
                   value={formData.retrieverId}
                   onChange={handleInputChange}
-                  placeholder="Retriever ID"
+                  placeholder="Amazon Q Business retriever ID"
+                  className="form-input"
+                />
+              </div>
+              <div className="input-group">
+                <input
+                  type="text"
+                  name="idcApplicationArn"
+                  value={formData.idcApplicationArn}
+                  onChange={handleInputChange}
+                  placeholder="Data accessor application ARN"
+                  className="form-input"
+                />
+              </div>
+              <div className="input-group">
+                <input
+                  type="text"
+                  name="iamIdcRegion"
+                  value={formData.iamIdcRegion}
+                  onChange={handleInputChange}
+                  placeholder="Region for the IAM Identity Center instance"
                   className="form-input"
                 />
               </div>
