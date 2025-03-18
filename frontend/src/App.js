@@ -14,7 +14,8 @@ function App() {
       applicationRegion: '',
       iamIdcRegion: '',
       retrieverId: '',
-      qBusinessAppId: ''
+      qBusinessAppId: '',
+      iamRole: '' 
     };
   });
 
@@ -72,7 +73,7 @@ function App() {
         let assumeRoleResponse;
         try {
           const assumeRoleCommand = new AssumeRoleCommand({
-            RoleArn: 'arn:aws:iam::820242917643:role/QIndexCrossAccountRole',
+            RoleArn: formData.iamRole,
             RoleSessionName: 'automated-session'
           });
           assumeRoleResponse = await stsClient.send(assumeRoleCommand);
@@ -127,7 +128,7 @@ function App() {
 
             // Second Role Assumption with Context
             const assumeRoleCommand = new AssumeRoleCommand({
-              RoleArn: 'arn:aws:iam::820242917643:role/QIndexCrossAccountRole',
+              RoleArn: formData.iamRole,
               RoleSessionName: 'automated-session',
               ProvidedContexts: providedContexts
             });
@@ -189,7 +190,7 @@ function App() {
         setErrors(prev => ({ ...prev, step2: `Error decoding state: ${error.message}` }));
       }
     }
-  }, [formData.iamIdcRegion, formData.idcApplicationArn, formData.applicationRegion, formData.qBusinessAppId, formData.retrieverId]);
+  }, [formData.iamIdcRegion, formData.idcApplicationArn, formData.applicationRegion, formData.qBusinessAppId, formData.retrieverId, formData.iamRole]);
 
   const handleInputChange = (e) => {
     const newFormData = {
@@ -204,7 +205,7 @@ function App() {
     e.preventDefault();
 
     // Check if all required fields are filled
-    const requiredFields = ['idcApplicationArn', 'applicationRegion', 'iamIdcRegion', 'qBusinessAppId', 'retrieverId'];
+    const requiredFields = ['idcApplicationArn', 'applicationRegion', 'iamIdcRegion', 'qBusinessAppId', 'retrieverId', 'iamRole'];
     const emptyFields = requiredFields.filter(field => !formData[field]);
     
     if (emptyFields.length > 0) {
@@ -265,6 +266,7 @@ function App() {
                 <div className="tooltip-content">
                   <h4>Where to find these values?</h4>
                   <ul>
+                    <li><strong>IAM Role ARN:</strong> Provided by the ISV for cross-account access</li>
                     <li><strong>Amazon Q Business application ID:</strong> Unique identifier of the Amazon Q Business application environment</li>
                     <li><strong>Amazon Q Business application Region:</strong> AWS Region where the Amazon Q Business application environment is created</li>
                     <li><strong>Amazon Q Business retriever ID:</strong> Unique identifier for the retriever that gets data from the Amazon Q index</li>
@@ -279,56 +281,75 @@ function App() {
             </div>
             {errors.step1 && <div className="error-message">{errors.step1}</div>}
             <form onSubmit={handleSubmit} className="auth-form">
-              <div className="input-group">
-                <input
-                  type="text"
-                  name="qBusinessAppId"
-                  value={formData.qBusinessAppId}
-                  onChange={handleInputChange}
-                  placeholder="Amazon Q Business application ID"
-                  className="form-input"
-                />
+              <div className="form-section">
+                <h4>ISV Provided Details</h4>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="iamRole"
+                    value={formData.iamRole}
+                    onChange={handleInputChange}
+                    placeholder="IAM Role ARN"
+                    className="form-input"
+                  />
+                </div>
               </div>
-              <div className="input-group">
-                <input
-                  type="text"
-                  name="applicationRegion"
-                  value={formData.applicationRegion}
-                  onChange={handleInputChange}
-                  placeholder="Amazon Q Business application Region"
-                  className="form-input"
-                />
+
+              {/* Enterprise Customer Provided Section */}
+              <div className="form-section">
+                <h4>Enterprise Customer Provided Details</h4>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="qBusinessAppId"
+                    value={formData.qBusinessAppId}
+                    onChange={handleInputChange}
+                    placeholder="Amazon Q Business application ID"
+                    className="form-input"
+                  />
+                </div>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="applicationRegion"
+                    value={formData.applicationRegion}
+                    onChange={handleInputChange}
+                    placeholder="Amazon Q Business application Region"
+                    className="form-input"
+                  />
+                </div>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="retrieverId"
+                    value={formData.retrieverId}
+                    onChange={handleInputChange}
+                    placeholder="Amazon Q Business retriever ID"
+                    className="form-input"
+                  />
+                </div>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="idcApplicationArn"
+                    value={formData.idcApplicationArn}
+                    onChange={handleInputChange}
+                    placeholder="Data accessor application ARN"
+                    className="form-input"
+                  />
+                </div>
+                <div className="input-group">
+                  <input
+                    type="text"
+                    name="iamIdcRegion"
+                    value={formData.iamIdcRegion}
+                    onChange={handleInputChange}
+                    placeholder="Region for the IAM Identity Center instance"
+                    className="form-input"
+                  />
+                </div>
               </div>
-              <div className="input-group">
-                <input
-                  type="text"
-                  name="retrieverId"
-                  value={formData.retrieverId}
-                  onChange={handleInputChange}
-                  placeholder="Amazon Q Business retriever ID"
-                  className="form-input"
-                />
-              </div>
-              <div className="input-group">
-                <input
-                  type="text"
-                  name="idcApplicationArn"
-                  value={formData.idcApplicationArn}
-                  onChange={handleInputChange}
-                  placeholder="Data accessor application ARN"
-                  className="form-input"
-                />
-              </div>
-              <div className="input-group">
-                <input
-                  type="text"
-                  name="iamIdcRegion"
-                  value={formData.iamIdcRegion}
-                  onChange={handleInputChange}
-                  placeholder="Region for the IAM Identity Center instance"
-                  className="form-input"
-                />
-              </div>
+
               <button type="submit" className="submit-button">
                 Authorize
               </button>
