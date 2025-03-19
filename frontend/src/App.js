@@ -8,6 +8,14 @@ import { QBusinessClient, SearchRelevantContentCommand } from "@aws-sdk/client-q
 function App() {
     // 2. State Management
     const [currentStep, setCurrentStep] = useState(1);
+    const [minimizedSteps, setMinimizedSteps] = useState({
+        step1: false,
+        step2: false,
+        step3: false,
+        step4: false,
+        step5: false
+    });
+
     const [formData, setFormData] = useState(() => {
         const savedData = localStorage.getItem('formData');
         return savedData ? JSON.parse(savedData) : {
@@ -32,6 +40,14 @@ function App() {
         step4: null,
         step5: null
     });
+
+    // Toggle minimize function
+    const toggleMinimize = (step) => {
+        setMinimizedSteps(prev => ({
+        ...prev,
+        [step]: !prev[step]
+        }));
+    };
 
     // 3. Step Progress Effects
     useEffect(() => {
@@ -144,7 +160,7 @@ function App() {
 
                         const searchCommand = new SearchRelevantContentCommand({
                             applicationId: formData.qBusinessAppId,
-                            queryText: "List of connectos for Amazon Q Business",
+                            queryText: "Tell me status of project x",
                             contentSource: {
                                 retriever: {
                                     retrieverId: formData.retrieverId
@@ -359,185 +375,230 @@ function App() {
                 ) : (
                     <div className="success-container">
                         <div className="process-flow">
+                            {/* Step 2: OIDC Authentication */}
                             <div className="process-step">
-                                <h3>Step 2: OIDC Authentication</h3>
-                                {errors.step2 && <div className="error-message">{errors.step2}</div>}
+                                <div className="step-header">
+                                    <h3>Step 2: OIDC Authentication</h3>
+                                    <button 
+                                        className="minimize-button"
+                                        onClick={() => toggleMinimize('step2')}
+                                    >
+                                        {minimizedSteps.step2 ? '▼' : '▲'}
+                                    </button>
+                                </div>
+                                {!minimizedSteps.step2 && (
                                 <div className="step-content">
+                                    {errors.step2 && <div className="error-message">{errors.step2}</div>}
                                     <div className="status-indicator status-complete">
-                                        Authentication Complete
+                                    Authentication Complete
                                     </div>
                                     <p className="code-text">Auth Code: {code}</p>
                                 </div>
+                                )}
                             </div>
 
+                            {/* Step 3: IDC Token Generation */}
                             <div className="process-step">
-                                <h3>Step 3: IDC Token Generation</h3>
-                                {errors.step3 && <div className="error-message">{errors.step3}</div>}
-                                <div className="step-content">
+                                <div className="step-header">
+                                    <h3>Step 3: IDC Token Generation</h3>
+                                    <button 
+                                    className="minimize-button"
+                                    onClick={() => toggleMinimize('step3')}
+                                    >
+                                    {minimizedSteps.step3 ? '▼' : '▲'}
+                                    </button>
+                                </div>
+                                {!minimizedSteps.step3 && (
+                                    <div className="step-content">
+                                    {errors.step3 && <div className="error-message">{errors.step3}</div>}
                                     {idToken ? (
                                         <>
-                                            <div className="status-indicator status-complete">
-                                                Token Generated
-                                            </div>
-                                            <div className="token-container">
-                                                <textarea
-                                                    readOnly
-                                                    value={idToken}
-                                                    className="token-display"
-                                                    rows={4}
-                                                />
-                                            </div>
+                                        <div className="status-indicator status-complete">
+                                            Token Generated
+                                        </div>
+                                        <div className="token-container">
+                                            <textarea
+                                            readOnly
+                                            value={idToken}
+                                            className="token-display"
+                                            rows={4}
+                                            />
+                                        </div>
                                         </>
                                     ) : (
                                         <div className="status-indicator status-pending">
-                                            Generating Token...
+                                        Generating Token...
                                         </div>
                                     )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
 
+                            {/* Step 4: STS Temporary Credentials */}
                             <div className="process-step">
-                                <h3>Step 4: STS Temporary Credentials</h3>
-                                {errors.step4 && <div className="error-message">{errors.step4}</div>}
-                                <div className="step-content">
+                                <div className="step-header">
+                                    <h3>Step 4: STS Temporary Credentials</h3>
+                                    <button 
+                                    className="minimize-button"
+                                    onClick={() => toggleMinimize('step4')}
+                                    >
+                                    {minimizedSteps.step4 ? '▼' : '▲'}
+                                    </button>
+                                </div>
+                                {!minimizedSteps.step4 && (
+                                    <div className="step-content">
+                                    {errors.step4 && <div className="error-message">{errors.step4}</div>}
                                     {stsCredentials ? (
                                         <>
-                                            <div className="status-indicator status-complete">
-                                                Credentials Obtained
+                                        <div className="status-indicator status-complete">
+                                            Credentials Obtained
+                                        </div>
+                                        <div className="credentials-container">
+                                            <div className="credentials-details">
+                                            <div className="credential-item">
+                                                <label>Access Key ID:</label>
+                                                <input
+                                                type="text"
+                                                readOnly
+                                                value={stsCredentials.accessKeyId}
+                                                className="credential-display"
+                                                />
                                             </div>
-                                            <div className="credentials-container">
-                                                <div className="credentials-details">
-                                                    <div className="credential-item">
-                                                        <label>Access Key ID:</label>
-                                                        <input
-                                                            type="text"
-                                                            readOnly
-                                                            value={stsCredentials.accessKeyId}
-                                                            className="credential-display"
-                                                        />
-                                                    </div>
-                                                    <div className="credential-item">
-                                                        <label>Secret Access Key:</label>
-                                                        <input
-                                                            type="password"
-                                                            readOnly
-                                                            value={stsCredentials.secretAccessKey}
-                                                            className="credential-display"
-                                                        />
-                                                        <button
-                                                            className="toggle-visibility"
-                                                            onClick={(e) => {
-                                                                const input = e.target.previousSibling;
-                                                                input.type = input.type === 'password' ? 'text' : 'password';
-                                                            }}
-                                                        >
-                                                            👁️
-                                                        </button>
-                                                    </div>
-                                                    <div className="credential-item">
-                                                        <label>Session Token:</label>
-                                                        <textarea
-                                                            readOnly
-                                                            value={stsCredentials.sessionToken}
-                                                            className="credential-display token-area"
-                                                            rows={3}
-                                                        />
-                                                    </div>
-                                                    <div className="credential-item">
-                                                        <label>Expiration:</label>
-                                                        <input
-                                                            type="text"
-                                                            readOnly
-                                                            value={stsCredentials.expiration.toLocaleString()}
-                                                            className="credential-display"
-                                                        />
-                                                    </div>
-                                                </div>
+                                            <div className="credential-item">
+                                                <label>Secret Access Key:</label>
+                                                <input
+                                                type="password"
+                                                readOnly
+                                                value={stsCredentials.secretAccessKey}
+                                                className="credential-display"
+                                                />
+                                                <button
+                                                className="toggle-visibility"
+                                                onClick={(e) => {
+                                                    const input = e.target.previousSibling;
+                                                    input.type = input.type === 'password' ? 'text' : 'password';
+                                                }}
+                                                >
+                                                👁️
+                                                </button>
                                             </div>
+                                            <div className="credential-item">
+                                                <label>Session Token:</label>
+                                                <textarea
+                                                readOnly
+                                                value={stsCredentials.sessionToken}
+                                                className="credential-display token-area"
+                                                rows={3}
+                                                />
+                                            </div>
+                                            <div className="credential-item">
+                                                <label>Expiration:</label>
+                                                <input
+                                                type="text"
+                                                readOnly
+                                                value={stsCredentials.expiration.toLocaleString()}
+                                                className="credential-display"
+                                                />
+                                            </div>
+                                            </div>
+                                        </div>
                                         </>
                                     ) : (
                                         <div className="status-indicator status-pending">
-                                            Obtaining Credentials...
+                                        Obtaining Credentials...
                                         </div>
                                     )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
 
+                            {/* Step 5: SearchRelevantContent API */}
                             <div className="process-step">
-                                <h3>Step 5: SearchRelevantContent API</h3>
-                                {errors.step5 && <div className="error-message">{errors.step5}</div>}
-                                <div className="step-content">
+                                <div className="step-header">
+                                    <h3>Step 5: SearchRelevantContent API</h3>
+                                    <button 
+                                    className="minimize-button"
+                                    onClick={() => toggleMinimize('step5')}
+                                    >
+                                    {minimizedSteps.step5 ? '▼' : '▲'}
+                                    </button>
+                                </div>
+                                {!minimizedSteps.step5 && (
+                                    <div className="step-content">
+                                    {errors.step5 && <div className="error-message">{errors.step5}</div>}
                                     <div className="search-form">
                                         <form onSubmit={async (e) => {
-                                            e.preventDefault();
-                                            const queryText = e.target.queryText.value;
-                                            const qbusinessClient = new QBusinessClient({
-                                                region: formData.applicationRegion,
-                                                credentials: stsCredentials
-                                            });
-                                            const searchCommand = new SearchRelevantContentCommand({
-                                                applicationId: formData.qBusinessAppId,
-                                                queryText: queryText,
-                                                contentSource: {
-                                                    retriever: {
-                                                        retrieverId: formData.retrieverId
-                                                    }
-                                                }
-                                            });
-                                            try {
-                                                const searchResponse = await qbusinessClient.send(searchCommand);
-                                                setSearchResults(searchResponse);
-                                                setErrors(prev => ({ ...prev, step5: null }));
-                                            } catch (error) {
-                                                setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
+                                        e.preventDefault();
+                                        const queryText = e.target.queryText.value;
+                                        const qbusinessClient = new QBusinessClient({
+                                            region: formData.applicationRegion,
+                                            credentials: stsCredentials
+                                        });
+                                        const searchCommand = new SearchRelevantContentCommand({
+                                            applicationId: formData.qBusinessAppId,
+                                            queryText: queryText,
+                                            contentSource: {
+                                            retriever: {
+                                                retrieverId: formData.retrieverId
                                             }
+                                            }
+                                        });
+                                        try {
+                                            const searchResponse = await qbusinessClient.send(searchCommand);
+                                            setSearchResults(searchResponse);
+                                            setErrors(prev => ({ ...prev, step5: null }));
+                                        } catch (error) {
+                                            setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
+                                        }
                                         }}>
-                                            <div className="search-input-group">
-                                                <input
-                                                    type="text"
-                                                    name="queryText"
-                                                    placeholder="Enter your search query"
-                                                    className="search-input"
-                                                />
-                                                <button type="submit" className="search-button">
-                                                    Search
-                                                </button>
-                                            </div>
+                                        <div className="search-input-group">
+                                            <input
+                                            type="text"
+                                            name="queryText"
+                                            placeholder="Enter your search query"
+                                            className="search-input"
+                                            />
+                                            <button type="submit" className="search-button">
+                                            Search
+                                            </button>
+                                        </div>
                                         </form>
                                     </div>
                                     {searchResults ? (
                                         <>
-                                            <div className="status-indicator status-complete">
-                                                Search Complete
-                                            </div>
-                                            <div className="search-results">
-                                                {searchResults.relevantContent ? (
-                                                    <div className="results-container">
-                                                        {searchResults.relevantContent.map((item, index) => (
-                                                            <div key={index} className="result-item">
-                                                                <h4>{item.documentTitle}</h4>
-                                                                <p><strong>URI:</strong> <a href={item.documentUri} target="_blank" rel="noopener noreferrer">{item.documentUri}</a></p>
-                                                                <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
-                                                                <div className="content-preview">
-                                                                    <strong>Content:</strong>
-                                                                    <p>{item.content.substring(0, 200)}...</p>
-                                                                </div>
-                                                                <hr />
-                                                            </div>
-                                                        ))}
+                                        <div className="status-indicator status-complete">
+                                            Search Complete
+                                        </div>
+                                        <div className="search-results">
+                                            {searchResults.relevantContent ? (
+                                            <div className="results-container">
+                                                {searchResults.relevantContent.map((item, index) => (
+                                                <div key={index} className="result-item">
+                                                    <h4>{item.documentTitle}</h4>
+                                                    <p><strong>URI:</strong> <a href={item.documentUri} target="_blank" rel="noopener noreferrer">{item.documentUri}</a></p>
+                                                    <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
+                                                    <div className="content-preview">
+                                                    <strong>Content:</strong>
+                                                    <p>{item.content.substring(0, 200)}...</p>
                                                     </div>
-                                                ) : (
-                                                    <pre>{JSON.stringify(searchResults, null, 2)}</pre>
-                                                )}
+                                                    <hr />
+                                                </div>
+                                                ))}
                                             </div>
+                                            ) : (
+                                            <pre>{JSON.stringify(searchResults, null, 2)}</pre>
+                                            )}
+                                        </div>
                                         </>
                                     ) : (
                                         <div className="status-indicator status-pending">
-                                            Searching...
+                                        Searching...
                                         </div>
                                     )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
+
                         </div>
                     </div>
                 )}
@@ -547,3 +608,4 @@ function App() {
 }
 
 export default App;
+

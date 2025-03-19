@@ -1,4 +1,4 @@
-# Cross-Account Data Retrieval Tester for Amazon Q Business
+# Cross-Account Data Retrieval Tester for Amazon Q index
 
 ## Overview
 

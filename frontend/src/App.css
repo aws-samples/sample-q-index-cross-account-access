@@ -130,7 +130,11 @@
 .process-step {
   background-color: #363a43;
   padding: 20px;
-  border-radius: 8px;
+  border: 1px solid #363a43;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  padding: 20px;
+  overflow: hidden;
 }
 
 .step-content {
@@ -484,4 +488,32 @@
   margin-bottom: 15px;
   color: #333;
   font-size: 1.1em;
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  /* background-color: #f8f9fa; */
+  border-bottom: 1px solid #dee2e6;
+}
+
+.minimize-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  padding: 5px 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.minimize-button:hover {
+  background-color: #e9ecef;
+}
+
+.step-content {
+  padding: 15px;
 }
