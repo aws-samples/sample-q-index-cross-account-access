@@ -579,7 +579,7 @@ function App() {
                                                     <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
                                                     <div className="content-preview">
                                                     <strong>Content:</strong>
-                                                    <p>{item.content.substring(0, 200)}...</p>
+                                                    <p>{item.content.substring(0, 700)}...</p>
                                                     </div>
                                                     <hr />
                                                 </div>

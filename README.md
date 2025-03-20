@@ -2,16 +2,14 @@
 
 ## Overview
 
-This React application demonstrates cross-account data retrieval functionality for Amazon Q index for ISV using AWS IAM Identity Center authentication. The application implements a step-by-step process for authentication, token generation, and data retrieval.
+This CDK application demonstrates cross-account data retrieval functionality for Amazon Q index using AWS IAM Identity Center (IDC) authentication setup on Amazon Q Business. The application implements a step-by-step process for authentication, token generation, and data retrieval through Search Content Retrieval API.
+
+![Overall Architecture](assets/overall-architecture.png)
 
 ## Features
 
-Multi-step authentication flow
-AWS OIDC integration
-STS credential management
-Amazon Q Business data retrieval
-Persistent form data storage
-Interactive progress tracking
+- CDK deploys Cross-Account Data Retrieval Tester application in ISV environment which helps demonstrate the user authentication, token generation and credential retrieval to make Search Content Retrieval API call.
+- [optional] CDK helps deploy Amazon Q Business for 
 
 ## Prerequisites
 
