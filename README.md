@@ -9,14 +9,16 @@ This CDK application demonstrates cross-account data retrieval functionality for
 ## Features
 
 - CDK deploys Cross-Account Data Retrieval Tester application in ISV environment which helps demonstrate the user authentication, token generation and credential retrieval to make Search Content Retrieval API call.
-- [optional] CDK helps deploy Amazon Q Business for 
+- [optional] CDK helps deploy Amazon Q Business with assigned IAM IDC instance you prepared and ingests a sample data to test with. This step is not required with you have Amazon Q Business application already running with IAM IDC as access management.
 
 ## Prerequisites
 
-Node.js and npm installed
-AWS account with appropriate permissions
-Amazon Q Business application setup
-Required AWS credentials and configurations
+- Node (v18) and NPM (v8.19) installed and configured on your computer
+- AWS CLI (v2) installed and configured on your computer
+- AWS CDK (v2) installed and configured on your computer (if running CDK to deploy Amazon Q Business)
+
+- Two AWS Accounts (one acting as ISV, another acting as enterprise customer)
+- Data accessor registered for your ISV [see details on the process](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv-info-to-provide.html)
 
 ## Key Components
 
