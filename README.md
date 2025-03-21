@@ -55,6 +55,12 @@ This step assumes you already have IAM Identity Center (IDC) instance setup on y
 ```
 cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your IDC instance ARN>>
 ```
+To find your IDC instance ARN, go to AWS Management Console and navigate to IAM Identity Center > Settings
+![IDC Settings](assets/IDC-Setting.png)
+
+[!NOTE]
+If you are seeing CDK deployment errors, re-confirm IDC instance ARN is correct and your AWS credentials that you are using to deploy CDK is from AWS account on customer environment.
+
 4. Wait for all resources to be provisioned before continuing to the next step
 5. Navigate to Amazon Q Business application that was just created and click on `Manage user access`
 ![User Management](assets/qbusiness-user-management.png)
@@ -71,13 +77,13 @@ cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your 
 5. Once your data accessor is added, you will see the parameter details on the screen. Note these values as you will need these values in the next step
 ![Data Accessor Details](assets/data-accessor-setup3.png)
 
-### Frontend deployment on ISV environment on ISV environment
+### Frontend deployment on ISV environment
 
 These instructions assume you have completed all the prerequisites.
 
 1. Clone the solution to your computer (using `git clone`)
 
-2. Set AWS credentials
+2. Set AWS credentials of your AWS account for ISV environment
     - In your terminal, navigate to `cross-account-qindex-demo/frontend`
     - Create .env.local file by `vi .env.local` and enter environment variables in the following format
 ```

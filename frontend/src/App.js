@@ -6,7 +6,7 @@ import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import { QBusinessClient, SearchRelevantContentCommand } from "@aws-sdk/client-qbusiness";
 
 function App() {
-    // 2. State Management
+    // UI Step 1: Form Input Configuration - State Management
     const [currentStep, setCurrentStep] = useState(1);
     const [minimizedSteps, setMinimizedSteps] = useState({
         step1: false,
@@ -29,10 +29,13 @@ function App() {
         };
     });
 
-    const [code, setCode] = useState(null);
-    const [idToken, setIdToken] = useState(null);
-    const [searchResults, setSearchResults] = useState(null);
-    const [stsCredentials, setSTSCredentials] = useState(null);
+    // UI Steps 2-5: State Management for Authentication Flow
+    const [code, setCode] = useState(null);          // Step 2: OIDC Authentication
+    const [idToken, setIdToken] = useState(null);    // Step 3: IDC Token
+    const [searchResults, setSearchResults] = useState(null);  // Step 5: Search Results
+    const [stsCredentials, setSTSCredentials] = useState(null); // Step 4: STS Credentials
+
+    // Error State Management for All Steps
     const [errors, setErrors] = useState({
         step1: null,
         step2: null,
@@ -41,7 +44,7 @@ function App() {
         step5: null
     });
 
-    // Toggle minimize function
+    // UI Step Controls - Minimize/Maximize Step Displays
     const toggleMinimize = (step) => {
         setMinimizedSteps(prev => ({
         ...prev,
@@ -49,7 +52,7 @@ function App() {
         }));
     };
 
-    // 3. Step Progress Effects
+    // Step Progress Management
     useEffect(() => {
         if (code) setCurrentStep(2);
     }, [code]);
@@ -62,7 +65,7 @@ function App() {
         if (searchResults) setCurrentStep(5);
     }, [searchResults]);
 
-    // 4. Main Authentication Process
+    // UI Steps 2-5: Main Authentication Process
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const authCode = params.get('code');
@@ -70,7 +73,8 @@ function App() {
 
         const getIdToken = async (authCode) => {
             try {
-                // Initialize STS Client
+                // 1. Obtain STS Temporary Credentials (First Role Assumption)
+                // Initialize STS Client with IAM credentials
                 const stsClient = new STSClient({
                     region: formData.iamIdcRegion,
                     credentials: {
@@ -80,7 +84,7 @@ function App() {
                     }
                 });
 
-                // Step 4: Initial Role Assumption
+                // First role assumption to get temporary credentials
                 let assumeRoleResponse;
                 try {
                     const assumeRoleCommand = new AssumeRoleCommand({
@@ -91,6 +95,7 @@ function App() {
                     setCurrentStep(4);
                     setErrors(prev => ({ ...prev, step4: null }));
 
+                    // Store temporary credentials
                     setSTSCredentials({
                         accessKeyId: assumeRoleResponse.Credentials.AccessKeyId,
                         secretAccessKey: assumeRoleResponse.Credentials.SecretAccessKey,
@@ -102,7 +107,8 @@ function App() {
                     throw error;
                 }
 
-                // Create OIDC Client
+                // 2. Get IDC Token using Authorization Code
+                // Initialize OIDC client with temporary credentials
                 const client = new SSOOIDCClient({
                     region: formData.iamIdcRegion,
                     credentials: {
@@ -112,7 +118,7 @@ function App() {
                     }
                 });
 
-                // Get ID Token
+                // Exchange authorization code for ID token
                 const command = new CreateTokenWithIAMCommand({
                     clientId: formData.idcApplicationArn,
                     code: authCode,
@@ -124,9 +130,10 @@ function App() {
                 setIdToken(response.idToken);
                 setErrors(prev => ({ ...prev, step3: null }));
 
-                // Step 5: Process ID Token and Search
+                // 3. Process ID Token and Get Identity Context
                 if (response.idToken) {
                     try {
+                        // Extract identity context from ID token
                         const tokenParts = response.idToken.split('.');
                         const payload = JSON.parse(atob(tokenParts[1]));
                         const identityContext = payload['sts:identity_context'];
@@ -136,7 +143,7 @@ function App() {
                             ContextAssertion: identityContext
                         }];
 
-                        // Second Role Assumption with Context
+                        // 4. Second Role Assumption with Identity Context
                         const assumeRoleCommand = new AssumeRoleCommand({
                             RoleArn: formData.iamRole,
                             RoleSessionName: 'automated-session',
@@ -145,6 +152,7 @@ function App() {
 
                         const assumeRoleResponse = await stsClient.send(assumeRoleCommand);
 
+                        // Store new credentials with identity context
                         const credentials = {
                             accessKeyId: assumeRoleResponse.Credentials.AccessKeyId,
                             secretAccessKey: assumeRoleResponse.Credentials.SecretAccessKey,
@@ -153,11 +161,14 @@ function App() {
                         };
                         setSTSCredentials(credentials);
 
+                        // 5. Call SearchRelevantContent API
+                        // Initialize Q Business client with temporary credentials
                         const qbusinessClient = new QBusinessClient({
                             region: formData.applicationRegion,
                             credentials: credentials
                         });
 
+                        // Create and execute search command
                         const searchCommand = new SearchRelevantContentCommand({
                             applicationId: formData.qBusinessAppId,
                             queryText: "Tell me status of project x",
@@ -184,12 +195,14 @@ function App() {
             }
         };
 
+        // Get Authorization Code from URL and initiate token exchange
         if (authCode) {
             setCode(authCode);
             getIdToken(authCode);
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
+        // Process state parameter if present
         if (state) {
             try {
                 const decodedState = JSON.parse(atob(state));
@@ -199,9 +212,10 @@ function App() {
                 setErrors(prev => ({ ...prev, step2: `Error decoding state: ${error.message}` }));
             }
         }
-    }, [formData.iamIdcRegion, formData.idcApplicationArn, formData.applicationRegion, formData.qBusinessAppId, formData.retrieverId, formData.iamRole, formData.redirectUrl]);
+    }, [formData.iamIdcRegion, formData.idcApplicationArn, formData.applicationRegion, formData.qBusinessAppId, 
+        formData.retrieverId, formData.iamRole, formData.redirectUrl]);
 
-    // 5. Form Handling Functions
+    // UI Step 1: Form Input Handlers
     const handleInputChange = (e) => {
         const newFormData = {
             ...formData,
@@ -237,11 +251,13 @@ function App() {
         window.location.href = authUrl;
     };
 
-    // 6. UI Rendering
+    // UI Rendering
     return (
         <div className="App">
             <header className="App-header">
                 <h1 className="page-title">ISV - Cross-Account Data Retrieval Tester</h1>
+
+                {/* Progress Indicator for All Steps */}
                 <div className="step-indicator">
                     <div className={`step ${currentStep >= 1 ? 'active' : ''}`}>
                         <div className="step-number">1</div>
@@ -267,6 +283,7 @@ function App() {
                 </div>
 
                 {!code ? (
+                    // UI Step 1: Configuration Form Display
                     <div className="step-form-container">
                         <h3>Step 1: Enter Configuration Details</h3>
                         <div className="form-header">
@@ -373,9 +390,10 @@ function App() {
                         </form>
                     </div>
                 ) : (
+                    // UI Steps 2-5: Process Flow Display
                     <div className="success-container">
                         <div className="process-flow">
-                            {/* Step 2: OIDC Authentication */}
+                            {/* UI Step 2: OIDC Authentication Display */}
                             <div className="process-step">
                                 <div className="step-header">
                                     <h3>Step 2: OIDC Authentication</h3>
@@ -397,7 +415,7 @@ function App() {
                                 )}
                             </div>
 
-                            {/* Step 3: IDC Token Generation */}
+                            {/* UI Step 3: IDC Token Generation Display */}
                             <div className="process-step">
                                 <div className="step-header">
                                     <h3>Step 3: IDC Token Generation</h3>
@@ -434,7 +452,7 @@ function App() {
                                 )}
                             </div>
 
-                            {/* Step 4: STS Temporary Credentials */}
+                            {/* UI Step 4: STS Credentials Display */}
                             <div className="process-step">
                                 <div className="step-header">
                                     <h3>Step 4: STS Temporary Credentials</h3>
@@ -512,7 +530,7 @@ function App() {
                                 )}
                             </div>
 
-                            {/* Step 5: SearchRelevantContent API */}
+                            {/* UI Step 5: Search Functionality Display */}
                             <div className="process-step">
                                 <div className="step-header">
                                     <h3>Step 5: SearchRelevantContent API</h3>
