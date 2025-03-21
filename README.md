@@ -18,7 +18,7 @@ This CDK application demonstrates cross-account data retrieval functionality for
 - AWS CDK (v2) installed and configured on your computer (if running CDK to deploy Amazon Q Business)
 
 - Two AWS Accounts (one account as ISV, another account acting as enterprise customer)
-- Data accessor registered for your ISV and https://localhost:8081 registered as redirect URL ([see details on the process](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv-info-to-provide.html))
+- Data accessor registered for your ISV and make sure to add https://localhost:8081 as one of the redirect URLs ([see details on the process](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv-info-to-provide.html))
 - IAM Identity Center (IDC) instance setup with user added on enterprise customer AWS account
 - Amazon Q Business application setup with IAM IDC as access management on enterprise customer AWS account [optional - CDK deployment for easy setup]
 - Docker installed (for deploying CDK only; used for packaging python libraries to Lambda function)
@@ -48,7 +48,7 @@ cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your 
 ```
 4. Wait for all resources to be provisioned before continuing to the next step
 5. Navigate to Amazon Q Business application that was just created and click on `Manage user access`
-![User Management](assets/authentication-flow.png)
+![User Management](assets/qbusiness-user-management.png)
 6. Select `Add groups and users` and search for the user or group from IAM IDC that you want to add for this
 
 ### Setup data accessor (ISV) on Amazon Q UBsiness
@@ -79,5 +79,43 @@ REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
 
 3. Deploy and run the frontend in your local host
     - In your terminal, navigate to `cross-account-qindex-demo/frontend`
-    - Run `npm run install`
-    - Run `npm start` which will run the server in https://localhost:8081
+    - Run `npm install`
+    - Run `npm start` which will run the server in `https://localhost:8081`
+
+## Usage
+
+1. Navigate to `https://localhost:8081`
+
+2. Insert the details on each field and click `Authorize`
+    - ISV Provided Details
+        - **IAM Role ARN** - This is the IAM role created by ISV when registering for data accessor
+        - **Redirect URL** - Enter `https://localhost:8081` for this demo
+    - Enterprise Customer Provided Details
+        - **Amazon Q Business application ID** - Go to enabled data accessor page on AWS Management Console to find this information
+        - **Amazon Q Business applicagion Region** - Go to enabled data accessor page on AWS Management Console to find this information
+        - **Amazon Q Business retriever ID** - Go to enabled data accessor page on AWS Management Console to find this information
+        - **Data accessor application ID** - Go to enabled data accessor page on AWS Management Console to find this information
+        - **Region for the IAM Identity Enter instance** - Go to enabled data accessor page on AWS Management Console to find this information
+![Frontend UI](assets/frontend-ui1.png)
+
+3. Confirm each steps 2 - 4 have been generated successful and enter prompt in Step 5 to get index results
+
+![Frontend UI Search](assets/frontend-ui2.png)
+
+4. [optional] Add more sources to your Amazon Q Business through different connectors to be able to get more variety of index results
+
+## Clean Up
+
+To remove the solution from your account, please follow these steps:
+
+1. Remove CDK Stacks
+    - In your terminal, navigate to appfabric-data-analytics/cdk-stacks
+    - Run `cdk destroy --all`
+
+## Using This In Production
+
+It is critical that before you use any of this code in Production that you work with your own internal Security and Governance teams to get the appropriate Code and AppSec reviews for your organization. 
+
+Although the code has been written with best practices in mind, your own company may require different ones, or have additional rules and restrictions.
+
+You take full ownership and responsibility for the code running in your environment, and are free to make whatever changes you need to.
