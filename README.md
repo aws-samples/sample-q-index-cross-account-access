@@ -33,7 +33,36 @@ This flow illustrates user authentication process in order for ISV application t
 
 ## Deployment Steps
 
-### Frontend deployment 
+### Amazon Q Business deployment (CDK) on customer environment
+
+This is an optional step if you need Amazon Q Business deployment with dummy data inserted into the Q index automatically. Instead you can manually set this Q index in your customer environment AWS account. 
+
+This step assumes you already have IAM Identity Center (IDC) instance setup on your customer environment AWS account. For instructions how to setup IAM IDC, (see here)[https://docs.aws.amazon.com/singlesignon/latest/userguide/enable-identity-center.html].
+
+1. In your terminal navigate to `cross-account-qindex-demo/cdk-stacks`
+2. If you have started with a new environment, please bootstrap CDK: `cdk bootstrap`
+3. Deploy the CDK Stack
+- Run the script: 
+```
+cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your IDC instance ARN>>
+```
+4. Wait for all resources to be provisioned before continuing to the next step
+5. Navigate to Amazon Q Business application that was just created and click on `Manage user access`
+![User Management](assets/authentication-flow.png)
+6. Select `Add groups and users` and search for the user or group from IAM IDC that you want to add for this
+
+### Setup data accessor (ISV) on Amazon Q UBsiness
+
+1. Navigate to your Amazon Q Business application on AWS Management console 
+2. Select `Data accessors` from the left menu, and select `Add data accessor`
+3. Select your data accessor from the list
+![Data Accessor](assets/data-accessor-setup.png)
+4. Select `All users with application access` on User access
+![Data Accessor Setting](assets/data-accessor-setup2.png)
+5. Once your data accessor is added, you will see the parameter details on the screen. Note these values as you will need these values in the next step
+![Data Accessor Details](assets/data-accessor-setup3.png)
+
+### Frontend deployment on ISV environment
 
 These instructions assume you have completed all the prerequisites.
 
@@ -42,19 +71,13 @@ These instructions assume you have completed all the prerequisites.
 2. Set AWS credentials
     - In your terminal, navigate to `cross-account-qindex-demo/frontend`
     - Create .env.local file by `vi .env.local` and enter environment variables in the following format
-    ```
+```
 REACT_APP_AWS_ACCESS_KEY_ID=<<replace with your AWS_ACCESS_KEY_ID>>
 REACT_APP_AWS_SECRET_ACCESS_KEY=<<replace with your AWS_SECRET_ACCESS_KEY>>
 REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
-    ```
+```
 
 3. Deploy and run the frontend in your local host
     - In your terminal, navigate to `cross-account-qindex-demo/frontend`
     - Run `npm run install`
     - Run `npm start` which will run the server in https://localhost:8081
-
-### Amazon Q Business deployment (CDK)
-
-```
-cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your IDC instance ARN>>
-```
