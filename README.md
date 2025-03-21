@@ -2,7 +2,16 @@
 
 ## Overview
 
-This CDK application demonstrates cross-account data retrieval functionality for Amazon Q index using AWS IAM Identity Center (IDC) authentication setup on Amazon Q Business. The application implements a step-by-step process for authentication, token generation, and data retrieval through Search Content Retrieval API.
+[Amazon Q index for ISVs](https://aws.amazon.com/q/software-provider/) is a capability that enables ISVs to access customers' enterprise data through Amazon Q Index to enhance their SaaS solutions with generative AI experiences. The service enables ISVs to utilize customers' Retrieval Augmented Generation (RAG) data in a novel approach compared to traditional connector-based data source integration. The service includes key features such as multi-tenancy isolation within the Amazon Q Index and direct API access through [Search Relevant Content API](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv-calling-api-idc.html) for headless Amazon Q Business implementation. These capabilities support authenticated user experiences and enable ISVs to enrich their own generative AI applications and enhance end-user experiences.
+
+How does an ISV’s access to customers’ Amazon Q index data work? The process involves three simple steps: 
+
+1.	The ISV registers with AWS a data accessor.
+2.	The customer adds that ISV as a data accessor to enable access to their index.
+3.	The ISV can then query the customer’s index through cross-account Search Relevant Content API requests. 
+
+
+This solution demonstrates cross-account data retrieval functionality for Amazon Q Index using AWS IAM Identity Center (IDC) authentication setup on Amazon Q Business. The application implements a step-by-step process for user authentication, token generation, obatain temporary credential and data retrieval through Search Content Retrieval API.
 
 ![Overall Architecture](assets/overall-architecture.png)
 
@@ -51,7 +60,7 @@ cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your 
 ![User Management](assets/qbusiness-user-management.png)
 6. Select `Add groups and users` and search for the user or group from IAM IDC that you want to add for this
 
-### Setup data accessor (ISV) on Amazon Q UBsiness
+### Setup data accessor (ISV) on Amazon Q Business on customer environment
 
 1. Navigate to your Amazon Q Business application on AWS Management console 
 2. Select `Data accessors` from the left menu, and select `Add data accessor`
@@ -62,7 +71,7 @@ cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your 
 5. Once your data accessor is added, you will see the parameter details on the screen. Note these values as you will need these values in the next step
 ![Data Accessor Details](assets/data-accessor-setup3.png)
 
-### Frontend deployment on ISV environment
+### Frontend deployment on ISV environment on ISV environment
 
 These instructions assume you have completed all the prerequisites.
 
