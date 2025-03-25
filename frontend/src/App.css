@@ -517,3 +517,276 @@
 .step-content {
   padding: 15px;
 }
+
+/**********/
+
+/* Update the step-form-container */
+.step-form-container {
+  width: 100%;
+  max-width: 1200px; /* Increased to accommodate side-by-side layout */
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #282c34;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  color: white;
+}
+
+/* Update step-content-wrapper for side-by-side layout */
+.step-content-wrapper {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+/* Update auth-form for the new layout */
+.auth-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #363a43;
+  border-radius: 8px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Add styles for the image section */
+.step-image {
+  flex: 1;
+  position: sticky;
+  top: 20px;
+}
+
+.step-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #4a4e57;
+  background: transparent;
+}
+
+/* Update form sections for better visibility */
+.form-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #4a4e57;
+  border-radius: 5px;
+  background-color: #2c3038;
+}
+
+.form-section h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #fff;
+  font-size: 1.1em;
+}
+
+/* Update tooltip styles for dark theme */
+.tooltip-content {
+  background: #363a43;
+  border: 1px solid #4a4e57;
+  color: #fff;
+}
+
+.tooltip-content h4 {
+  color: #fff;
+}
+
+.tooltip-content li {
+  color: #ddd;
+}
+
+/* Update form inputs for better contrast */
+.form-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #4a4e57;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #282c34;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+/* Add responsive behavior */
+@media (max-width: 768px) {
+  .step-content-wrapper {
+    flex-direction: column;
+  }
+  
+  .step-image {
+    position: static;
+    margin-bottom: 20px;
+  }
+}
+
+/* Update step-content-wrapper for side-by-side layout */
+.step-content-wrapper {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+/* Update the image section styles */
+.step-image {
+  flex: 1.5; /* Increased from 1 to 1.5 to make it larger relative to the form */
+  position: sticky;
+  top: 20px;
+  max-width: 800px; /* Add a max-width to control the maximum size */
+  margin: 0 auto; /* Center the image container */
+}
+
+.step-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #4a4e57;
+  background: transparent;
+  object-fit: contain; /* Ensures the image maintains its aspect ratio */
+}
+
+/* Update auth-form to balance the layout */
+.auth-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #363a43;
+  border-radius: 8px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Add styles for the image container and code snippet */
+.step-image-container {
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.step-image {
+  width: 100%;
+  position: relative;
+}
+
+.step-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #4a4e57;
+  background: transparent;
+}
+
+.code-snippet {
+  background-color: #2c3038;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #4a4e57;
+  text-align: left; /* Add this to ensure left alignment */
+}
+
+.code-snippet pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  text-align: left; /* Add this to ensure left alignment */
+}
+
+.code-snippet code {
+  color: #fff;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  display: block; /* Add this to ensure block-level display */
+  text-align: left; /* Add this to ensure left alignment */
+}
+
+/* Update responsive behavior */
+@media (max-width: 768px) {
+  .step-content-wrapper {
+    flex-direction: column;
+  }
+  
+  .step-image-container {
+    margin-bottom: 20px;
+  }
+}
+
+.step-image {
+  width: 100%;
+  position: relative;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+}
+
+.base-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #4a4e57;
+  background: transparent;
+  display: block;
+}
+
+.image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  transition: opacity 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.overlay-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.image-container:hover .image-overlay {
+  opacity: 1;
+}
+
+.snippet-title {
+  margin: 0 0 10px 0;
+  padding: 0;
+  color: #ffffff;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.code-snippet {
+  margin-top: 20px;
+  background-color: #2c3038;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #4a4e57;
+}
+
+.code-snippet pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.code-snippet code {
+  color: #fff;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
