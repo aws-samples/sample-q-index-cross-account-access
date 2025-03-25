@@ -28,6 +28,7 @@ function App() {
             redirectUrl: ''
         };
     });
+    const [isZoomed, setIsZoomed] = useState(false);
 
     // UI Steps 2-5: State Management for Authentication Flow
     const [code, setCode] = useState(null);          // Step 2: OIDC Authentication
@@ -50,6 +51,10 @@ function App() {
         ...prev,
         [step]: !prev[step]
         }));
+    };
+
+    const handleImageClick = () => {
+        setIsZoomed(!isZoomed);
     };
 
     // Step Progress Management
@@ -310,9 +315,19 @@ function App() {
                             <div className="step-image-container">
                                 <div className="step-image">
                                     <div className="image-container">
-                                        <img src="architecture-1.png" alt="Step 1 Architecture" className="base-image" />
-                                        <div className="image-overlay">
-                                        <img src="architecture-1-zoom.png" alt="Step 1 Architecture" className="overlay-image" />
+                                        <img 
+                                        src="architecture-1.png" 
+                                        alt="Step 1 Architecture" 
+                                        className="base-image"
+                                        onClick={handleImageClick}  // Add click handler
+                                        />
+                                        <div className="tooltip">Click to zoom</div>
+                                        <div className={`fullscreen-overlay ${isZoomed ? 'active' : ''}`} onClick={handleImageClick}>
+                                        <img 
+                                            src="architecture-1.png" 
+                                            alt="Step 1 Architecture" 
+                                            className="fullscreen-image"
+                                        />
                                         </div>
                                     </div>
                                 </div>
