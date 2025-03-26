@@ -855,3 +855,106 @@
 .image-container:hover .tooltip {
   opacity: 1;
 }
+
+
+
+/* Update success-container to match step-form-container width */
+.success-container {
+  width: 100%;
+  max-width: 1200px; /* Match the step-form-container max-width */
+  margin: 20px auto;
+  padding: 20px;
+}
+
+/* Update process-step to match step-form-container styling */
+.process-step {
+  background-color: #282c34;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure step-content-wrapper maintains consistent width */
+.process-step .step-content-wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 20px;
+}
+
+/* Adjust step-image-container width in process-step */
+.process-step .step-image-container {
+  flex: 1.5;
+  max-width: 800px;
+}
+
+.auth-code-display h4 {
+  margin: 0 0 10px 0;
+  color: #ffffff;
+}
+
+.auth-status-container .status-indicator {
+  margin: 0;
+}
+
+
+.auth-code-display h4 {
+  margin: 0 0 10px 0;
+  color: #ffffff;
+}
+
+.auth-code-display .code-text {
+  flex: 1; /* Make the code text area stretch */
+  margin: 0;
+  overflow-wrap: break-word;
+}
+
+.auth-status-container .status-indicator {
+  margin: 0;
+  text-align: center;
+}
+
+/* Ensure the step-content-wrapper maintains equal heights */
+.step-content-wrapper {
+  display: flex;
+  min-height: 400px; /* Adjust this value as needed */
+  align-items: stretch;
+}
+
+.step-content-wrapper {
+  display: flex;
+  align-items: stretch; /* Make children stretch to match heights */
+  min-height: 600px; /* Adjust this value based on your needs */
+}
+
+.step-image-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.code-snippet {
+  flex-grow: 1; /* Allow code snippet to grow */
+}
+
+.auth-status-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background-color: #363a43;
+  border-radius: 8px;
+  margin-left: 20px;
+  height: 100%; /* Changed from min-height */
+}
+
+.auth-code-display {
+  flex-grow: 1;
+  background-color: #2c3038;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #4a4e57;
+  display: flex;
+  flex-direction: column;
+}

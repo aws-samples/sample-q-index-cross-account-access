@@ -28,7 +28,14 @@ function App() {
             redirectUrl: ''
         };
     });
-    const [isZoomed, setIsZoomed] = useState(false);
+
+    const [zoomedImages, setZoomedImages] = useState({
+        step1: false,
+        step2: false,
+        step3: false,
+        step4: false,
+        step5: false
+    });
 
     // UI Steps 2-5: State Management for Authentication Flow
     const [code, setCode] = useState(null);          // Step 2: OIDC Authentication
@@ -53,8 +60,11 @@ function App() {
         }));
     };
 
-    const handleImageClick = () => {
-        setIsZoomed(!isZoomed);
+    const handleImageClick = (step) => {
+        setZoomedImages(prev => ({
+            ...prev,
+            [step]: !prev[step]
+        }));
     };
 
     // Step Progress Management
@@ -315,19 +325,22 @@ function App() {
                             <div className="step-image-container">
                                 <div className="step-image">
                                     <div className="image-container">
-                                        <img 
-                                        src="architecture-1.png" 
-                                        alt="Step 1 Architecture" 
-                                        className="base-image"
-                                        onClick={handleImageClick}  // Add click handler
+                                        <img
+                                            src="architecture-1.png"
+                                            alt="Step 1 Architecture"
+                                            className="base-image"
+                                            onClick={() => handleImageClick('step1')} // Modified click handler
                                         />
                                         <div className="tooltip">Click to zoom</div>
-                                        <div className={`fullscreen-overlay ${isZoomed ? 'active' : ''}`} onClick={handleImageClick}>
-                                        <img 
-                                            src="architecture-1.png" 
-                                            alt="Step 1 Architecture" 
+                                        <div 
+                                            className={`fullscreen-overlay ${zoomedImages.step1 ? 'active' : ''}`} 
+                                            onClick={() => handleImageClick('step1')}
+                                        >
+                                            <img
+                                            src="architecture-1.png"
+                                            alt="Step 1 Architecture"
                                             className="fullscreen-image"
-                                        />
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -436,29 +449,76 @@ window.location.href = authUrl;`}
                     // UI Steps 2-5: Process Flow Display
                     <div className="success-container">
                         <div className="process-flow">
-                            {/* UI Step 2: OIDC Authentication Display */}
+                            {/* Step 2: OIDC Authentication */}
                             <div className="process-step">
                                 <div className="step-header">
                                     <h3>Step 2: OIDC Authentication</h3>
-                                    <button 
-                                        className="minimize-button"
-                                        onClick={() => toggleMinimize('step2')}
-                                    >
-                                        {minimizedSteps.step2 ? '▼' : '▲'}
+                                    <button className="minimize-button" onClick={() => toggleMinimize('step2')}>
+                                    {minimizedSteps.step2 ? '▼' : '▲'}
                                     </button>
                                 </div>
                                 {!minimizedSteps.step2 && (
-                                <div className="step-content">
+                                    <div className="step-content">
                                     {errors.step2 && <div className="error-message">{errors.step2}</div>}
-                                    <div className="status-indicator status-complete">
-                                    Authentication Complete
-                                    </div>
-                                    <p className="code-text">Auth Code: {code}</p>
-                                </div>
-                                )}
-                            </div>
+                                    <div className="step-content-wrapper">
+                                        <div className="step-image-container">
+                                        <div className="step-image">
+                                            <div className="image-container">
+                                            <img
+                                                src="architecture-2.png"
+                                                alt="Step 2 Architecture"
+                                                className="base-image"
+                                                onClick={() => handleImageClick('step2')}
+                                            />
+                                            <div className="tooltip">Click to zoom</div>
+                                            <div 
+                                                className={`fullscreen-overlay ${zoomedImages.step2 ? 'active' : ''}`} 
+                                                onClick={() => handleImageClick('step2')}
+                                            >
+                                                <img
+                                                src="architecture-2.png"
+                                                alt="Step 2 Architecture"
+                                                className="fullscreen-image"
+                                                />
+                                            </div>
+                                            </div>
+                                        </div>
+                                        <div className="code-snippet">
+                                            <h4 className="snippet-title">Authentication Code</h4>
+                                            <pre>
+                                            <code>
+{`// Get Authorization Code from URL
+const params = new URLSearchParams(window.location.search);
+const authCode = params.get('code');
+const state = params.get('state');
 
-                            {/* UI Step 3: IDC Token Generation Display */}
+// Process state parameter if present
+if (state) {
+  const decodedState = JSON.parse(atob(state));
+  setFormData(decodedState);
+}
+
+// Store the authorization code
+setCode(authCode);`}
+                                            </code>
+                                            </pre>
+                                        </div>
+                                        </div>
+                                        <div className="auth-status-container">
+                                        <div className="auth-code-display">
+                                            <h4>Authorization Code</h4>
+                                            <p className="code-text">{code}</p>
+                                        </div>
+                                        <div className="status-indicator status-complete">
+                                            Authentication Complete
+                                        </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                )}
+                                </div>
+
+                            {/* Step 3: IDC Token Generation */}
                             <div className="process-step">
                                 <div className="step-header">
                                     <h3>Step 3: IDC Token Generation</h3>
