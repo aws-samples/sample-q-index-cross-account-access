@@ -353,10 +353,8 @@ const oauthState = btoa(JSON.stringify(formData));
 const clientId = formData.idcApplicationArn;
 
 const authUrl = \`https://oidc.\${idcRegion}.amazonaws.com/authorize?\`
-            + \`response_type=code\`
-            + \`&redirect_uri=\${encodeURIComponent(formData.redirectUrl)}\`
-            + \`&state=\${encodeURIComponent(oauthState)}\`
-            + \`&client_id=\${clientId}\`;
+  + \`response_type=code&redirect_uri=\${encodeURIComponent(formData.redirectUrl)}&state=\${encodeURIComponent(oauthState)}&client_id=\${clientId}\`;
+
 window.location.href = authUrl;`}
                                         </code>
                                     </pre>
@@ -520,205 +518,295 @@ setCode(authCode);`}
 
                             {/* Step 3: IDC Token Generation */}
                             <div className="process-step">
-                                <div className="step-header">
-                                    <h3>Step 3: IDC Token Generation</h3>
-                                    <button 
-                                    className="minimize-button"
-                                    onClick={() => toggleMinimize('step3')}
-                                    >
-                                    {minimizedSteps.step3 ? '▼' : '▲'}
-                                    </button>
-                                </div>
-                                {!minimizedSteps.step3 && (
-                                    <div className="step-content">
-                                    {errors.step3 && <div className="error-message">{errors.step3}</div>}
-                                    {idToken ? (
-                                        <>
-                                        <div className="status-indicator status-complete">
-                                            Token Generated
-                                        </div>
-                                        <div className="token-container">
-                                            <textarea
-                                            readOnly
-                                            value={idToken}
-                                            className="token-display"
-                                            rows={4}
+                            <div className="step-header">
+                                <h3>Step 3: IDC Token Generation</h3>
+                                <button className="minimize-button" onClick={() => toggleMinimize('step3')}>
+                                {minimizedSteps.step3 ? '▼' : '▲'}
+                                </button>
+                            </div>
+                            {!minimizedSteps.step3 && (
+                                <div className="step-content">
+                                {errors.step3 && <div className="error-message">{errors.step3}</div>}
+                                <div className="step-content-wrapper">
+                                    <div className="step-image-container">
+                                    <div className="step-image">
+                                        <div className="image-container">
+                                        <img
+                                            src="architecture-3.png"
+                                            alt="Step 3 Architecture"
+                                            className="base-image"
+                                            onClick={() => handleImageClick('step3')}
+                                        />
+                                        <div className="tooltip">Click to zoom</div>
+                                        <div 
+                                            className={`fullscreen-overlay ${zoomedImages.step3 ? 'active' : ''}`}
+                                            onClick={() => handleImageClick('step3')}
+                                        >
+                                            <img
+                                            src="architecture-3.png"
+                                            alt="Step 3 Architecture"
+                                            className="fullscreen-image"
                                             />
                                         </div>
-                                        </>
-                                    ) : (
-                                        <div className="status-indicator status-pending">
-                                        Generating Token...
                                         </div>
-                                    )}
                                     </div>
-                                )}
+                                    <div className="code-snippet">
+                                        <h4 className="snippet-title">Token Generation Code</h4>
+                                        <pre>
+                                        <code>
+{`const client = new SSOOIDCClient({
+  region: formData.iamIdcRegion,
+  credentials: assumeRoleResponse.Credentials
+});
+
+const command = new CreateTokenWithIAMCommand({
+  clientId: formData.idcApplicationArn,
+  code: authCode,
+  grantType: "authorization_code",
+  redirectUri: formData.redirectUrl
+});
+
+const response = await client.send(command);
+setIdToken(response.idToken);`}
+                                        </code>
+                                        </pre>
+                                    </div>
+                                    </div>
+                                    <div className="auth-status-container">
+                                    <div className="auth-code-display">
+                                        <h4>ID Token</h4>
+                                        <p className="code-text">{idToken || 'Generating...'}</p>
+                                    </div>
+                                    <div className="status-indicator status-complete">
+                                        {idToken ? 'Token Generated' : 'Generating Token...'}
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                            )}
                             </div>
 
-                            {/* UI Step 4: STS Credentials Display */}
+                            {/* Step 4: STS Credentials */}
                             <div className="process-step">
-                                <div className="step-header">
-                                    <h3>Step 4: STS Temporary Credentials</h3>
-                                    <button 
-                                    className="minimize-button"
-                                    onClick={() => toggleMinimize('step4')}
-                                    >
-                                    {minimizedSteps.step4 ? '▼' : '▲'}
-                                    </button>
-                                </div>
-                                {!minimizedSteps.step4 && (
-                                    <div className="step-content">
-                                    {errors.step4 && <div className="error-message">{errors.step4}</div>}
-                                    {stsCredentials ? (
-                                        <>
-                                        <div className="status-indicator status-complete">
-                                            Credentials Obtained
+                            <div className="step-header">
+                                <h3>Step 4: STS Credentials</h3>
+                                <button className="minimize-button" onClick={() => toggleMinimize('step4')}>
+                                {minimizedSteps.step4 ? '▼' : '▲'}
+                                </button>
+                            </div>
+                            {!minimizedSteps.step4 && (
+                                <div className="step-content">
+                                {errors.step4 && <div className="error-message">{errors.step4}</div>}
+                                <div className="step-content-wrapper">
+                                    <div className="step-image-container">
+                                    <div className="step-image">
+                                        <div className="image-container">
+                                        <img
+                                            src="architecture-4.png"
+                                            alt="Step 4 Architecture"
+                                            className="base-image"
+                                            onClick={() => handleImageClick('step4')}
+                                        />
+                                        <div className="tooltip">Click to zoom</div>
+                                        <div 
+                                            className={`fullscreen-overlay ${zoomedImages.step4 ? 'active' : ''}`}
+                                            onClick={() => handleImageClick('step4')}
+                                        >
+                                            <img
+                                            src="architecture-4.png"
+                                            alt="Step 4 Architecture"
+                                            className="fullscreen-image"
+                                            />
                                         </div>
-                                        <div className="credentials-container">
-                                            <div className="credentials-details">
-                                            <div className="credential-item">
-                                                <label>Access Key ID:</label>
-                                                <input
-                                                type="text"
-                                                readOnly
-                                                value={stsCredentials.accessKeyId}
-                                                className="credential-display"
-                                                />
-                                            </div>
-                                            <div className="credential-item">
-                                                <label>Secret Access Key:</label>
-                                                <input
-                                                type="password"
-                                                readOnly
-                                                value={stsCredentials.secretAccessKey}
-                                                className="credential-display"
-                                                />
-                                                <button
-                                                className="toggle-visibility"
-                                                onClick={(e) => {
-                                                    const input = e.target.previousSibling;
-                                                    input.type = input.type === 'password' ? 'text' : 'password';
-                                                }}
-                                                >
-                                                👁️
-                                                </button>
-                                            </div>
-                                            <div className="credential-item">
-                                                <label>Session Token:</label>
-                                                <textarea
-                                                readOnly
-                                                value={stsCredentials.sessionToken}
-                                                className="credential-display token-area"
-                                                rows={3}
-                                                />
-                                            </div>
-                                            <div className="credential-item">
-                                                <label>Expiration:</label>
-                                                <input
-                                                type="text"
-                                                readOnly
-                                                value={stsCredentials.expiration.toLocaleString()}
-                                                className="credential-display"
-                                                />
-                                            </div>
-                                            </div>
                                         </div>
-                                        </>
-                                    ) : (
-                                        <div className="status-indicator status-pending">
-                                        Obtaining Credentials...
-                                        </div>
-                                    )}
                                     </div>
-                                )}
+                                    <div className="code-snippet">
+                                        <h4 className="snippet-title">STS Credentials Code</h4>
+                                        <pre>
+                                        <code>
+{`const assumeRoleCommand = new AssumeRoleCommand({
+  RoleArn: formData.iamRole,
+  RoleSessionName: 'automated-session',
+  ProvidedContexts: providedContexts
+});
+
+const assumeRoleResponse = await stsClient.send(assumeRoleCommand);
+
+const credentials = {
+  accessKeyId: assumeRoleResponse.Credentials.AccessKeyId,
+  secretAccessKey: assumeRoleResponse.Credentials.SecretAccessKey,
+  sessionToken: assumeRoleResponse.Credentials.SessionToken,
+  expiration: new Date(assumeRoleResponse.Credentials.Expiration)
+};`}
+                                        </code>
+                                        </pre>
+                                    </div>
+                                    </div>
+                                    <div className="auth-status-container">
+                                    <div className="auth-code-display">
+                                        <h4>STS Credentials</h4>
+                                        {stsCredentials ? (
+                                        <div className="credentials-details">
+                                            <p><strong>Access Key ID:</strong> {stsCredentials.accessKeyId}</p>
+                                            <p><strong>Secret Access Key:</strong> ********</p>
+                                            <p><strong>Expiration:</strong> {stsCredentials.expiration.toLocaleString()}</p>
+                                        </div>
+                                        ) : (
+                                        <p>Obtaining credentials...</p>
+                                        )}
+                                    </div>
+                                    <div className="status-indicator status-complete">
+                                        {stsCredentials ? 'Credentials Generated' : 'Generating Credentials...'}
+                                    </div>
+                                    </div>
+                                </div>
+                                </div>
+                            )}
                             </div>
 
-                            {/* UI Step 5: Search Functionality Display */}
+                            {/* Step 5: SearchRelevantContent API */}
                             <div className="process-step">
-                                <div className="step-header">
-                                    <h3>Step 5: SearchRelevantContent API</h3>
-                                    <button 
-                                    className="minimize-button"
-                                    onClick={() => toggleMinimize('step5')}
-                                    >
-                                    {minimizedSteps.step5 ? '▼' : '▲'}
-                                    </button>
-                                </div>
-                                {!minimizedSteps.step5 && (
-                                    <div className="step-content">
-                                    {errors.step5 && <div className="error-message">{errors.step5}</div>}
-                                    <div className="search-form">
+                            <div className="step-header">
+                                <h3>Step 5: SearchRelevantContent API</h3>
+                                <button className="minimize-button" onClick={() => toggleMinimize('step5')}>
+                                {minimizedSteps.step5 ? '▼' : '▲'}
+                                </button>
+                            </div>
+                            {!minimizedSteps.step5 && (
+                                <div className="step-content">
+                                {errors.step5 && <div className="error-message">{errors.step5}</div>}
+                                <div className="step-content-wrapper">
+                                    {/* Left side: Architecture and Code */}
+                                    <div className="left-panel">
+                                    <div className="step-image-container">
+                                        <div className="step-image">
+                                        <div className="image-container">
+                                            <img
+                                            src="architecture-5.png"
+                                            alt="Step 5 Architecture"
+                                            className="base-image"
+                                            onClick={() => handleImageClick('step5')}
+                                            />
+                                            <div className="tooltip">Click to zoom</div>
+                                            <div
+                                            className={`fullscreen-overlay ${zoomedImages.step5 ? 'active' : ''}`}
+                                            onClick={() => handleImageClick('step5')}
+                                            >
+                                            <img
+                                                src="architecture-5.png"
+                                                alt="Step 5 Architecture"
+                                                className="fullscreen-image"
+                                            />
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    <div className="code-snippet">
+                                        <h4 className="snippet-title">Search API Code</h4>
+                                        <pre>
+                                        <code>
+{`const qbusinessClient = new QBusinessClient({
+  region: formData.applicationRegion,
+  credentials: stsCredentials
+});
+
+const searchCommand = new SearchRelevantContentCommand({
+  applicationId: formData.qBusinessAppId,
+  queryText: queryText,
+  contentSource: {
+    retriever: {
+      retrieverId: formData.retrieverId
+    }
+  }
+});
+
+const searchResponse = await qbusinessClient.send(searchCommand);`}
+                                        </code>
+                                        </pre>
+                                    </div>
+                                    </div>
+
+                                    {/* Right side: Search functionality */}
+                                    <div className="right-panel">
+                                    <div className="search-section">
+                                        <div className="search-form">
                                         <form onSubmit={async (e) => {
-                                        e.preventDefault();
-                                        const queryText = e.target.queryText.value;
-                                        const qbusinessClient = new QBusinessClient({
+                                            e.preventDefault();
+                                            const queryText = e.target.queryText.value;
+                                            const qbusinessClient = new QBusinessClient({
                                             region: formData.applicationRegion,
                                             credentials: stsCredentials
-                                        });
-                                        const searchCommand = new SearchRelevantContentCommand({
+                                            });
+                                            const searchCommand = new SearchRelevantContentCommand({
                                             applicationId: formData.qBusinessAppId,
                                             queryText: queryText,
                                             contentSource: {
-                                            retriever: {
+                                                retriever: {
                                                 retrieverId: formData.retrieverId
+                                                }
                                             }
-                                            }
-                                        });
-                                        try {
+                                            });
+                                            try {
                                             const searchResponse = await qbusinessClient.send(searchCommand);
                                             setSearchResults(searchResponse);
                                             setErrors(prev => ({ ...prev, step5: null }));
-                                        } catch (error) {
+                                            } catch (error) {
                                             setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
-                                        }
+                                            }
                                         }}>
-                                        <div className="search-input-group">
+                                            <div className="search-input-group">
                                             <input
-                                            type="text"
-                                            name="queryText"
-                                            placeholder="Enter your search query"
-                                            className="search-input"
+                                                type="text"
+                                                name="queryText"
+                                                placeholder="Enter your search query"
+                                                className="search-input"
                                             />
                                             <button type="submit" className="search-button">
-                                            Search
+                                                Search
                                             </button>
-                                        </div>
+                                            </div>
                                         </form>
-                                    </div>
-                                    {searchResults ? (
-                                        <>
-                                        <div className="status-indicator status-complete">
-                                            Search Complete
                                         </div>
-                                        <div className="search-results">
+
+                                        {searchResults ? (
+                                        <>
+                                            <div className="status-indicator status-complete">
+                                            Search Complete
+                                            </div>
+                                            <div className="search-results">
                                             {searchResults.relevantContent ? (
-                                            <div className="results-container">
+                                                <div className="results-container">
                                                 {searchResults.relevantContent.map((item, index) => (
-                                                <div key={index} className="result-item">
+                                                    <div key={index} className="result-item">
                                                     <h4>{item.documentTitle}</h4>
                                                     <p><strong>URI:</strong> <a href={item.documentUri} target="_blank" rel="noopener noreferrer">{item.documentUri}</a></p>
                                                     <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
                                                     <div className="content-preview">
-                                                    <strong>Content:</strong>
-                                                    <p>{item.content.substring(0, 700)}...</p>
+                                                        <strong>Content:</strong>
+                                                        <p>{item.content.substring(0, 700)}...</p>
                                                     </div>
                                                     <hr />
-                                                </div>
+                                                    </div>
                                                 ))}
-                                            </div>
+                                                </div>
                                             ) : (
-                                            <pre>{JSON.stringify(searchResults, null, 2)}</pre>
+                                                <pre>{JSON.stringify(searchResults, null, 2)}</pre>
                                             )}
-                                        </div>
+                                            </div>
                                         </>
-                                    ) : (
+                                        ) : (
                                         <div className="status-indicator status-pending">
-                                        Searching...
+                                            Searching...
                                         </div>
-                                    )}
+                                        )}
                                     </div>
-                                )}
+                                    </div>
+                                </div>
+                                </div>
+                            )}
                             </div>
+
+
 
                         </div>
                     </div>
