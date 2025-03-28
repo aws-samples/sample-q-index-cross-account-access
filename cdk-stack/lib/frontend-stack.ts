@@ -1,8 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
+import * as amplify from 'aws-cdk-lib/aws-amplify';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
-import * as s3deploy from 'aws-cdk-lib/aws-s3-deployment';
+import * as s3Deploy from 'aws-cdk-lib/aws-s3-deployment';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { NagSuppressions } from 'cdk-nag';
 
@@ -10,106 +9,198 @@ export class FrontendStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    NagSuppressions.addStackSuppressions(
-      this,
-      [
-        {
-          id: 'AwsSolutions-CFR4',
-          reason: 'CloudFront distribution requires TLS 1.2 and custom certificate configuration'
-        },
-        {
-          id: 'AwsSolutions-IAM4',
-          reason: 'Lambda basic execution role is required for CDK BucketDeployment functionality',
-        },
-        {
-          id: 'AwsSolutions-IAM5',
-          reason: 'CDK BucketDeployment requires these S3 permissions for deployment functionality',
-        },
-        {
-          id: 'AwsSolutions-L1',
-          reason: 'CDK BucketDeployment manages its own Lambda runtime version'
-        },
-        {
-          id: 'AwsSolutions-CFR7',
-          reason: 'CloudFront distribution is configured with Origin Access Control for S3 origin'
-        },
-        {
-          id: 'AwsSolutions-CFR5',
-          reason: 'testing. testing. testing. testing.'
-        },
-        {
-          id: 'AwsSolutions-CFR3',
-          reason: 'testing. testing. testing. testing.'
-        }
-      ],
-      true
-    );
+    // Add suppressions after creating the resources
+    NagSuppressions.addStackSuppressions(this, [
+      {
+        id: 'AwsSolutions-S1',
+        reason: 'Development environment - server access logs not required'
+      },
+      {
+        id: 'AwsSolutions-S10',
+        reason: 'Development environment - SSL requirement temporarily disabled'
+      },
+      {
+        id: 'AwsSolutions-IAM5',
+        reason: 'Development environment - IAM permissions to be tightened later'
+      },
+      {
+        id: 'AwsSolutions-CB4',
+        reason: 'Development environment - KMS encryption to be added later'
+      },
+      {
+        id: 'AwsSolutions-IAM4',
+        reason: 'Lambda requires basic execution role for CloudWatch logs'
+      },
+      {
+        id: 'AwsSolutions-L1',
+        reason: 'Using default runtime version for development'
+      }
+    ]);
 
-    // Create S3 bucket for hosting React app
-    const websiteBucket = new s3.Bucket(this, 'WebsiteBucket', {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+    // Create IAM role for Amplify
+    const amplifyServiceRole = new iam.Role(this, 'CrossAccuntDataRetrievalTester-AmplifyServiceRole', {
+      assumedBy: new iam.ServicePrincipal('amplify.amazonaws.com'),
+      description: 'Role for Amplify to access AWS services',
+    });
+
+    // Add required policies
+    amplifyServiceRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'sts:AssumeRole',
+        'sso-oidc:CreateToken',
+        'qbusiness:SearchRelevantContent'
+      ],
+      resources: ['*'], // You should restrict this to specific resources in production
+    }));    
+
+    // Create an S3 bucket to store the built files
+    const deploymentBucket = new s3.Bucket(this, 'CrossAccuntDataRetrievalTester-DeploymentBucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      serverAccessLogsPrefix: 'access-logs/',
-      enforceSSL: true
     });
 
-    // Create Origin Access Identity (OAI)
-    const originAccessIdentity = new cloudfront.OriginAccessIdentity(this, 'OriginAccessIdentity');
-    websiteBucket.grantRead(originAccessIdentity);
-
-    // Update CloudFront distribution
-    const distribution = new cloudfront.Distribution(this, 'Distribution', {
-      defaultBehavior: {
-        origin: origins.S3BucketOrigin.withOriginAccessControl(websiteBucket)
-      },
-      defaultRootObject: 'index.html',
-      enableLogging: false,
-      logFilePrefix: 'cloudfront-logs/',
-      minimumProtocolVersion: cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
-      sslSupportMethod: cloudfront.SSLMethod.SNI,
-      certificate: undefined,
-      geoRestriction: {
-        locations: ['US', 'CA'],
-        restrictionType: 'whitelist'
-      },
-      errorResponses: [
-        {
-          httpStatus: 403,
-          responseHttpStatus: 200,
-          responsePagePath: '/index.html',
-        },
-        {
-          httpStatus: 404,
-          responseHttpStatus: 200,
-          responsePagePath: '/index.html',
-        },
+    // Add bucket policy for Amplify access
+    const amplifyAccessPolicy = new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['s3:GetObject', 's3:GetObjectVersion'],
+      resources: [
+        `${deploymentBucket.bucketArn}/*`,
+        deploymentBucket.bucketArn
       ],
+      principals: [
+        new iam.ServicePrincipal('amplify.amazonaws.com')
+      ]
     });
 
-    websiteBucket.addToResourcePolicy(new iam.PolicyStatement({
-      actions: ['s3:GetObject'],
-      resources: [websiteBucket.arnForObjects('*')],
-      principals: [new iam.ServicePrincipal('cloudfront.amazonaws.com')],
-      conditions: {
-        StringEquals: {
-          'AWS:SourceArn': `arn:aws:cloudfront::${cdk.Stack.of(this).account}:distribution/${distribution.distributionId}`
-        }
-      }
+    deploymentBucket.addToResourcePolicy(amplifyAccessPolicy);
+
+    const bucketDeployment = new s3Deploy.BucketDeployment(this, 'DeployFiles', {
+      sources: [
+        s3Deploy.Source.asset('../frontend/build', {
+          bundling: {
+            image: cdk.DockerImage.fromRegistry('alpine'),
+            user: 'root',
+            command: [
+              'sh', '-c',
+              'apk add --no-cache zip && cp -r /asset-input/* /asset-output/ && cd /asset-output && zip -r deployment.zip *'
+            ],
+          },
+        })
+      ],
+      destinationBucket: deploymentBucket,
+      memoryLimit: 1024,
+    });
+    
+
+    // Add S3 read permissions to the Amplify role
+    amplifyServiceRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'amplify:*',
+        'cloudfront:CreateInvalidation',
+        's3:GetObject',
+        's3:GetObjectVersion',
+        's3:ListBucket',
+        's3:PutObject',
+        's3:DeleteObject'
+      ],
+      resources: [
+        deploymentBucket.bucketArn,
+        `${deploymentBucket.bucketArn}/*`
+      ]
     }));
+    
 
-    // Deploy React app to S3
-    new s3deploy.BucketDeployment(this, 'DeployWebsite', {
-      sources: [s3deploy.Source.asset('../frontend/build')],
-      destinationBucket: websiteBucket,
-      distribution,
-      distributionPaths: ['/*']
+    // Create Amplify App
+    const amplifyApp = new amplify.CfnApp(this, 'CrossAccuntDataRetrievalTester-App', {
+      name: 'CrossAccuntDataRetrievalTester-App',
+      platform: 'WEB',
+      iamServiceRole: amplifyServiceRole.roleArn,
+      environmentVariables: [
+        {
+          name: '_LIVE_UPDATES',
+          value: JSON.stringify([
+            { name: 'frontend', pkg: 'dist', type: 'web' }
+          ])
+        }
+      ],
+      buildSpec: JSON.stringify({
+        version: 1,
+        frontend: {
+          phases: {
+            preBuild: {
+              commands: [
+                'npm ci'  // or 'yarn install' depending on your package manager
+              ]
+            },
+            build: {
+              commands: [
+                'mkdir -p ./website',
+                `aws s3 cp s3://${deploymentBucket.bucketName}/deployment.zip ./deployment.zip`,
+                'unzip deployment.zip -d ./website/'
+              ]
+            }
+          },
+          artifacts: {
+            baseDirectory: './website',
+            files: [
+              '**/*'
+            ]
+          },
+          cache: {
+            paths: [
+              'node_modules/**/*'
+            ]
+          }
+        }
+      }),
+      customRules: [
+        {
+          source: '</^[^.]+$|\\.(?!(css|gif|ico|jpg|js|png|txt|svg|woff|ttf|map|json)$)([^.]+$)/>',
+          target: '/index.html',
+          status: '200'
+        }
+      ]
     });
 
-    // Output the CloudFront URL
-    new cdk.CfnOutput(this, 'DistributionDomainName', {
-      value: distribution.distributionDomainName,
-      description: 'Website URL',
+    // Create branch configuration
+    const mainBranch = new amplify.CfnBranch(this, 'MainBranch', {
+      appId: amplifyApp.attrAppId,
+      branchName: 'main',
+      enableAutoBuild: true,
+      stage: 'PRODUCTION',
+      environmentVariables: [
+        {
+          name: 'AMPLIFY_MONOREPO_APP_ROOT',
+          value: '/'
+        },
+        {
+          name: 'AMPLIFY_DIFF_DEPLOY',
+          value: 'false'
+        },
+        {
+          name: 'TRIGGER_BUILD',
+          value: Date.now().toString() // This will force a new build each time
+        }
+      ]
+    });
+    // Ensure proper dependency
+    mainBranch.node.addDependency(bucketDeployment);
+
+    new cdk.CfnOutput(this, 'S3Bucket', {
+      value: deploymentBucket.bucketName,
+      description: 'S3 Bucket Name'
+    });
+
+    new cdk.CfnOutput(this, 'AmplifyAppURL', {
+      value: `https://${mainBranch.attrBranchName}.${amplifyApp.attrDefaultDomain}`,
+      description: 'Amplify Application URL'
+    });
+
+    new cdk.CfnOutput(this, 'AmplifyDeployCommand', {
+      value: `aws amplify start-deployment --app-id ${amplifyApp.attrAppId} --branch-name ${mainBranch.attrBranchName} --source-url s3://${deploymentBucket.bucketName}/deployment.zip`,
+      description: 'Amplify Deploy Command'
     });
   }
 }

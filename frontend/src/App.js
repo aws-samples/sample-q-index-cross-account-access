@@ -67,6 +67,10 @@ function App() {
         }));
     };
 
+    const isRunningOnAmplify = () => {
+        return process.env.AWS_EXECUTION_ENV?.includes('AWS_Amplify');
+      };
+
     // Step Progress Management
     useEffect(() => {
         if (code) setCurrentStep(2);
@@ -92,11 +96,13 @@ function App() {
                 // Initialize STS Client with IAM credentials
                 const stsClient = new STSClient({
                     region: formData.iamIdcRegion,
-                    credentials: {
-                        accessKeyId: String(process.env.REACT_APP_AWS_ACCESS_KEY_ID || ''),
-                        secretAccessKey: String(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''),
-                        sessionToken: String(process.env.REACT_APP_AWS_SESSION_TOKEN || '')
-                    }
+                    credentials: isRunningOnAmplify() 
+                        ? undefined  // When undefined, AWS SDK will use the Amplify role credentials
+                        : {
+                            accessKeyId: String(process.env.REACT_APP_AWS_ACCESS_KEY_ID || ''),
+                            secretAccessKey: String(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''),
+                            sessionToken: String(process.env.REACT_APP_AWS_SESSION_TOKEN || '')
+                        }
                 });
 
                 // First role assumption to get temporary credentials
