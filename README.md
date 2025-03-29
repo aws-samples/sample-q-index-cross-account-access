@@ -97,6 +97,14 @@ REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
     - Run `npm install`
     - Run `npm start` which will run the server in `https://localhost:8081`
 
+#### [Optional] Deploy the frontend through AWS Amplify
+
+1. In your terminal, navigate to `cross-account-qindex-demo/cdk-stack`
+2. Run `cdk deploy FrontendStack`
+3. Once deployed, find `FrontendStack.AmplifyDeployCommand` from the output
+4. Run the command copied from the above step, `aws amplify start-deployment --app-id <your app id> --branch-name main --source-url s3://<your S3 bucket>/deployment.zip`
+5. Open the URL from the output `FrontendStack.AmplifyAppURL`
+
 ## Usage
 
 1. Navigate to `https://localhost:8081`

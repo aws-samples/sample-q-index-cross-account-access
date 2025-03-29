@@ -12,28 +12,16 @@ export class FrontendStack extends cdk.Stack {
     // Add suppressions after creating the resources
     NagSuppressions.addStackSuppressions(this, [
       {
-        id: 'AwsSolutions-S1',
-        reason: 'Development environment - server access logs not required'
-      },
-      {
-        id: 'AwsSolutions-S10',
-        reason: 'Development environment - SSL requirement temporarily disabled'
+        id: 'AwsSolutions-L1',
+        reason: 'Using default runtime version for development'
       },
       {
         id: 'AwsSolutions-IAM5',
-        reason: 'Development environment - IAM permissions to be tightened later'
-      },
-      {
-        id: 'AwsSolutions-CB4',
-        reason: 'Development environment - KMS encryption to be added later'
-      },
-      {
-        id: 'AwsSolutions-IAM4',
-        reason: 'Lambda requires basic execution role for CloudWatch logs'
-      },
-      {
-        id: 'AwsSolutions-L1',
-        reason: 'Using default runtime version for development'
+        reason: 'Wildcard permissions are required for Lambda and Amplify functionality',
+        appliesTo: [
+          { regex: '/^Action::s3:.*\\*/' },
+          { regex: '/^Resource::.*\\*/' }
+        ]
       }
     ]);
 
@@ -47,18 +35,38 @@ export class FrontendStack extends cdk.Stack {
     amplifyServiceRole.addToPolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: [
-        'sts:AssumeRole',
-        'sso-oidc:CreateToken',
+        'sts:AssumeRole'
+      ],
+      resources: [`arn:aws:sts::${this.account}:role/AmplifyRole-*`] // Specify exact role pattern
+    }));
+
+    amplifyServiceRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'sso-oidc:CreateToken'
+      ],
+      resources: [`arn:aws:sso-oidc:${this.region}:${this.account}:instance/*`] // Specify instance
+    }));
+
+    amplifyServiceRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
         'qbusiness:SearchRelevantContent'
       ],
-      resources: ['*'], // You should restrict this to specific resources in production
-    }));    
+      resources: [`arn:aws:qbusiness:${this.region}:${this.account}:content/*`] // Specify content
+    }));
 
     // Create an S3 bucket to store the built files
     const deploymentBucket = new s3.Bucket(this, 'CrossAccuntDataRetrievalTester-DeploymentBucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
+      serverAccessLogsPrefix: 'access-logs/',
+      enforceSSL: true,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      versioned: true,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL
     });
+    
 
     // Add bucket policy for Amplify access
     const amplifyAccessPolicy = new iam.PolicyStatement({
@@ -75,6 +83,45 @@ export class FrontendStack extends cdk.Stack {
 
     deploymentBucket.addToResourcePolicy(amplifyAccessPolicy);
 
+    // Create the deployment role first
+    const bucketDeploymentRole = new iam.Role(this, 'BucketDeploymentRole', {
+      assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
+      inlinePolicies: {
+        'logs': new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: [
+                'logs:CreateLogGroup',
+                'logs:CreateLogStream',
+                'logs:PutLogEvents'
+              ],
+              resources: [
+                `arn:aws:logs:${this.region}:${this.account}:log-group:/aws/lambda/*`
+              ]
+            })
+          ]
+        }),
+        's3': new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              effect: iam.Effect.ALLOW,
+              actions: [
+                's3:GetObject',
+                's3:PutObject',
+                's3:DeleteObject',
+                's3:ListBucket'
+              ],
+              resources: [
+                deploymentBucket.bucketArn,
+                `${deploymentBucket.bucketArn}/*`
+              ]
+            })
+          ]
+        })
+      }
+    });
+
     const bucketDeployment = new s3Deploy.BucketDeployment(this, 'DeployFiles', {
       sources: [
         s3Deploy.Source.asset('../frontend/build', {
@@ -90,6 +137,7 @@ export class FrontendStack extends cdk.Stack {
       ],
       destinationBucket: deploymentBucket,
       memoryLimit: 1024,
+      role: bucketDeploymentRole
     });
     
 
@@ -97,8 +145,6 @@ export class FrontendStack extends cdk.Stack {
     amplifyServiceRole.addToPolicy(new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       actions: [
-        'amplify:*',
-        'cloudfront:CreateInvalidation',
         's3:GetObject',
         's3:GetObjectVersion',
         's3:ListBucket',
