@@ -99,11 +99,14 @@ REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
 
 #### [Optional] Deploy the frontend through AWS Amplify
 
+[!NOTE]
+You will need to request the Amplify's deployed url added in the data accessor registration in order to make this work. You have another option to use custom domain to make this url registration added to your data accessor easier.
+
 1. In your terminal, navigate to `cross-account-qindex-demo/cdk-stack`
 2. Run `cdk deploy FrontendStack`
-3. Once deployed, find `FrontendStack.AmplifyDeployCommand` from the output
-4. Run the command copied from the above step, `aws amplify start-deployment --app-id <your app id> --branch-name main --source-url s3://<your S3 bucket>/deployment.zip`
-5. Open the URL from the output `FrontendStack.AmplifyAppURL`
+3. Once deployed, find the value of `FrontendStack.AmplifyDeployCommand` from the CDK output
+4. Run this command with parameters copied from the above step, `aws amplify start-deployment --app-id <your app id> --branch-name main --source-url s3://<your S3 bucket>/deployment.zip`
+5. Open the URL from the CDK output `FrontendStack.AmplifyAppURL`
 
 ## Usage
 
