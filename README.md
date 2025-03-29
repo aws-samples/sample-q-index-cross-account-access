@@ -58,8 +58,7 @@ cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your 
 To find your IDC instance ARN, go to AWS Management Console and navigate to IAM Identity Center > Settings
 ![IDC Settings](assets/IDC-Setting.png)
 
-> [!NOTE]
-> If you are seeing CDK deployment errors, re-confirm IDC instance ARN is correct and your AWS credentials that you are using to deploy CDK is from AWS account on customer environment.
+**Note:** If you are seeing CDK deployment errors, re-confirm IDC instance ARN is correct and your AWS credentials that you are using to deploy CDK is from AWS account on customer environment.
 
 4. Wait for all resources to be provisioned before continuing to the next step
 5. Navigate to Amazon Q Business application that was just created and click on `Manage user access`
@@ -99,8 +98,7 @@ REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
 
 #### [Optional] Deploy the frontend through AWS Amplify
 
-> [!NOTE]
-> You will need to request the Amplify's deployed url added in the data accessor registration in order to make this work. You have another option to use custom domain to make this url registration added to your data accessor easier.
+**Note:** You will need to request the Amplify's deployed url added in the data accessor registration in order to make this work. You have another option to use custom domain to make this url registration added to your data accessor easier.
 
 1. In your terminal, navigate to `cross-account-qindex-demo/cdk-stack`
 2. Run `cdk deploy FrontendStack`
