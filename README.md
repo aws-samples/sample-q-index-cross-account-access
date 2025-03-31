@@ -105,7 +105,7 @@ REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
 2. Run `npm install`
 3. Run `cdk deploy FrontendStack`
 4. Once deployed, find the value of `FrontendStack.AmplifyDeployCommand` from the CDK output
-5. Run this command with parameters copied from the above step, `aws amplify start-deployment --app-id <your app id> --branch-name main --source-url s3://<your S3 bucket>/deployment.zip`
+5. Run the command from the CDK output `FrontendStack.AmplifyDeployCommand` formatted like this, `aws amplify start-deployment --app-id <your app id> --branch-name main --source-url s3://<your S3 bucket>/deployment.zip`
 6. Open the URL from the CDK output `FrontendStack.AmplifyAppURL`
 
 ## Usage
