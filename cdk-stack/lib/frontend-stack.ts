@@ -130,7 +130,7 @@ export class FrontendStack extends cdk.Stack {
             user: 'root',
             command: [
               'sh', '-c',
-              'apk add --no-cache zip && cp -r /asset-input/* /asset-output/ && cd /asset-output && zip -r deployment.zip *'
+              'rm -f /asset-output/deployment.zip && apk add --no-cache zip && cp -r /asset-input/* /asset-output/ && cd /asset-output && zip -r deployment.zip *'
             ],
           },
         })

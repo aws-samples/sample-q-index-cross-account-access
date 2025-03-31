@@ -49,8 +49,9 @@ This is an optional step if you need Amazon Q Business deployment with sample da
 This step assumes you already have IAM Identity Center (IDC) instance setup on your customer environment AWS account. For instructions how to setup IAM IDC, ((see here)[https://docs.aws.amazon.com/singlesignon/latest/userguide/enable-identity-center.html]).
 
 1. In your terminal navigate to `cross-account-qindex-demo/cdk-stacks`
-2. If you have started with a new environment, run bootstrap CDK: `cdk bootstrap`
-3. Deploy the CDK Stack
+2. Run `npm install`
+3. If you have started with a new environment, run bootstrap CDK: `cdk bootstrap`
+4. Deploy the CDK Stack
 - Run the script: 
 ```
 cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your IDC instance ARN>>
@@ -60,10 +61,10 @@ To find your IDC instance ARN, go to AWS Management Console and navigate to IAM 
 
 **Note:** If you are seeing CDK deployment errors, re-confirm IDC instance ARN is correct and your AWS credentials that you are using to deploy CDK is from AWS account on customer environment.
 
-4. Wait for all resources to be provisioned before continuing to the next step
-5. Navigate to Amazon Q Business application that was just created and click on `Manage user access`
+5. Wait for all resources to be provisioned before continuing to the next step
+6. Navigate to Amazon Q Business application that was just created and click on `Manage user access`
 ![User Management](assets/qbusiness-user-management.png)
-6. Select `Add groups and users` and search for the user or group from IAM IDC that you want to add for this
+7. Select `Add groups and users` and search for the user or group from IAM IDC that you want to add for this
 
 ### Setup data accessor (ISV) in Amazon Q Business on customer environment
 
@@ -93,7 +94,7 @@ REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
 
 3. Deploy and run the frontend in your local host
     - In your terminal, navigate to `cross-account-qindex-demo/frontend`
-    - Run `npm install`
+    - Run `npm install` & `npm run build`
     - Run `npm start` which will run the server in `https://localhost:8081`
 
 #### [Optional] Deploy the frontend through AWS Amplify
@@ -101,10 +102,11 @@ REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
 **Note:** You will need to request the Amplify's deployed url to be added in the data accessor registration in order to make this work. Another option is to use custom domain applied to your Amplify endpoint to make this url registration added to your data accessor easier.
 
 1. In your terminal, navigate to `cross-account-qindex-demo/cdk-stack`
-2. Run `cdk deploy FrontendStack`
-3. Once deployed, find the value of `FrontendStack.AmplifyDeployCommand` from the CDK output
-4. Run this command with parameters copied from the above step, `aws amplify start-deployment --app-id <your app id> --branch-name main --source-url s3://<your S3 bucket>/deployment.zip`
-5. Open the URL from the CDK output `FrontendStack.AmplifyAppURL`
+2. Run `npm install`
+3. Run `cdk deploy FrontendStack`
+4. Once deployed, find the value of `FrontendStack.AmplifyDeployCommand` from the CDK output
+5. Run this command with parameters copied from the above step, `aws amplify start-deployment --app-id <your app id> --branch-name main --source-url s3://<your S3 bucket>/deployment.zip`
+6. Open the URL from the CDK output `FrontendStack.AmplifyAppURL`
 
 ## Usage
 
