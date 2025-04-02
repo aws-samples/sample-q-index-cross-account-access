@@ -16,6 +16,16 @@ function App() {
         step5: false
     });
 
+    // New state for manual credentials
+    const [manualCredentials, setManualCredentials] = useState({
+        accessKeyId: '',
+        secretAccessKey: '',
+        sessionToken: ''
+    });
+
+    // State to check if manual credentials are needed
+    const [needsManualCredentials, setNeedsManualCredentials] = useState(false);
+
     const [formData, setFormData] = useState(() => {
         const savedData = localStorage.getItem('formData');
         return savedData ? JSON.parse(savedData) : {
@@ -69,7 +79,15 @@ function App() {
 
     const isRunningOnAmplify = () => {
         return process.env.AWS_EXECUTION_ENV?.includes('AWS_Amplify');
-      };
+    };
+
+    // Check for environment credentials
+    useEffect(() => {
+        const hasEnvCredentials = process.env.REACT_APP_AWS_ACCESS_KEY_ID && 
+                                process.env.REACT_APP_AWS_SECRET_ACCESS_KEY && 
+                                process.env.REACT_APP_AWS_SESSION_TOKEN;
+        setNeedsManualCredentials(!hasEnvCredentials);
+    }, []);
 
     // Step Progress Management
     useEffect(() => {
@@ -96,13 +114,19 @@ function App() {
                 // Initialize STS Client with IAM credentials
                 const stsClient = new STSClient({
                     region: formData.iamIdcRegion,
-                    credentials: isRunningOnAmplify() 
-                        ? undefined  // When undefined, AWS SDK will use the Amplify role credentials
+                    credentials: isRunningOnAmplify()
+                      ? undefined // When undefined, AWS SDK will use the Amplify role credentials
+                      : needsManualCredentials
+                        ? {
+                            accessKeyId: manualCredentials.accessKeyId,
+                            secretAccessKey: manualCredentials.secretAccessKey,
+                            sessionToken: manualCredentials.sessionToken
+                          }
                         : {
                             accessKeyId: String(process.env.REACT_APP_AWS_ACCESS_KEY_ID || ''),
                             secretAccessKey: String(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''),
                             sessionToken: String(process.env.REACT_APP_AWS_SESSION_TOKEN || '')
-                        }
+                          }
                 });
 
                 // First role assumption to get temporary credentials
@@ -234,7 +258,8 @@ function App() {
             }
         }
     }, [formData.iamIdcRegion, formData.idcApplicationArn, formData.applicationRegion, formData.qBusinessAppId, 
-        formData.retrieverId, formData.iamRole, formData.redirectUrl]);
+        formData.retrieverId, formData.iamRole, formData.redirectUrl, manualCredentials.accessKeyId,
+        manualCredentials.secretAccessKey, manualCredentials.sessionToken, needsManualCredentials]);
 
     // UI Step 1: Form Input Handlers
     const handleInputChange = (e) => {
@@ -367,29 +392,76 @@ window.location.href = authUrl;`}
                                 </div>
                             </div>
                             <form onSubmit={handleSubmit} className="auth-form">
+                                
                                 <div className="form-section">
-                                <h4>ISV Provided Details</h4>
-                                <div className="input-group">
-                                    <input
-                                    type="text"
-                                    name="iamRole"
-                                    value={formData.iamRole}
-                                    onChange={handleInputChange}
-                                    placeholder="IAM Role ARN"
-                                    className="form-input"
-                                    />
+                                    <h4>ISV Provided Details</h4>
+                                    <div className="input-group">
+                                        <input
+                                        type="text"
+                                        name="iamRole"
+                                        value={formData.iamRole}
+                                        onChange={handleInputChange}
+                                        placeholder="IAM Role ARN"
+                                        className="form-input"
+                                        />
+                                    </div>
+                                    <div className="input-group">
+                                        <input
+                                        type="text"
+                                        name="redirectUrl"
+                                        value={formData.redirectUrl}
+                                        onChange={handleInputChange}
+                                        placeholder="Redirect URL"
+                                        className="form-input"
+                                        />
+                                    </div>
+                                    
+                                    {needsManualCredentials && (
+                                        <>
+                                        <div className="input-group">
+                                            <input
+                                            type="text"
+                                            name="accessKeyId"
+                                            value={manualCredentials.accessKeyId}
+                                            onChange={(e) => setManualCredentials(prev => ({
+                                                ...prev,
+                                                accessKeyId: e.target.value
+                                            }))}
+                                            placeholder="AWS Access Key ID"
+                                            className="form-input"
+                                            />
+                                        </div>
+                                        <div className="input-group">
+                                            <input
+                                            type="password"
+                                            name="secretAccessKey"
+                                            value={manualCredentials.secretAccessKey}
+                                            onChange={(e) => setManualCredentials(prev => ({
+                                                ...prev,
+                                                secretAccessKey: e.target.value
+                                            }))}
+                                            placeholder="AWS Secret Access Key"
+                                            className="form-input"
+                                            />
+                                        </div>
+                                        <div className="input-group">
+                                            <input
+                                            type="text"
+                                            name="sessionToken"
+                                            value={manualCredentials.sessionToken}
+                                            onChange={(e) => setManualCredentials(prev => ({
+                                                ...prev,
+                                                sessionToken: e.target.value
+                                            }))}
+                                            placeholder="AWS Session Token"
+                                            className="form-input"
+                                            />
+                                        </div>
+                                        </>
+                                    )}
+
                                 </div>
-                                <div className="input-group">
-                                    <input
-                                    type="text"
-                                    name="redirectUrl"
-                                    value={formData.redirectUrl}
-                                    onChange={handleInputChange}
-                                    placeholder="Redirect URL"
-                                    className="form-input"
-                                    />
-                                </div>
-                                </div>
+
                                 <div className="form-section">
                                 <h4>Enterprise Customer Provided Details</h4>
                                 <div className="input-group">
