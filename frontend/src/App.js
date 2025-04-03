@@ -1,10 +1,11 @@
 // 1. Initial Setup and Imports
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import { SSOOIDCClient, CreateTokenWithIAMCommand } from "@aws-sdk/client-sso-oidc";
 import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import { QBusinessClient, SearchRelevantContentCommand } from "@aws-sdk/client-qbusiness";
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+import { BedrockClient, ListFoundationModelsCommand } from "@aws-sdk/client-bedrock";
 
 function App() {
     // UI Step 1: Form Input Configuration - State Management
@@ -63,6 +64,8 @@ function App() {
     // UI Step 6
     const [searchSummary, setSearchSummary] = useState(null);
     const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+    const [bedrockModels, setBedrockModels] = useState([]);
+    const [selectedModel, setSelectedModel] = useState('');
 
     // Error State Management for All Steps
     const [errors, setErrors] = useState({
@@ -131,7 +134,7 @@ function App() {
             const prompt = `Please provide a concise summary for the search query "${currentQueryText}" based on the following search results:\n\n${contentToSummarize}`;
         
             const command = new InvokeModelCommand({
-                modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+                modelId: selectedModel,
                 contentType: "application/json",
                 accept: "application/json",
                 body: JSON.stringify({
@@ -173,6 +176,59 @@ function App() {
         }
     };
 
+    const fetchBedrockModels = useCallback(async () => {
+        try {
+            const bedrockClient = new BedrockClient({  // Changed from BedrockRuntimeClient
+                region: formData.applicationRegion,
+                credentials: isRunningOnAmplify()
+                  ? undefined
+                  : needsManualCredentials
+                  ? {
+                      accessKeyId: manualCredentials.accessKeyId,
+                      secretAccessKey: manualCredentials.secretAccessKey,
+                      sessionToken: manualCredentials.sessionToken
+                    }
+                  : {
+                      accessKeyId: String(process.env.REACT_APP_AWS_ACCESS_KEY_ID || ''),
+                      secretAccessKey: String(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''),
+                      sessionToken: String(process.env.REACT_APP_AWS_SESSION_TOKEN || '')
+                    }
+            });
+          
+            // Get list of available models
+            const command = new ListFoundationModelsCommand({});
+            const response = await bedrockClient.send(command);  
+
+            // Filter for only enabled models
+            const enabledModels = response.modelSummaries.filter(model => 
+                model.modelLifecycle.status === 'ACTIVE' && 
+                model.inferenceTypesSupported.includes('ON_DEMAND')
+            );
+            
+            setBedrockModels(enabledModels);
+
+            // Look for Claude 3 Sonnet model
+            const claudeSonnetModel = enabledModels.find(model => 
+                model.modelId.includes('anthropic.claude-3-5-sonnet')
+            );
+
+            // Set default model - prefer Claude 3 Sonnet if available, otherwise first enabled model
+            if (claudeSonnetModel) {
+                setSelectedModel(claudeSonnetModel.modelId);
+            } else if (enabledModels.length > 0) {
+                setSelectedModel(enabledModels[0].modelId);
+            }
+        } catch (error) {
+          console.error('Error fetching Bedrock models:', error);
+          setErrors(prev => ({ ...prev, step6: `Error fetching Bedrock models: ${error.message}` }));
+        }
+    }, [
+        formData.applicationRegion, 
+        manualCredentials.accessKeyId,
+        manualCredentials.secretAccessKey,
+        manualCredentials.sessionToken,
+        needsManualCredentials
+    ]);
 
     // Check for environment credentials
     useEffect(() => {
@@ -181,6 +237,12 @@ function App() {
                                 process.env.REACT_APP_AWS_SESSION_TOKEN;
         setNeedsManualCredentials(!hasEnvCredentials);
     }, []);
+
+    useEffect(() => {
+        if (stsCredentials) {
+          fetchBedrockModels();
+        }
+    }, [stsCredentials, fetchBedrockModels]);
 
     // Step Progress Management
     useEffect(() => {
@@ -1067,17 +1129,30 @@ const command = new InvokeModelCommand({
                                         <div className="summary-section">
                                             {searchResults ? (
                                             <>
-                                                <button
-                                                    className="summarize-button"
-                                                    onClick={() => summarizeWithBedrock(searchResults)}
-                                                    disabled={!searchResults || !searchResults.relevantContent}
-                                                >
-                                                    {isGeneratingSummary ? (
-                                                        <span className="loading-spinner">⌛</span>
-                                                    ) : (
-                                                        'Generate AI Summary'
-                                                    )}
-                                                </button>
+                                                <div className="summary-controls">
+                                                    <select 
+                                                    value={selectedModel}
+                                                    onChange={(e) => setSelectedModel(e.target.value)}
+                                                    className="model-select"
+                                                    >
+                                                    {bedrockModels.map(model => (
+                                                        <option key={model.modelId} value={model.modelId}>
+                                                        {model.modelId}
+                                                        </option>
+                                                    ))}
+                                                    </select>
+                                                    <button
+                                                        className="summarize-button"
+                                                        onClick={() => summarizeWithBedrock(searchResults)}
+                                                        disabled={!searchResults || !searchResults.relevantContent}
+                                                    >
+                                                        {isGeneratingSummary ? (
+                                                            <span className="loading-spinner">⌛</span>
+                                                        ) : (
+                                                            'Generate Summary'
+                                                        )}
+                                                    </button>
+                                                </div>
                                                 {searchSummary && (
                                                 <div className="summary-content">
                                                     <h4>Summary</h4>
