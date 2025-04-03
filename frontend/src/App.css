@@ -673,3 +673,11 @@
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+.status-ready {
+  color: #4CAF50;
+  background-color: #e8f5e9;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}

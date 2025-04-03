@@ -210,29 +210,29 @@ function App() {
 
                         // 5. Call SearchRelevantContent API
                         // Initialize Q Business client with temporary credentials
-                        const qbusinessClient = new QBusinessClient({
-                            region: formData.applicationRegion,
-                            credentials: credentials
-                        });
+                        // const qbusinessClient = new QBusinessClient({
+                        //     region: formData.applicationRegion,
+                        //     credentials: credentials
+                        // });
 
                         // Create and execute search command
-                        const searchCommand = new SearchRelevantContentCommand({
-                            applicationId: formData.qBusinessAppId,
-                            queryText: "Tell me status of project x",
-                            contentSource: {
-                                retriever: {
-                                    retrieverId: formData.retrieverId
-                                }
-                            }
-                        });
+                        // const searchCommand = new SearchRelevantContentCommand({
+                        //     applicationId: formData.qBusinessAppId,
+                        //     queryText: "",
+                        //     contentSource: {
+                        //         retriever: {
+                        //             retrieverId: formData.retrieverId
+                        //         }
+                        //     }
+                        // });
 
-                        try {
-                            const searchResponse = await qbusinessClient.send(searchCommand);
-                            setSearchResults(searchResponse);
-                            setErrors(prev => ({ ...prev, step5: null }));
-                        } catch (error) {
-                            setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
-                        }
+                        // try {
+                        //     const searchResponse = await qbusinessClient.send(searchCommand);
+                        //     setSearchResults(searchResponse);
+                        //     setErrors(prev => ({ ...prev, step5: null }));
+                        // } catch (error) {
+                        //     setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
+                        // }
                     } catch (error) {
                         setErrors(prev => ({ ...prev, step5: `Error processing token: ${error.message}` }));
                     }
@@ -360,7 +360,7 @@ function App() {
                                     </div>
                                 </div>
                                 <div className="code-snippet">
-                                    <h4 className="snippet-title">Sample Code Snippet</h4>
+                                    <h4 className="snippet-title">Initiate OIDC Authentication</h4>
                                     <pre>
                                         <code>
 {`const idcRegion = formData.iamIdcRegion;
@@ -564,19 +564,19 @@ window.location.href = authUrl;`}
                                                 <h4 className="snippet-title">Authentication Code</h4>
                                                 <pre>
                                                 <code>
-    {`// Get Authorization Code from URL
-    const params = new URLSearchParams(window.location.search);
-    const authCode = params.get('code');
-    const state = params.get('state');
+{`// Get Authorization Code from URL
+const params = new URLSearchParams(window.location.search);
+const authCode = params.get('code');
+const state = params.get('state');
 
-    // Process state parameter if present
-    if (state) {
+// Process state parameter if present
+if (state) {
     const decodedState = JSON.parse(atob(state));
     setFormData(decodedState);
-    }
+}
 
-    // Store the authorization code
-    setCode(authCode);`}
+// Store the authorization code
+setCode(authCode);`}
                                                 </code>
                                                 </pre>
                                             </div>
@@ -884,7 +884,7 @@ const searchResponse = await qbusinessClient.send(searchCommand);`}
                                         </>
                                         ) : (
                                         <div className="status-indicator status-pending">
-                                            Searching...
+                                            Ready to search
                                         </div>
                                         )}
                                     </div>
