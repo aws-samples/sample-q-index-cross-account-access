@@ -16,7 +16,7 @@ function App() {
         step5: false
     });
 
-    // New state for manual credentials
+    // State for manual credentials
     const [manualCredentials, setManualCredentials] = useState({
         accessKeyId: '',
         secretAccessKey: '',
@@ -52,6 +52,8 @@ function App() {
     const [idToken, setIdToken] = useState(null);    // Step 3: IDC Token
     const [searchResults, setSearchResults] = useState(null);  // Step 5: Search Results
     const [stsCredentials, setSTSCredentials] = useState(null); // Step 4: STS Credentials
+
+    const [isSearching, setIsSearching] = useState(false);
 
     // Error State Management for All Steps
     const [errors, setErrors] = useState({
@@ -331,25 +333,7 @@ function App() {
                 {!code ? (
                     <div className="step-form-container">
                         <h3>Step 1: Enter Configuration Details</h3>
-                        <div className="form-header">
-                        <div className="tooltip-container">
-                            <span className="tooltip-icon">ℹ️</span>
-                            <div className="tooltip-content">
-                            <h4>Where to find these values?</h4>
-                            <ul>
-                                <li><strong>IAM Role ARN:</strong> Provided by the ISV for cross-account access</li>
-                                <li><strong>Amazon Q Business application ID:</strong> Unique identifier of the Amazon Q Business application environment</li>
-                                <li><strong>Amazon Q Business application Region:</strong> AWS Region where the Amazon Q Business application environment is created</li>
-                                <li><strong>Amazon Q Business retriever ID:</strong> Unique identifier for the retriever that gets data from the Amazon Q index</li>
-                                <li><strong>Data accessor application ARN:</strong> ISV Amazon Resource Name (ARN) used to identify the ISV</li>
-                                <li><strong>IAM Identity Center Region:</strong> AWS Region where the IDC instance of the customer has been created</li>
-                            </ul>
-                            <a href="https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv-accessing-cross-account.html" target="_blank" rel="noopener noreferrer">
-                                Learn more →
-                            </a>
-                            </div>
-                        </div>
-                        </div>
+                       
                         {errors.step1 && <div className="error-message">{errors.step1}</div>}
                         
                         <div className="step-content-wrapper">
@@ -395,6 +379,23 @@ window.location.href = authUrl;`}
                                 
                                 <div className="form-section">
                                     <h4>ISV Provided Details</h4>
+                                    <div className="tooltip-container">
+                                        <span className="tooltip-icon">ℹ️</span>
+                                        <div className="tooltip-content">
+                                        <h4>Where to find these values?</h4>
+                                        <ul>
+                                            <li><strong>IAM Role ARN:</strong> Provided by the ISV for cross-account access</li>
+                                            <li><strong>Amazon Q Business application ID:</strong> Unique identifier of the Amazon Q Business application environment</li>
+                                            <li><strong>Amazon Q Business application Region:</strong> AWS Region where the Amazon Q Business application environment is created</li>
+                                            <li><strong>Amazon Q Business retriever ID:</strong> Unique identifier for the retriever that gets data from the Amazon Q index</li>
+                                            <li><strong>Data accessor application ARN:</strong> ISV Amazon Resource Name (ARN) used to identify the ISV</li>
+                                            <li><strong>IAM Identity Center Region:</strong> AWS Region where the IDC instance of the customer has been created</li>
+                                        </ul>
+                                        <a href="https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv-accessing-cross-account.html" target="_blank" rel="noopener noreferrer">
+                                            Learn more →
+                                        </a>
+                                        </div>
+                                    </div>
                                     <div className="input-group">
                                         <input
                                         type="text"
@@ -538,56 +539,56 @@ window.location.href = authUrl;`}
                                     {errors.step2 && <div className="error-message">{errors.step2}</div>}
                                     <div className="step-content-wrapper">
                                         <div className="step-image-container">
-                                        <div className="step-image">
-                                            <div className="image-container">
-                                            <img
-                                                src="architecture-2.png"
-                                                alt="Step 2 Architecture"
-                                                className="base-image"
-                                                onClick={() => handleImageClick('step2')}
-                                            />
-                                            <div className="tooltip">Click to zoom</div>
-                                            <div 
-                                                className={`fullscreen-overlay ${zoomedImages.step2 ? 'active' : ''}`} 
-                                                onClick={() => handleImageClick('step2')}
-                                            >
+                                            <div className="step-image">
+                                                <div className="image-container">
                                                 <img
-                                                src="architecture-2.png"
-                                                alt="Step 2 Architecture"
-                                                className="fullscreen-image"
+                                                    src="architecture-2.png"
+                                                    alt="Step 2 Architecture"
+                                                    className="base-image"
+                                                    onClick={() => handleImageClick('step2')}
                                                 />
+                                                <div className="tooltip">Click to zoom</div>
+                                                <div 
+                                                    className={`fullscreen-overlay ${zoomedImages.step2 ? 'active' : ''}`} 
+                                                    onClick={() => handleImageClick('step2')}
+                                                >
+                                                    <img
+                                                    src="architecture-2.png"
+                                                    alt="Step 2 Architecture"
+                                                    className="fullscreen-image"
+                                                    />
+                                                </div>
+                                                </div>
                                             </div>
+                                            <div className="code-snippet">
+                                                <h4 className="snippet-title">Authentication Code</h4>
+                                                <pre>
+                                                <code>
+    {`// Get Authorization Code from URL
+    const params = new URLSearchParams(window.location.search);
+    const authCode = params.get('code');
+    const state = params.get('state');
+
+    // Process state parameter if present
+    if (state) {
+    const decodedState = JSON.parse(atob(state));
+    setFormData(decodedState);
+    }
+
+    // Store the authorization code
+    setCode(authCode);`}
+                                                </code>
+                                                </pre>
                                             </div>
-                                        </div>
-                                        <div className="code-snippet">
-                                            <h4 className="snippet-title">Authentication Code</h4>
-                                            <pre>
-                                            <code>
-{`// Get Authorization Code from URL
-const params = new URLSearchParams(window.location.search);
-const authCode = params.get('code');
-const state = params.get('state');
-
-// Process state parameter if present
-if (state) {
-  const decodedState = JSON.parse(atob(state));
-  setFormData(decodedState);
-}
-
-// Store the authorization code
-setCode(authCode);`}
-                                            </code>
-                                            </pre>
-                                        </div>
                                         </div>
                                         <div className="auth-status-container">
-                                        <div className="auth-code-display">
-                                            <h4>Authorization Code</h4>
-                                            <p className="code-text">{code}</p>
-                                        </div>
-                                        <div className="status-indicator status-complete">
-                                            Authentication Complete
-                                        </div>
+                                            <div className="auth-code-display">
+                                                <h4>Authorization Code</h4>
+                                                <p className="code-text">{code}</p>
+                                            </div>
+                                            <div className="status-indicator status-complete">
+                                                Authentication Complete
+                                            </div>
                                         </div>
                                     </div>
                                     </div>
@@ -811,25 +812,30 @@ const searchResponse = await qbusinessClient.send(searchCommand);`}
                                         <form onSubmit={async (e) => {
                                             e.preventDefault();
                                             const queryText = e.target.queryText.value;
+                                            setIsSearching(true); // Set loading state to true before search
+                                            setSearchResults(null); // Clear previous search results
+
                                             const qbusinessClient = new QBusinessClient({
-                                            region: formData.applicationRegion,
-                                            credentials: stsCredentials
+                                                region: formData.applicationRegion,
+                                                credentials: stsCredentials
                                             });
                                             const searchCommand = new SearchRelevantContentCommand({
-                                            applicationId: formData.qBusinessAppId,
-                                            queryText: queryText,
-                                            contentSource: {
-                                                retriever: {
-                                                retrieverId: formData.retrieverId
+                                                applicationId: formData.qBusinessAppId,
+                                                queryText: queryText,
+                                                contentSource: {
+                                                    retriever: {
+                                                        retrieverId: formData.retrieverId
+                                                    }
                                                 }
-                                            }
                                             });
                                             try {
-                                            const searchResponse = await qbusinessClient.send(searchCommand);
-                                            setSearchResults(searchResponse);
-                                            setErrors(prev => ({ ...prev, step5: null }));
+                                                const searchResponse = await qbusinessClient.send(searchCommand);
+                                                setSearchResults(searchResponse);
+                                                setErrors(prev => ({ ...prev, step5: null }));
                                             } catch (error) {
-                                            setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
+                                                setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
+                                            } finally {
+                                                setIsSearching(false); // Set loading state to false after search completes
                                             }
                                         }}>
                                             <div className="search-input-group">
@@ -840,7 +846,11 @@ const searchResponse = await qbusinessClient.send(searchCommand);`}
                                                 className="search-input"
                                             />
                                             <button type="submit" className="search-button">
-                                                Search
+                                                {isSearching ? (
+                                                    <span className="loading-spinner">⌛</span>
+                                                ) : (
+                                                    'Search'
+                                                )}
                                             </button>
                                             </div>
                                         </form>
