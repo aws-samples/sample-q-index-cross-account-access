@@ -11,9 +11,9 @@ function App() {
     const [currentStep, setCurrentStep] = useState(1);
     const [minimizedSteps, setMinimizedSteps] = useState({
         step1: false,
-        step2: false,
-        step3: false,
-        step4: false,
+        step2: true,
+        step3: true,
+        step4: true,
         step5: false,
         step6: false
     });
@@ -58,9 +58,11 @@ function App() {
 
     const [isSearching, setIsSearching] = useState(false);
     const [selectedResultItem, setSelectedResultItem] = useState(null);
+    const [currentQueryText, setCurrentQueryText] = useState('');
 
     // UI Step 6
     const [searchSummary, setSearchSummary] = useState(null);
+    const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
     // Error State Management for All Steps
     const [errors, setErrors] = useState({
@@ -101,6 +103,9 @@ function App() {
       
     const summarizeWithBedrock = async (searchResults) => {
         try {
+            setSearchSummary(null);
+            setErrors(prev => ({ ...prev, step6: null }));
+            setIsGeneratingSummary(true);
             const bedrockClient = new BedrockRuntimeClient({
                 region: formData.applicationRegion,
                 credentials: isRunningOnAmplify()
@@ -123,7 +128,7 @@ function App() {
             .map(item => item.content)
             .join('\n\n');
         
-            const prompt = `Please provide a concise summary of the following search results:\n\n${contentToSummarize}`;
+            const prompt = `Please provide a concise summary for the search query "${currentQueryText}" based on the following search results:\n\n${contentToSummarize}`;
         
             const command = new InvokeModelCommand({
                 modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
@@ -160,12 +165,11 @@ function App() {
 
             setSearchSummary(content[0].text);
 
-
-            //const responseBody = JSON.parse(new TextDecoder().decode(response.body));
-            //setSearchSummary(responseBody.messages[0].content);
             
         } catch (error) {
             setErrors(prev => ({ ...prev, step6: `Error generating summary: ${error.message}` }));
+        } finally {
+            setIsGeneratingSummary(false);
         }
     };
 
@@ -188,8 +192,16 @@ function App() {
     }, [idToken]);
 
     useEffect(() => {
+        if (stsCredentials) setCurrentStep(4);
+    }, [stsCredentials]);
+
+    useEffect(() => {
         if (searchResults) setCurrentStep(5);
     }, [searchResults]);
+
+    useEffect(() => {
+        if (searchSummary) setCurrentStep(6);
+    }, [searchSummary]);
 
     // UI Steps 2-5: Main Authentication Process
     useEffect(() => {
@@ -226,7 +238,6 @@ function App() {
                         RoleSessionName: 'automated-session'
                     });
                     assumeRoleResponse = await stsClient.send(assumeRoleCommand);
-                    setCurrentStep(4);
                     setErrors(prev => ({ ...prev, step4: null }));
 
                     // Store temporary credentials
@@ -850,12 +861,12 @@ const credentials = {
                                             <h4 className="snippet-title">Search API Code</h4>
                                             <pre>
                                             <code>
-    {`const qbusinessClient = new QBusinessClient({
+{`const qbusinessClient = new QBusinessClient({
     region: formData.applicationRegion,
     credentials: stsCredentials
-    });
+});
 
-    const searchCommand = new SearchRelevantContentCommand({
+const searchCommand = new SearchRelevantContentCommand({
     applicationId: formData.qBusinessAppId,
     queryText: queryText,
     contentSource: {
@@ -863,9 +874,9 @@ const credentials = {
         retrieverId: formData.retrieverId
         }
     }
-    });
+});
 
-    const searchResponse = await qbusinessClient.send(searchCommand);`}
+const searchResponse = await qbusinessClient.send(searchCommand);`}
                                             </code>
                                             </pre>
                                         </div>
@@ -878,8 +889,16 @@ const credentials = {
                                             <form onSubmit={async (e) => {
                                                 e.preventDefault();
                                                 const queryText = e.target.queryText.value;
+                                                setCurrentQueryText(queryText); // Store the query text
                                                 setIsSearching(true); // Set loading state to true before search
                                                 setSearchResults(null); // Clear previous search results
+                                                setSearchSummary(null);
+                                                // Clear error messages when starting a new search
+                                                setErrors(prev => ({
+                                                    ...prev,
+                                                    step5: null,  // Clear search-related errors
+                                                    step6: null   // Clear summary-related errors
+                                                }));
 
                                                 const qbusinessClient = new QBusinessClient({
                                                     region: formData.applicationRegion,
@@ -992,14 +1011,40 @@ const credentials = {
                                     {errors.step6 && <div className="error-message">{errors.step6}</div>}
                                     <div className="step-content-wrapper">
                                         <div className="left-panel">
-                                        <div className="code-snippet">
-                                            <h4 className="snippet-title">Bedrock Integration Code</h4>
-                                            <pre>
-                                            <code>
+                                            <div className="step-image-container">
+                                                <div className="step-image">
+                                                <div className="image-container">
+                                                    <img
+                                                    src="architecture-6.png"
+                                                    alt="Step 6 Architecture"
+                                                    className="base-image"
+                                                    onClick={() => handleImageClick('step6')}
+                                                    />
+                                                    <div className="tooltip">Click to zoom</div>
+                                                    <div
+                                                    className={`fullscreen-overlay ${zoomedImages.step5 ? 'active' : ''}`}
+                                                    onClick={() => handleImageClick('step6')}
+                                                    >
+                                                    <img
+                                                        src="architecture-6.png"
+                                                        alt="Step 6 Architecture"
+                                                        className="fullscreen-image"
+                                                    />
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
+                                            <div className="code-snippet">
+                                                <h4 className="snippet-title">Bedrock Integration Code</h4>
+                                                <pre>
+                                                <code>
 {`const bedrockClient = new BedrockRuntimeClient({
     region: formData.applicationRegion,
     credentials: stsCredentials
 });
+
+const prompt = 'Please provide a concise summary for the search query "\${currentQueryText}" based on the following search results: \${contentToSummarize}';
+        
 
 const command = new InvokeModelCommand({
     modelId: "anthropic.claude-3-sonnet-20240320-v1:0",
@@ -1013,21 +1058,25 @@ const command = new InvokeModelCommand({
         }]
     })
 });`}
-                                            </code>
-                                            </pre>
-                                        </div>
+                                                </code>
+                                                </pre>
+                                            </div>
                                         </div>
 
                                         <div className="right-panel">
                                         <div className="summary-section">
                                             {searchResults ? (
                                             <>
-                                                <button 
-                                                className="summarize-button"
-                                                onClick={() => summarizeWithBedrock(searchResults)}
-                                                disabled={!searchResults || !searchResults.relevantContent}
+                                                <button
+                                                    className="summarize-button"
+                                                    onClick={() => summarizeWithBedrock(searchResults)}
+                                                    disabled={!searchResults || !searchResults.relevantContent}
                                                 >
-                                                Generate AI Summary
+                                                    {isGeneratingSummary ? (
+                                                        <span className="loading-spinner">⌛</span>
+                                                    ) : (
+                                                        'Generate AI Summary'
+                                                    )}
                                                 </button>
                                                 {searchSummary && (
                                                 <div className="summary-content">
