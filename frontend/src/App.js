@@ -54,6 +54,7 @@ function App() {
     const [stsCredentials, setSTSCredentials] = useState(null); // Step 4: STS Credentials
 
     const [isSearching, setIsSearching] = useState(false);
+    const [selectedResultItem, setSelectedResultItem] = useState(null);
 
     // Error State Management for All Steps
     const [errors, setErrors] = useState({
@@ -82,6 +83,15 @@ function App() {
     const isRunningOnAmplify = () => {
         return process.env.AWS_EXECUTION_ENV?.includes('AWS_Amplify');
     };
+
+    const handleItemClick = (item) => {
+        setSelectedResultItem(item);
+    };
+
+    const handleClosePopup = () => {
+        setSelectedResultItem(null);
+    };
+      
 
     // Check for environment credentials
     useEffect(() => {
@@ -865,15 +875,24 @@ const searchResponse = await qbusinessClient.send(searchCommand);`}
                                             {searchResults.relevantContent ? (
                                                 <div className="results-container">
                                                 {searchResults.relevantContent.map((item, index) => (
-                                                    <div key={index} className="result-item">
-                                                    <h4>{item.documentTitle}</h4>
-                                                    <p><strong>URI:</strong> <a href={item.documentUri} target="_blank" rel="noopener noreferrer">{item.documentUri}</a></p>
-                                                    <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
-                                                    <div className="content-preview">
+                                                    <div 
+                                                        key={index} 
+                                                        className="result-item"
+                                                        onClick={() => handleItemClick(item)}
+                                                    >
+                                                        <h4>{item.documentTitle}</h4>
+                                                        <p><strong>URI:</strong> <a 
+                                                        href={item.documentUri} 
+                                                        target="_blank" 
+                                                        rel="noopener noreferrer"
+                                                        onClick={(e) => e.stopPropagation()} // Prevent popup when clicking the link
+                                                        >{item.documentUri}</a></p>
+                                                        <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
+                                                        <div className="content-preview">
                                                         <strong>Content:</strong>
                                                         <p>{item.content.substring(0, 700)}...</p>
-                                                    </div>
-                                                    <hr />
+                                                        </div>
+                                                        <hr />
                                                     </div>
                                                 ))}
                                                 </div>
@@ -886,6 +905,17 @@ const searchResponse = await qbusinessClient.send(searchCommand);`}
                                         <div className="status-indicator status-pending">
                                             Ready to search
                                         </div>
+                                        )}
+                                        {selectedResultItem && (
+                                            <div className="json-popup-overlay" onClick={handleClosePopup}>
+                                                <div className="json-popup-content" onClick={(e) => e.stopPropagation()}>
+                                                <button className="json-popup-close" onClick={handleClosePopup}>✕</button>
+                                                <h3>Raw JSON Data</h3>
+                                                <pre style={{ whiteSpace: 'pre-wrap' }}>
+                                                    {JSON.stringify(selectedResultItem, null, 2)}
+                                                </pre>
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
                                     </div>
