@@ -754,8 +754,8 @@
   cursor: pointer;
   font-size: 16px;
   min-height: 45px;
-  width: 100%;
-  margin-bottom: 20px;
+  flex: 1;
+  margin-bottom: 0;
 }
 
 .summarize-button:hover {
@@ -796,4 +796,20 @@
   color: #fff;
   line-height: 1.6;
   white-space: pre-wrap;
+}
+
+.summary-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center; 
+}
+
+.model-select {
+  padding: 12px; /* Match the padding of search input */
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-width: 200px;
+  min-height: 45px; /* Match the height of search button */
+  font-size: 15px; /* Match font size */
 }
