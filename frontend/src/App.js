@@ -4,6 +4,7 @@ import './App.css';
 import { SSOOIDCClient, CreateTokenWithIAMCommand } from "@aws-sdk/client-sso-oidc";
 import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import { QBusinessClient, SearchRelevantContentCommand } from "@aws-sdk/client-qbusiness";
+import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 
 function App() {
     // UI Step 1: Form Input Configuration - State Management
@@ -13,7 +14,8 @@ function App() {
         step2: false,
         step3: false,
         step4: false,
-        step5: false
+        step5: false,
+        step6: false
     });
 
     // State for manual credentials
@@ -44,7 +46,8 @@ function App() {
         step2: false,
         step3: false,
         step4: false,
-        step5: false
+        step5: false,
+        step6: false
     });
 
     // UI Steps 2-5: State Management for Authentication Flow
@@ -56,13 +59,17 @@ function App() {
     const [isSearching, setIsSearching] = useState(false);
     const [selectedResultItem, setSelectedResultItem] = useState(null);
 
+    // UI Step 6
+    const [searchSummary, setSearchSummary] = useState(null);
+
     // Error State Management for All Steps
     const [errors, setErrors] = useState({
         step1: null,
         step2: null,
         step3: null,
         step4: null,
-        step5: null
+        step5: null,
+        step6: null
     });
 
     // UI Step Controls - Minimize/Maximize Step Displays
@@ -92,6 +99,76 @@ function App() {
         setSelectedResultItem(null);
     };
       
+    const summarizeWithBedrock = async (searchResults) => {
+        try {
+            const bedrockClient = new BedrockRuntimeClient({
+                region: formData.applicationRegion,
+                credentials: isRunningOnAmplify()
+                      ? undefined // When undefined, AWS SDK will use the Amplify role credentials
+                      : needsManualCredentials
+                        ? {
+                            accessKeyId: manualCredentials.accessKeyId,
+                            secretAccessKey: manualCredentials.secretAccessKey,
+                            sessionToken: manualCredentials.sessionToken
+                          }
+                        : {
+                            accessKeyId: String(process.env.REACT_APP_AWS_ACCESS_KEY_ID || ''),
+                            secretAccessKey: String(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''),
+                            sessionToken: String(process.env.REACT_APP_AWS_SESSION_TOKEN || '')
+                          }
+            });
+        
+            // Prepare the content to summarize
+            const contentToSummarize = searchResults.relevantContent
+            .map(item => item.content)
+            .join('\n\n');
+        
+            const prompt = `Please provide a concise summary of the following search results:\n\n${contentToSummarize}`;
+        
+            const command = new InvokeModelCommand({
+                modelId: "anthropic.claude-3-5-sonnet-20240620-v1:0",
+                contentType: "application/json",
+                accept: "application/json",
+                body: JSON.stringify({
+                    anthropic_version: "bedrock-2023-05-31",
+                    max_tokens: 1000,
+                    messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                    ]
+                })
+            });
+        
+            const response = await bedrockClient.send(command);
+            
+            // Create a Uint8Array from the response body
+            const responseBody = new Uint8Array(Object.values(response.body));
+            
+            // Use TextDecoder to convert the Uint8Array to text
+            const decodedResponse = new TextDecoder('utf-8').decode(responseBody);
+            
+            // Parse the decoded text as JSON
+            const parsedResponse = JSON.parse(decodedResponse);
+            
+            // Now you can access the response content
+            console.log('Decoded Response:', parsedResponse);
+            
+            // Access specific parts of the response if needed
+            const content = parsedResponse.content;
+
+            setSearchSummary(content[0].text);
+
+
+            //const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+            //setSearchSummary(responseBody.messages[0].content);
+            
+        } catch (error) {
+            setErrors(prev => ({ ...prev, step6: `Error generating summary: ${error.message}` }));
+        }
+    };
+
 
     // Check for environment credentials
     useEffect(() => {
@@ -218,31 +295,6 @@ function App() {
                         };
                         setSTSCredentials(credentials);
 
-                        // 5. Call SearchRelevantContent API
-                        // Initialize Q Business client with temporary credentials
-                        // const qbusinessClient = new QBusinessClient({
-                        //     region: formData.applicationRegion,
-                        //     credentials: credentials
-                        // });
-
-                        // Create and execute search command
-                        // const searchCommand = new SearchRelevantContentCommand({
-                        //     applicationId: formData.qBusinessAppId,
-                        //     queryText: "",
-                        //     contentSource: {
-                        //         retriever: {
-                        //             retrieverId: formData.retrieverId
-                        //         }
-                        //     }
-                        // });
-
-                        // try {
-                        //     const searchResponse = await qbusinessClient.send(searchCommand);
-                        //     setSearchResults(searchResponse);
-                        //     setErrors(prev => ({ ...prev, step5: null }));
-                        // } catch (error) {
-                        //     setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
-                        // }
                     } catch (error) {
                         setErrors(prev => ({ ...prev, step5: `Error processing token: ${error.message}` }));
                     }
@@ -336,6 +388,10 @@ function App() {
                     <div className={`step ${currentStep >= 5 ? 'active' : ''}`}>
                         <div className="step-number">5</div>
                         <div className="step-label">SRC API</div>
+                    </div>
+                    <div className={`step ${currentStep >= 6 ? 'active' : ''}`}>
+                        <div className="step-number">6</div>
+                        <div className="step-label">LLM Summary</div>
                     </div>
                     <div className="progress-line"></div>
                 </div>
@@ -755,175 +811,244 @@ const credentials = {
 
                             {/* Step 5: SearchRelevantContent API */}
                             <div className="process-step">
-                            <div className="step-header">
-                                <h3>Step 5: SearchRelevantContent API</h3>
-                                <button className="minimize-button" onClick={() => toggleMinimize('step5')}>
-                                {minimizedSteps.step5 ? '▼' : '▲'}
-                                </button>
-                            </div>
-                            {!minimizedSteps.step5 && (
-                                <div className="step-content">
-                                {errors.step5 && <div className="error-message">{errors.step5}</div>}
-                                <div className="step-content-wrapper">
-                                    {/* Left side: Architecture and Code */}
-                                    <div className="left-panel">
-                                    <div className="step-image-container">
-                                        <div className="step-image">
-                                        <div className="image-container">
-                                            <img
-                                            src="architecture-5.png"
-                                            alt="Step 5 Architecture"
-                                            className="base-image"
-                                            onClick={() => handleImageClick('step5')}
-                                            />
-                                            <div className="tooltip">Click to zoom</div>
-                                            <div
-                                            className={`fullscreen-overlay ${zoomedImages.step5 ? 'active' : ''}`}
-                                            onClick={() => handleImageClick('step5')}
-                                            >
-                                            <img
+                                <div className="step-header">
+                                    <h3>Step 5: SearchRelevantContent API</h3>
+                                    <button className="minimize-button" onClick={() => toggleMinimize('step5')}>
+                                    {minimizedSteps.step5 ? '▼' : '▲'}
+                                    </button>
+                                </div>
+                                {!minimizedSteps.step5 && (
+                                    <div className="step-content">
+                                    {errors.step5 && <div className="error-message">{errors.step5}</div>}
+                                    <div className="step-content-wrapper">
+                                        {/* Left side: Architecture and Code */}
+                                        <div className="left-panel">
+                                        <div className="step-image-container">
+                                            <div className="step-image">
+                                            <div className="image-container">
+                                                <img
                                                 src="architecture-5.png"
                                                 alt="Step 5 Architecture"
-                                                className="fullscreen-image"
-                                            />
+                                                className="base-image"
+                                                onClick={() => handleImageClick('step5')}
+                                                />
+                                                <div className="tooltip">Click to zoom</div>
+                                                <div
+                                                className={`fullscreen-overlay ${zoomedImages.step5 ? 'active' : ''}`}
+                                                onClick={() => handleImageClick('step5')}
+                                                >
+                                                <img
+                                                    src="architecture-5.png"
+                                                    alt="Step 5 Architecture"
+                                                    className="fullscreen-image"
+                                                />
+                                                </div>
+                                            </div>
                                             </div>
                                         </div>
-                                        </div>
-                                    </div>
-                                    <div className="code-snippet">
-                                        <h4 className="snippet-title">Search API Code</h4>
-                                        <pre>
-                                        <code>
-{`const qbusinessClient = new QBusinessClient({
-  region: formData.applicationRegion,
-  credentials: stsCredentials
-});
+                                        <div className="code-snippet">
+                                            <h4 className="snippet-title">Search API Code</h4>
+                                            <pre>
+                                            <code>
+    {`const qbusinessClient = new QBusinessClient({
+    region: formData.applicationRegion,
+    credentials: stsCredentials
+    });
 
-const searchCommand = new SearchRelevantContentCommand({
-  applicationId: formData.qBusinessAppId,
-  queryText: queryText,
-  contentSource: {
-    retriever: {
-      retrieverId: formData.retrieverId
+    const searchCommand = new SearchRelevantContentCommand({
+    applicationId: formData.qBusinessAppId,
+    queryText: queryText,
+    contentSource: {
+        retriever: {
+        retrieverId: formData.retrieverId
+        }
     }
-  }
+    });
+
+    const searchResponse = await qbusinessClient.send(searchCommand);`}
+                                            </code>
+                                            </pre>
+                                        </div>
+                                        </div>
+
+                                        {/* Right side: Search functionality */}
+                                        <div className="right-panel">
+                                        <div className="search-section">
+                                            <div className="search-form">
+                                            <form onSubmit={async (e) => {
+                                                e.preventDefault();
+                                                const queryText = e.target.queryText.value;
+                                                setIsSearching(true); // Set loading state to true before search
+                                                setSearchResults(null); // Clear previous search results
+
+                                                const qbusinessClient = new QBusinessClient({
+                                                    region: formData.applicationRegion,
+                                                    credentials: stsCredentials
+                                                });
+                                                const searchCommand = new SearchRelevantContentCommand({
+                                                    applicationId: formData.qBusinessAppId,
+                                                    queryText: queryText,
+                                                    contentSource: {
+                                                        retriever: {
+                                                            retrieverId: formData.retrieverId
+                                                        }
+                                                    }
+                                                });
+                                                try {
+                                                    const searchResponse = await qbusinessClient.send(searchCommand);
+                                                    setSearchResults(searchResponse);
+                                                    setErrors(prev => ({ ...prev, step5: null }));
+                                                } catch (error) {
+                                                    setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
+                                                } finally {
+                                                    setIsSearching(false); // Set loading state to false after search completes
+                                                }
+                                            }}>
+                                                <div className="search-input-group">
+                                                <input
+                                                    type="text"
+                                                    name="queryText"
+                                                    placeholder="Enter your search query"
+                                                    className="search-input"
+                                                />
+                                                <button type="submit" className="search-button">
+                                                    {isSearching ? (
+                                                        <span className="loading-spinner">⌛</span>
+                                                    ) : (
+                                                        'Search'
+                                                    )}
+                                                </button>
+                                                </div>
+                                            </form>
+                                            </div>
+
+                                            {searchResults ? (
+                                            <>
+                                                <div className="status-indicator status-complete">
+                                                Search Complete
+                                                </div>
+                                                <div className="search-results">
+                                                {searchResults.relevantContent ? (
+                                                    <div className="results-container">
+                                                    {searchResults.relevantContent.map((item, index) => (
+                                                        <div 
+                                                            key={index} 
+                                                            className="result-item"
+                                                            onClick={() => handleItemClick(item)}
+                                                        >
+                                                            <h4>{item.documentTitle}</h4>
+                                                            <p><strong>URI:</strong> <a 
+                                                            href={item.documentUri} 
+                                                            target="_blank" 
+                                                            rel="noopener noreferrer"
+                                                            onClick={(e) => e.stopPropagation()} // Prevent popup when clicking the link
+                                                            >{item.documentUri}</a></p>
+                                                            <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
+                                                            <div className="content-preview">
+                                                            <strong>Content:</strong>
+                                                            <p>{item.content.substring(0, 700)}...</p>
+                                                            </div>
+                                                            <hr />
+                                                        </div>
+                                                    ))}
+                                                    </div>
+                                                ) : (
+                                                    <pre>{JSON.stringify(searchResults, null, 2)}</pre>
+                                                )}
+                                                </div>
+                                            </>
+                                            ) : (
+                                            <div className="status-indicator status-pending">
+                                                Ready to search
+                                            </div>
+                                            )}
+                                            {selectedResultItem && (
+                                                <div className="json-popup-overlay" onClick={handleClosePopup}>
+                                                    <div className="json-popup-content" onClick={(e) => e.stopPropagation()}>
+                                                    <button className="json-popup-close" onClick={handleClosePopup}>✕</button>
+                                                    <h3>Raw JSON Data</h3>
+                                                    <pre style={{ whiteSpace: 'pre-wrap' }}>
+                                                        {JSON.stringify(selectedResultItem, null, 2)}
+                                                    </pre>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                )}
+                            </div>
+                            {/* Step 6: Bedrock Summary */}
+                            <div className="process-step">
+                                <div className="step-header">
+                                    <h3>Step 6: LLM-Generated Summary</h3>
+                                    <button className="minimize-button" onClick={() => toggleMinimize('step6')}>
+                                    {minimizedSteps.step6 ? '▼' : '▲'}
+                                    </button>
+                                </div>
+                                {!minimizedSteps.step6 && (
+                                    <div className="step-content">
+                                    {errors.step6 && <div className="error-message">{errors.step6}</div>}
+                                    <div className="step-content-wrapper">
+                                        <div className="left-panel">
+                                        <div className="code-snippet">
+                                            <h4 className="snippet-title">Bedrock Integration Code</h4>
+                                            <pre>
+                                            <code>
+{`const bedrockClient = new BedrockRuntimeClient({
+    region: formData.applicationRegion,
+    credentials: stsCredentials
 });
 
-const searchResponse = await qbusinessClient.send(searchCommand);`}
-                                        </code>
-                                        </pre>
-                                    </div>
-                                    </div>
-
-                                    {/* Right side: Search functionality */}
-                                    <div className="right-panel">
-                                    <div className="search-section">
-                                        <div className="search-form">
-                                        <form onSubmit={async (e) => {
-                                            e.preventDefault();
-                                            const queryText = e.target.queryText.value;
-                                            setIsSearching(true); // Set loading state to true before search
-                                            setSearchResults(null); // Clear previous search results
-
-                                            const qbusinessClient = new QBusinessClient({
-                                                region: formData.applicationRegion,
-                                                credentials: stsCredentials
-                                            });
-                                            const searchCommand = new SearchRelevantContentCommand({
-                                                applicationId: formData.qBusinessAppId,
-                                                queryText: queryText,
-                                                contentSource: {
-                                                    retriever: {
-                                                        retrieverId: formData.retrieverId
-                                                    }
-                                                }
-                                            });
-                                            try {
-                                                const searchResponse = await qbusinessClient.send(searchCommand);
-                                                setSearchResults(searchResponse);
-                                                setErrors(prev => ({ ...prev, step5: null }));
-                                            } catch (error) {
-                                                setErrors(prev => ({ ...prev, step5: `Error searching content: ${error.message}` }));
-                                            } finally {
-                                                setIsSearching(false); // Set loading state to false after search completes
-                                            }
-                                        }}>
-                                            <div className="search-input-group">
-                                            <input
-                                                type="text"
-                                                name="queryText"
-                                                placeholder="Enter your search query"
-                                                className="search-input"
-                                            />
-                                            <button type="submit" className="search-button">
-                                                {isSearching ? (
-                                                    <span className="loading-spinner">⌛</span>
-                                                ) : (
-                                                    'Search'
-                                                )}
-                                            </button>
-                                            </div>
-                                        </form>
+const command = new InvokeModelCommand({
+    modelId: "anthropic.claude-3-sonnet-20240320-v1:0",
+    contentType: "application/json",
+    body: JSON.stringify({
+        anthropic_version: "bedrock-2023-05-31",
+        max_tokens: 1000,
+        messages: [{
+            role: "user",
+            content: prompt
+        }]
+    })
+});`}
+                                            </code>
+                                            </pre>
+                                        </div>
                                         </div>
 
-                                        {searchResults ? (
-                                        <>
-                                            <div className="status-indicator status-complete">
-                                            Search Complete
-                                            </div>
-                                            <div className="search-results">
-                                            {searchResults.relevantContent ? (
-                                                <div className="results-container">
-                                                {searchResults.relevantContent.map((item, index) => (
-                                                    <div 
-                                                        key={index} 
-                                                        className="result-item"
-                                                        onClick={() => handleItemClick(item)}
-                                                    >
-                                                        <h4>{item.documentTitle}</h4>
-                                                        <p><strong>URI:</strong> <a 
-                                                        href={item.documentUri} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
-                                                        onClick={(e) => e.stopPropagation()} // Prevent popup when clicking the link
-                                                        >{item.documentUri}</a></p>
-                                                        <p><strong>Confidence:</strong> {item.scoreAttributes.scoreConfidence}</p>
-                                                        <div className="content-preview">
-                                                        <strong>Content:</strong>
-                                                        <p>{item.content.substring(0, 700)}...</p>
-                                                        </div>
-                                                        <hr />
+                                        <div className="right-panel">
+                                        <div className="summary-section">
+                                            {searchResults ? (
+                                            <>
+                                                <button 
+                                                className="summarize-button"
+                                                onClick={() => summarizeWithBedrock(searchResults)}
+                                                disabled={!searchResults || !searchResults.relevantContent}
+                                                >
+                                                Generate AI Summary
+                                                </button>
+                                                {searchSummary && (
+                                                <div className="summary-content">
+                                                    <h4>Summary</h4>
+                                                    <div className="summary-text">
+                                                    {searchSummary}
                                                     </div>
-                                                ))}
                                                 </div>
+                                                )}
+                                            </>
                                             ) : (
-                                                <pre>{JSON.stringify(searchResults, null, 2)}</pre>
+                                            <div className="status-indicator status-pending">
+                                                Please perform a search first to generate a summary
+                                            </div>
                                             )}
-                                            </div>
-                                        </>
-                                        ) : (
-                                        <div className="status-indicator status-pending">
-                                            Ready to search
                                         </div>
-                                        )}
-                                        {selectedResultItem && (
-                                            <div className="json-popup-overlay" onClick={handleClosePopup}>
-                                                <div className="json-popup-content" onClick={(e) => e.stopPropagation()}>
-                                                <button className="json-popup-close" onClick={handleClosePopup}>✕</button>
-                                                <h3>Raw JSON Data</h3>
-                                                <pre style={{ whiteSpace: 'pre-wrap' }}>
-                                                    {JSON.stringify(selectedResultItem, null, 2)}
-                                                </pre>
-                                                </div>
-                                            </div>
-                                        )}
+                                        </div>
                                     </div>
                                     </div>
-                                </div>
-                                </div>
-                            )}
+                                )}
                             </div>
-
 
 
                         </div>
