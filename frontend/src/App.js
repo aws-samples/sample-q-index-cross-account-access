@@ -6,6 +6,7 @@ import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 import { QBusinessClient, SearchRelevantContentCommand } from "@aws-sdk/client-qbusiness";
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
 import { BedrockClient, ListFoundationModelsCommand } from "@aws-sdk/client-bedrock";
+import ReactMarkdown from 'react-markdown';
 
 function App() {
     // UI Step 1: Form Input Configuration - State Management
@@ -133,11 +134,12 @@ function App() {
         
             const prompt = `Please provide a concise summary for the search query "${currentQueryText}" based on the following search results:\n\n${contentToSummarize}`;
         
-            const command = new InvokeModelCommand({
-                modelId: selectedModel,
-                contentType: "application/json",
-                accept: "application/json",
-                body: JSON.stringify({
+            // Prepare the request body based on the selected model
+            let requestBody = {};
+            
+            if (selectedModel.includes('anthropic')) {
+                // Anthropic Claude models
+                requestBody = {
                     anthropic_version: "bedrock-2023-05-31",
                     max_tokens: 1000,
                     messages: [
@@ -146,27 +148,114 @@ function App() {
                         content: prompt
                     }
                     ]
-                })
+                };
+            } else if (selectedModel.includes('amazon.nova')) {
+                // Amazon Nova models
+                requestBody = {
+                  messages: [
+                    {
+                      role: "user",
+                      content: [{
+                        text: prompt
+                      }]
+                    }
+                  ]
+                };
+            } else if (selectedModel.includes('amazon.titan')) {
+                // Amazon Titan models
+                requestBody = {
+                    inputText: prompt,
+                    textGenerationConfig: {
+                        maxTokenCount: 1000,
+                        temperature: 0.7,
+                        topP: 0.9,
+                        stopSequences: []
+                    }
+                };
+            } else if (selectedModel.includes('meta.llama')) {
+                // Meta Llama models
+                requestBody = {
+                    prompt: prompt,
+                    max_gen_len: 1000,
+                    temperature: 0.7,
+                    top_p: 0.9
+                };
+            } else if (selectedModel.includes('cohere')) {
+                // Cohere models
+                requestBody = {
+                    prompt: prompt,
+                    max_tokens: 1000,
+                    temperature: 0.7,
+                    p: 0.9,
+                    k: 0,
+                    stop_sequences: [],
+                    return_likelihoods: 'NONE'
+                };
+            } else if (selectedModel.includes('ai21')) {
+                // AI21 models
+                requestBody = {
+                    prompt: prompt,
+                    maxTokens: 1000,
+                    temperature: 0.7,
+                    topP: 0.9,
+                    stopSequences: [],
+                    countPenalty: {
+                        scale: 0
+                    },
+                    presencePenalty: {
+                        scale: 0
+                    },
+                    frequencyPenalty: {
+                        scale: 0
+                    }
+                };
+            } else {
+                // Generic fallback for other models
+                requestBody = {
+                    messages: [
+                    {
+                        role: "user",
+                        content: prompt
+                    }
+                    ]
+                };
+            }
+
+            const command = new InvokeModelCommand({
+                modelId: selectedModel,
+                contentType: "application/json",
+                accept: "application/json",
+                body: JSON.stringify(requestBody)
             });
         
             const response = await bedrockClient.send(command);
-            
-            // Create a Uint8Array from the response body
             const responseBody = new Uint8Array(Object.values(response.body));
-            
-            // Use TextDecoder to convert the Uint8Array to text
             const decodedResponse = new TextDecoder('utf-8').decode(responseBody);
-            
-            // Parse the decoded text as JSON
             const parsedResponse = JSON.parse(decodedResponse);
-            
-            // Now you can access the response content
             console.log('Decoded Response:', parsedResponse);
             
             // Access specific parts of the response if needed
             const content = parsedResponse.content;
 
-            setSearchSummary(content[0].text);
+            // Handle different response formats based on model
+            let summaryText;
+            if (selectedModel.includes('anthropic')) {
+                summaryText = parsedResponse.content[0].text;
+            } else if (selectedModel.includes('amazon.nova')) {
+                summaryText = parsedResponse.output.message.content[0].text;
+            } else if (selectedModel.includes('amazon.titan')) {
+                summaryText = parsedResponse.results[0].outputText;
+            } else if (selectedModel.includes('meta.llama')) {
+                summaryText = parsedResponse.generation;
+            } else if (selectedModel.includes('cohere')) {
+                summaryText = parsedResponse.generations[0].text;
+            } else if (selectedModel.includes('ai21')) {
+                summaryText = parsedResponse.completions[0].data.text;
+            } else {
+                summaryText = parsedResponse.content || parsedResponse.text || parsedResponse.generation;
+            }
+
+            setSearchSummary(summaryText);
 
             
         } catch (error) {
@@ -202,7 +291,9 @@ function App() {
             // Filter for only enabled models
             const enabledModels = response.modelSummaries.filter(model => 
                 model.modelLifecycle.status === 'ACTIVE' && 
-                model.inferenceTypesSupported.includes('ON_DEMAND')
+                model.inferenceTypesSupported.includes('ON_DEMAND') &&
+                model.inputModalities.includes('TEXT') && 
+                model.outputModalities.includes('TEXT')
             );
             
             setBedrockModels(enabledModels);
@@ -1157,7 +1248,9 @@ const command = new InvokeModelCommand({
                                                 <div className="summary-content">
                                                     <h4>Summary</h4>
                                                     <div className="summary-text">
-                                                    {searchSummary}
+                                                        <ReactMarkdown>
+                                                            {searchSummary}
+                                                        </ReactMarkdown>
                                                     </div>
                                                 </div>
                                                 )}

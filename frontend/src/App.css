@@ -83,7 +83,7 @@
 .step-content-wrapper {
   display: flex;
   gap: 30px;
-  align-items: flex-start;
+  align-items: stretch;
   margin-top: 20px;
   width: 100%;
   min-height: 400px;
@@ -767,6 +767,13 @@
   cursor: not-allowed;
 }
 
+.summary-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+}
+
 .summary-content {
   background-color: #f8f9fa;
   padding: 20px;
@@ -778,24 +785,78 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
   background-color: #363a43;
   border-radius: 8px;
   padding: 20px;
   box-sizing: border-box;
-  max-width: 100%;
-  max-height: 500px;
   overflow-y: auto;
+  height: 100%; 
+  margin-top: 20px;
 }
 
 .summary-text {
+  flex: 1;
   padding: 15px;
   background-color: #2c3038;
   border-radius: 4px;
-  margin-bottom: 10px;
   color: #fff;
   line-height: 1.6;
   white-space: pre-wrap;
+  overflow-y: auto;
+  max-height: 500px; 
+
+  /* Headers */
+  h1, h2, h3, h4 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    color: #fff;
+  }
+
+  /* Lists */
+  ul {
+    padding-left: 20px;
+    margin: 1em 0;
+  }
+
+  /* Bold text */
+  strong {
+    font-weight: 600;
+    color: #4CAF50;
+  }
+
+  /* Paragraphs */
+  p {
+    margin: 0.8em 0;
+  }
+
+  /* Links */
+  a {
+    color: #4CAF50;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #363a43;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #666;
+  }
 }
 
 .summary-controls {
@@ -812,4 +873,21 @@
   min-width: 200px;
   min-height: 45px; /* Match the height of search button */
   font-size: 15px; /* Match font size */
+}
+
+.left-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 60%;
+  height: 100%; /* Ensure full height */
+}
+
+.right-panel {
+  flex: 1;
+  max-width: 40%;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure full height */
 }
