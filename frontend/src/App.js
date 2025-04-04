@@ -182,33 +182,37 @@ function App() {
                 };
             } else if (selectedModel.includes('cohere')) {
                 // Cohere models
-                requestBody = {
-                    prompt: prompt,
-                    max_tokens: 1000,
-                    temperature: 0.7,
-                    p: 0.9,
-                    k: 0,
-                    stop_sequences: [],
-                    return_likelihoods: 'NONE'
-                };
+                if (selectedModel.includes('command-r')) {
+                    // Cohere Command-R model
+                    requestBody = {
+                        message: prompt,
+                        max_tokens: 2048,
+                        temperature: 0.7
+                    };
+                } else {
+                    // Cohere Command model
+                    requestBody = {
+                        prompt: prompt,
+                        max_tokens: 2048,
+                        temperature: 0.7
+                    };
+                }
             } else if (selectedModel.includes('ai21')) {
                 // AI21 models
                 requestBody = {
-                    prompt: prompt,
-                    maxTokens: 1000,
-                    temperature: 0.7,
-                    topP: 0.9,
-                    stopSequences: [],
-                    countPenalty: {
-                        scale: 0
-                    },
-                    presencePenalty: {
-                        scale: 0
-                    },
-                    frequencyPenalty: {
-                        scale: 0
-                    }
+                    messages: [
+                        {
+                            role: "user",
+                            content: prompt
+                        }
+                    ]
                 };
+            } else if (selectedModel.includes('mistral')) {
+                requestBody = {
+                    "prompt": "<s>[INST] " + prompt + " [/INST]",
+                    "max_tokens": 512,
+                    "temperature": 0.5
+                }
             } else {
                 // Generic fallback for other models
                 requestBody = {
@@ -232,7 +236,7 @@ function App() {
             const responseBody = new Uint8Array(Object.values(response.body));
             const decodedResponse = new TextDecoder('utf-8').decode(responseBody);
             const parsedResponse = JSON.parse(decodedResponse);
-            console.log('Decoded Response:', parsedResponse);
+            //console.log('Decoded Response:', parsedResponse);
             
             // Access specific parts of the response if needed
             const content = parsedResponse.content;
@@ -248,9 +252,17 @@ function App() {
             } else if (selectedModel.includes('meta.llama')) {
                 summaryText = parsedResponse.generation;
             } else if (selectedModel.includes('cohere')) {
-                summaryText = parsedResponse.generations[0].text;
+                if (selectedModel.includes('command-r')) {
+                    // For Command-R, use the text field directly
+                    summaryText = parsedResponse.text;
+                } else {
+                    // For regular Command, keep using generations array
+                    summaryText = parsedResponse.generations[0].text;
+                }
             } else if (selectedModel.includes('ai21')) {
-                summaryText = parsedResponse.completions[0].data.text;
+                summaryText = parsedResponse.choices[0].message.content;
+            } else if (selectedModel.includes('mistral')) {
+                summaryText = parsedResponse.outputs[0].text;
             } else {
                 summaryText = parsedResponse.content || parsedResponse.text || parsedResponse.generation;
             }
