@@ -1,3 +1,4 @@
+/* Base App Styles */
 .App {
   text-align: center;
 }
@@ -65,23 +66,73 @@
   z-index: 0;
 }
 
-/* Form Styles */
+/* Form Container and Layout */
 .step-form-container {
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px;
   margin: 20px auto;
-  padding: 0 20px;
+  padding: 20px;
+  background-color: #282c34;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  color: white;
+  display: flex;
+  flex-direction: column;
 }
 
+.step-content-wrapper {
+  display: flex;
+  gap: 30px;
+  align-items: stretch;
+  margin-top: 20px;
+  width: 100%;
+  min-height: 400px;
+}
+
+/* Image Container Styles */
+.step-image-container {
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 60%;
+}
+
+.step-image {
+  width: 100%;
+  position: relative;
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+}
+
+.base-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #4a4e57;
+  background: transparent;
+  display: block;
+  cursor: zoom-in;
+  -webkit-object-fit: contain;
+  object-fit: contain;
+}
+
+/* Form Styles */
 .auth-form {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 15px;
-  padding: 20px;
   background-color: #363a43;
   border-radius: 8px;
-  width: 100%; 
+  padding: 20px;
   box-sizing: border-box;
+  max-width: 40%;
+  min-width: 300px;
 }
 
 .input-group {
@@ -92,10 +143,10 @@
 .form-input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #555;
+  border: 1px solid #4a4e57;
   border-radius: 4px;
-  background-color: #2c3038;
-  color: white;
+  background-color: #fff;
+  color: #282c34;
   font-size: 14px;
   box-sizing: border-box;
 }
@@ -115,588 +166,20 @@
   background-color: #45a049;
 }
 
-/* Process Flow Styles */
-.success-container {
-  width: 100%;
-  max-width: 800px;
-}
-
-.process-flow {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.process-step {
-  background-color: #363a43;
-  padding: 20px;
-  border: 1px solid #363a43;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  padding: 20px;
-  overflow: hidden;
-}
-
-.step-content {
-  margin-top: 10px;
-}
-
-.status-indicator {
-  padding: 8px 16px;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-
-.status-complete {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.status-pending {
-  background-color: #ffa726;
-  color: black;
-}
-
-/* Token Display */
-.token-container {
-  margin-top: 10px;
-}
-
-.token-display {
-  width: 100%;
-  background-color: #2c3038;
-  color: #fff;
-  padding: 10px;
-  border-radius: 4px;
-  border: 1px solid #555;
-  font-family: monospace;
-}
-
-/* Results Styles */
-.results-container {
-  margin-top: 20px;
-}
-
-.result-item {
-  background-color: #2c3038;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-}
-
-.metadata {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #363a43;
-  border-radius: 4px;
-}
-
-.metadata pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-/* Code Text */
-.code-text {
-  font-family: monospace;
-  background-color: #2c3038;
-  padding: 8px;
-  border-radius: 4px;
-  word-break: break-all;
-  margin: 0;
-  font-size: 0.9em;
-  line-height: 1.4;
-}
-
-
-/* Credentials Display Section Styles */
-.credentials-display-section {
-  background-color: #2c3038;
-  padding: 15px;
-  border-radius: 4px;
-  margin: 20px 0;
-}
-
-.credentials-display-section h4 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #fff;
-}
-
-.credential-field {
-  margin-bottom: 10px;
-}
-
-.credential-field label {
-  display: block;
-  margin-bottom: 5px;
-  color: #aaa;
-}
-
-.credential-value {
-  background-color: #363a43;
-  padding: 8px;
-  border-radius: 4px;
-  word-break: break-all;
-  position: relative;
-}
-
-.toggle-visibility {
-  background: none;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-  padding: 4px;
-  position: absolute;
-  right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.token-display {
-  max-height: 100px;
-  overflow-y: auto;
-}
-
-/* Credentials Container Styles */
-.credentials-container {
-  background-color: #2c3038;
-  padding: 15px;
-  border-radius: 4px;
-}
-
-.credentials-details {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.credential-item {
-  position: relative;
-}
-
-.credential-item label {
-  display: block;
-  margin-bottom: 5px;
-  color: #aaa;
-}
-
-.credential-display {
-  width: 100%;
-  background-color: #363a43;
-  color: #fff;
-  padding: 8px;
-  border: 1px solid #555;
-  border-radius: 4px;
-  font-family: monospace;
-}
-
-.token-area {
-  resize: vertical;
-  min-height: 60px;
-}
-
-/* Search Results Styles */
-.search-results {
-  background-color: #2c3038;
-  padding: 15px;
-  border-radius: 4px;
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.search-results pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  color: #fff;
-}
-
-/* Scrollbar Styles */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: #2c3038;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #555;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #666;
-}
-
-.results-container {
-  max-height: 500px;
-  overflow-y: auto;
-  padding: 15px;
-}
-
-.result-item {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #eee;
-  border-radius: 5px;
-}
-
-.result-item h4 {
-  margin-top: 0;
-  color: #333;
-}
-
-.result-item a {
-  color: #0066cc;
-  text-decoration: none;
-}
-
-.result-item a:hover {
-  text-decoration: underline;
-}
-
-.content-preview {
-  margin-top: 10px;
-}
-
-.content-preview p {
-  margin-top: 5px;
-  color: #ffffff;
-}
-
-.search-form {
-  margin-bottom: 20px;
-}
-
-.search-input-group {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-.search-button {
-  padding: 8px 16px;
-  background-color: #0066cc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.search-button:hover {
-  background-color: #0052a3;
-}
-
-.page-title {
-  margin-bottom: 30px;
-  color: #bebcbc;
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.input-group label::after {
-  content: '*';
-  color: red;
-  margin-left: 4px;
-}
-
-.form-input.error {
-  border-color: red;
-}
-
-.error-message {
-  color: #dc3545;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 4px;
-  padding: 10px;
-  margin: 10px 0;
-  font-size: 14px;
-}
-
-.form-header {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 20px;
-}
-
-.tooltip-container {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip-icon {
-  cursor: help;
-  font-size: 20px;
-}
-
-.tooltip-content {
-  display: none;
-  position: absolute;
-  right: 0;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 15px;
-  width: 300px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  z-index: 1000;
-}
-
-.tooltip-content h4 {
-  margin-top: 0;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-.tooltip-content ul {
-  margin: 0;
-  padding-left: 20px;
-  text-align: left;
-}
-
-.tooltip-content li {
-  margin-bottom: 8px;
-  font-size: 14px;
-  color: #666;
-}
-
-.tooltip-container:hover .tooltip-content {
-  display: block;
-}
-
-.form-section {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  background-color: #f9f9f9;
-}
-
-.form-section h4 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #333;
-  font-size: 1.1em;
-}
-
-.step-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  /* background-color: #f8f9fa; */
-  border-bottom: 1px solid #dee2e6;
-}
-
-.minimize-button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  color: #666;
-  padding: 5px 10px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.minimize-button:hover {
-  background-color: #e9ecef;
-}
-
-.step-content {
-  padding: 15px;
-}
-
-/**********/
-
-/* Update the step-form-container */
-.step-form-container {
-  width: 100%;
-  max-width: 1200px; /* Increased to accommodate side-by-side layout */
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #282c34;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  color: white;
-}
-
-/* Update step-content-wrapper for side-by-side layout */
-.step-content-wrapper {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-  margin-top: 20px;
-}
-
-/* Update auth-form for the new layout */
-.auth-form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  background-color: #363a43;
-  border-radius: 8px;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-/* Add styles for the image section */
-.step-image {
-  flex: 1;
-  position: sticky;
-  top: 20px;
-}
-
-.step-image img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  border: 1px solid #4a4e57;
-  background: transparent;
-}
-
-/* Update form sections for better visibility */
-.form-section {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #4a4e57;
-  border-radius: 5px;
-  background-color: #2c3038;
-}
-
-.form-section h4 {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #fff;
-  font-size: 1.1em;
-}
-
-/* Update tooltip styles for dark theme */
-.tooltip-content {
-  background: #363a43;
-  border: 1px solid #4a4e57;
-  color: #fff;
-}
-
-.tooltip-content h4 {
-  color: #fff;
-}
-
-.tooltip-content li {
-  color: #ddd;
-}
-
-/* Update form inputs for better contrast */
-.form-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #4a4e57;
-  border-radius: 4px;
-  background-color: #fff;
-  color: #282c34;
-  font-size: 14px;
-  box-sizing: border-box;
-}
-
-/* Add responsive behavior */
-@media (max-width: 768px) {
-  .step-content-wrapper {
-    flex-direction: column;
-  }
-  
-  .step-image {
-    position: static;
-    margin-bottom: 20px;
-  }
-}
-
-/* Update step-content-wrapper for side-by-side layout */
-.step-content-wrapper {
-  display: flex;
-  gap: 30px;
-  align-items: flex-start;
-  margin-top: 20px;
-}
-
-/* Update the image section styles */
-.step-image {
-  flex: 1.5; /* Increased from 1 to 1.5 to make it larger relative to the form */
-  position: sticky;
-  top: 20px;
-  max-width: 800px; /* Add a max-width to control the maximum size */
-  margin: 0 auto; /* Center the image container */
-}
-
-.step-image img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  border: 1px solid #4a4e57;
-  background: transparent;
-  object-fit: contain; /* Ensures the image maintains its aspect ratio */
-}
-
-/* Update auth-form to balance the layout */
-.auth-form {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  background-color: #363a43;
-  border-radius: 8px;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-/* Add styles for the image container and code snippet */
-.step-image-container {
-  flex: 1.5;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.step-image {
-  width: 100%;
-  position: relative;
-}
-
-.step-image img {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  border: 1px solid #4a4e57;
-  background: transparent;
-}
-
+/* Code Snippet Styles */
 .code-snippet {
   background-color: #2c3038;
   border-radius: 8px;
   padding: 15px;
   border: 1px solid #4a4e57;
-  text-align: left; /* Add this to ensure left alignment */
+  text-align: left;
+  flex-grow: 1;
 }
 
 .code-snippet pre {
   margin: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
-  text-align: left; /* Add this to ensure left alignment */
 }
 
 .code-snippet code {
@@ -704,65 +187,7 @@
   font-family: monospace;
   font-size: 14px;
   line-height: 1.5;
-  display: block; /* Add this to ensure block-level display */
-  text-align: left; /* Add this to ensure left alignment */
-}
-
-/* Update responsive behavior */
-@media (max-width: 768px) {
-  .step-content-wrapper {
-    flex-direction: column;
-  }
-  
-  .step-image-container {
-    margin-bottom: 20px;
-  }
-}
-
-.step-image {
-  width: 100%;
-  position: relative;
-}
-
-.image-container {
-  position: relative;
-  width: 100%;
-  cursor: pointer;
-}
-
-.base-image {
-  width: 100%;
-  height: auto;
-  border-radius: 8px;
-  border: 1px solid #4a4e57;
-  background: transparent;
   display: block;
-}
-
-.image-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  transition: opacity 0.3s ease;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 8px;
-}
-
-.overlay-image {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-.image-container:hover .image-overlay {
-  opacity: 1;
 }
 
 .snippet-title {
@@ -773,43 +198,7 @@
   font-weight: 600;
 }
 
-.code-snippet {
-  margin-top: 20px;
-  background-color: #2c3038;
-  border-radius: 8px;
-  padding: 15px;
-  border: 1px solid #4a4e57;
-}
-
-.code-snippet pre {
-  margin: 0;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-
-.code-snippet code {
-  color: #fff;
-  font-family: monospace;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-
-
-
-
-.image-container {
-  position: relative;
-  display: inline-block;
-}
-
-.base-image {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  cursor: zoom-in;
-}
-
+/* Fullscreen Image Overlay */
 .fullscreen-overlay {
   display: none;
   position: fixed;
@@ -832,6 +221,8 @@
   position: fixed;
   top: 50%;
   left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -moz-transform: translate(-50%, -50%);
   transform: translate(-50%, -50%);
   width: auto;
   height: auto;
@@ -840,6 +231,7 @@
   object-fit: contain;
 }
 
+/* Tooltip Styles */
 .tooltip {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8);
@@ -859,87 +251,162 @@
   opacity: 1;
 }
 
-
-
-/* Update success-container to match step-form-container width */
-.success-container {
+/* Search Section Styles */
+.search-section {
+  margin-top: 20px;
   width: 100%;
-  max-width: 1200px; /* Match the step-form-container max-width */
-  margin: 20px auto;
-  padding: 20px;
+  border-top: 1px solid #4a4e57;
+  padding-top: 20px;
+  height: 100%;
+  overflow-y: auto;
 }
 
-/* Update process-step to match step-form-container styling */
-.process-step {
-  background-color: #282c34;
+.search-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #363a43;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Ensure step-content-wrapper maintains consistent width */
-.process-step .step-content-wrapper {
-  width: 100%;
-  max-width: 100%;
-  margin: 0;
   padding: 20px;
+  box-sizing: border-box;
+  max-width: 100%;
+  max-height: 500px;  /* Set maximum height */
+  overflow-y: auto;   /* Enable vertical scrolling */
 }
 
-/* Adjust step-image-container width in process-step */
-.process-step .step-image-container {
-  flex: 1.5;
-  max-width: 800px;
+/* Style the scrollbar for the results */
+.search-results::-webkit-scrollbar {
+  width: 8px;
 }
 
-.auth-code-display h4 {
-  margin: 0 0 10px 0;
-  color: #ffffff;
+.search-results::-webkit-scrollbar-track {
+  background: #2c3038;
+  border-radius: 4px;
 }
 
-.auth-status-container .status-indicator {
-  margin: 0;
+.search-results::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+.search-results::-webkit-scrollbar-thumb:hover {
+  background: #666;
 }
 
 
-.auth-code-display h4 {
-  margin: 0 0 10px 0;
-  color: #ffffff;
+/* For the results container inside */
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.auth-code-display .code-text {
-  flex: 1; /* Make the code text area stretch */
-  margin: 0;
-  overflow-wrap: break-word;
+/* For individual result items */
+.result-item {
+  padding: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #2c3038;
+  border-radius: 4px;
+  margin-bottom: 10px;
 }
 
-.auth-status-container .status-indicator {
-  margin: 0;
+.result-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .step-content-wrapper {
+    flex-direction: column;
+  }
+  
+  .step-image-container {
+    position: static;
+    margin-bottom: 20px;
+    max-width: 100%;
+  }
+  
+  .auth-form {
+    max-width: 100%;
+  }
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #2c3038;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Form Section Styles */
+.form-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #4a4e57;
+  border-radius: 5px;
+  background-color: #2c3038;
+  position: relative; 
+}
+
+.form-section h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #fff;
+  font-size: 1.1em;
+}
+
+/* Error Message Styles */
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 14px;
+}
+
+/* Status Indicator Styles */
+.status-indicator {
+  padding: 8px 16px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-weight: bold;
   text-align: center;
 }
 
-/* Ensure the step-content-wrapper maintains equal heights */
-.step-content-wrapper {
-  display: flex;
-  min-height: 400px; /* Adjust this value as needed */
-  align-items: stretch;
+.status-complete {
+  background-color: #4CAF50;
+  color: white;
 }
 
-.step-content-wrapper {
-  display: flex;
-  align-items: stretch; /* Make children stretch to match heights */
-  min-height: 600px; /* Adjust this value based on your needs */
+.status-pending {
+  background-color: #ffa726;
+  color: black;
 }
 
-.step-image-container {
-  display: flex;
-  flex-direction: column;
+/* Page Title */
+.page-title {
+  margin-bottom: 30px;
+  color: #bebcbc;
+  font-size: 24px;
+  font-weight: bold;
 }
 
-.code-snippet {
-  flex-grow: 1; /* Allow code snippet to grow */
-}
-
+/* Auth Status Container */
 .auth-status-container {
   flex: 1;
   display: flex;
@@ -949,7 +416,9 @@
   background-color: #363a43;
   border-radius: 8px;
   margin-left: 20px;
-  height: 100%; /* Changed from min-height */
+  height: auto;
+  min-height: 0;
+  min-width: 300px;
 }
 
 .auth-code-display {
@@ -964,73 +433,461 @@
   overflow-y: auto;
 }
 
-.search-section {
-  margin-top: 20px;
-  width: 100%;
-  border-top: 1px solid #4a4e57;
-  padding-top: 20px;
+.auth-code-display h4 {
+  margin: 0 0 10px 0;
+  color: #ffffff;
 }
 
-.step-content-wrapper {
-  display: flex;
-  align-items: stretch;
-  min-height: 400px;
-  margin-bottom: 20px;
-}
-
-.step-image-container {
+.auth-code-display .code-text {
   flex: 1;
-  margin-right: 20px;
+  margin: 0;
+  overflow-wrap: break-word;
 }
 
-.auth-status-container {
+/* Process Step Styles */
+.process-step {
+  background-color: #282c34;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 15px;
+  padding: 20px;
+  overflow: hidden;
+}
+
+/* Success Container */
+.success-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+/* Chrome-specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  .step-content-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .step-image-container {
+    flex: 1 1 auto;
+  }
+}
+
+/* Tooltip/Information Button Styles */
+.tooltip-container {
+  position: absolute;
+  display: inline-block;
+  right: 15px;
+  top: 15px;
+  z-index: 2; /* Add this to ensure tooltip stays above other elements */
+}
+
+.tooltip-icon {
+  cursor: help;
+  font-size: 18px; /* Slightly smaller size */
+  color: #888;
+  display: inline-flex; /* Add this */
+  align-items: center; /* Add this */
+  justify-content: center; /* Add this */
+}
+
+.tooltip-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%; /* Shows tooltip below the icon */
+  background: #363a43;
+  border: 1px solid #4a4e57;
+  border-radius: 4px;
+  padding: 15px;
+  width: 300px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
+  color: #fff;
+}
+
+.tooltip-content h4 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.tooltip-content ul {
+  margin: 0;
+  padding-left: 20px;
+  text-align: left;
+}
+
+.tooltip-content li {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #ddd;
+}
+
+.tooltip-container:hover .tooltip-content {
+  display: block;
+}
+
+/* Add these specific styles for Step 5 */
+.step-content-wrapper .left-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.search-results {
-  margin-top: 20px;
-  padding: 20px;
-  background-color: #2c3038;
-  border-radius: 8px;
-}
-
-.step-content-wrapper {
-  display: flex;
   gap: 20px;
+  max-width: 60%;
+}
+
+.step-content-wrapper .right-panel {
+  flex: 1;
+  max-width: 40%;
+}
+
+/* Update the code snippet styling to ensure it stays within the left panel */
+.left-panel .code-snippet {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure the search section stays in the right panel */
+.right-panel .search-section {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Update the image container styles for Step 5 */
+.left-panel .step-image-container {
+  flex: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 100%;  /* Change from 60% to 100% */
+  width: 100%;      /* Add this to ensure full width */
+}
+
+.left-panel .step-image {
+  width: 100%;
+  position: relative;
+}
+
+.left-panel .image-container {
+  position: relative;
+  width: 100%;
+  height: auto;     /* Add this to maintain aspect ratio */
+  cursor: pointer;
+}
+
+.left-panel .base-image {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #4a4e57;
+  background: transparent;
+  display: block;
+  cursor: zoom-in;
+  object-fit: contain;
+}
+
+/* Add these styles to your CSS */
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.minimize-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 5px 10px;
+  margin-left: auto; /* This pushes the button to the right */
+}
+
+.minimize-button:hover {
+  opacity: 0.8;
+}
+
+/* Update the h3 styling in the header */
+.step-header h3 {
+  margin: 0;
+  flex: 1;
+  text-align: left;
+}
+
+/* Update search input styles */
+.search-input-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px;  /* Increased padding */
+  font-size: 15px;  /* Larger font size */
+  border: 1px solid #4a4e57;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #282c34;
+  min-height: 45px;  /* Set minimum height */
+  width: 100%;
+}
+
+.search-button {
+  padding: 0 25px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  min-height: 45px;  /* Match input height */
+}
+
+.search-button:hover {
+  background-color: #45a049;
+}
+
+.loading-spinner {
+  display: inline-block;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.search-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.status-ready {
+  color: #4CAF50;
+  background-color: #e8f5e9;
+  padding: 10px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.json-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.json-popup-content pre {
+  color: #e0e0e0;
+  background-color: #363636;
+  padding: 15px;
+  border-radius: 4px;
+  font-family: monospace;
+  text-align: left;
+  white-space: pre;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.json-popup-content pre {
+  color: #e0e0e0; /* Light grey text for better readability */
+  background-color: #363636; /* Slightly lighter than the popup background */
+  padding: 15px;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.json-popup-content h3 {
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.json-popup-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.result-item {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.result-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); 
+}
+
+.summarize-button {
+  padding: 0 25px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  min-height: 45px;
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.summarize-button:hover {
+  background-color: #45a049;
+}
+
+.summarize-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.summary-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+}
+
+.summary-content {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.summary-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #363a43;
+  border-radius: 8px;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  height: 100%; 
+  margin-top: 20px;
+}
+
+.summary-text {
+  flex: 1;
+  padding: 15px;
+  background-color: #2c3038;
+  border-radius: 4px;
+  color: #fff;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  max-height: 500px; 
+
+  /* Headers */
+  h1, h2, h3, h4 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    color: #fff;
+  }
+
+  /* Lists */
+  ul {
+    padding-left: 20px;
+    margin: 1em 0;
+  }
+
+  /* Bold text */
+  strong {
+    font-weight: 600;
+    color: #4CAF50;
+  }
+
+  /* Paragraphs */
+  p {
+    margin: 0.8em 0;
+  }
+
+  /* Links */
+  a {
+    color: #4CAF50;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  /* Scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #363a43;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #666;
+  }
+}
+
+.summary-controls {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  align-items: center; 
+}
+
+.model-select {
+  padding: 12px; /* Match the padding of search input */
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  min-width: 200px;
+  min-height: 45px; /* Match the height of search button */
+  font-size: 15px; /* Match font size */
 }
 
 .left-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  max-width: 60%;
+  height: 100%; /* Ensure full height */
 }
 
 .right-panel {
   flex: 1;
-  background-color: #2c3038;
-  border-radius: 8px;
-  padding: 20px;
-}
-
-.step-image-container {
-  margin-bottom: 20px;
-}
-
-.code-snippet {
-  background-color: #2c3038;
-  border-radius: 8px;
-  padding: 15px;
-}
-
-.search-section {
-  height: 100%;
-  overflow-y: auto;
-}
-
-.search-results {
-  margin-top: 20px;
-  max-height: calc(100vh - 400px);
-  overflow-y: auto;
+  max-width: 40%;
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure full height */
 }
