@@ -94,7 +94,7 @@ function App() {
     };
 
     const isRunningOnAmplify = () => {
-        return process.env.AWS_EXECUTION_ENV?.includes('AWS_Amplify');
+        return process.env.REACT_APP_ENV === 'amplify';
     };
 
     const handleItemClick = (item) => {
