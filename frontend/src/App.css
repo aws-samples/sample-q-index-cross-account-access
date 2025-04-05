@@ -890,3 +890,33 @@
   flex-direction: column;
   height: 100%; /* Ensure full height */
 }
+
+.code-tabs {
+  display: flex;
+  gap: 1px;
+  margin-bottom: 10px;
+  background-color: #2c3038;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+}
+
+.tab-button {
+  padding: 8px 16px;
+  border: none;
+  background: #363a43;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: none;
+  flex: 1;
+}
+
+
+.tab-button:hover {
+  background: #4a4e57;
+}
+
+.tab-button.active {
+  background: #4CAF50;
+  color: white;
+}
