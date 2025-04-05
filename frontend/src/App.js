@@ -19,6 +19,7 @@ function App() {
         step5: false,
         step6: false
     });
+    const [activeTab, setActiveTab] = useState('javascript');
 
     // State for manual credentials
     const [manualCredentials, setManualCredentials] = useState({
@@ -237,9 +238,6 @@ function App() {
             const decodedResponse = new TextDecoder('utf-8').decode(responseBody);
             const parsedResponse = JSON.parse(decodedResponse);
             //console.log('Decoded Response:', parsedResponse);
-            
-            // Access specific parts of the response if needed
-            const content = parsedResponse.content;
 
             // Handle different response formats based on model
             let summaryText;
@@ -603,18 +601,58 @@ function App() {
                                 </div>
                                 <div className="code-snippet">
                                     <h4 className="snippet-title">Initiate OIDC Authentication</h4>
-                                    <pre>
+                                    {/* Add Tab Navigation */}
+                                    <div className="code-tabs">
+                                        <button 
+                                        className={`tab-button ${activeTab === 'javascript' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('javascript')}
+                                        >
+                                        JavaScript
+                                        </button>
+                                        <button 
+                                        className={`tab-button ${activeTab === 'python' ? 'active' : ''}`}
+                                        onClick={() => setActiveTab('python')}
+                                        >
+                                        Python
+                                        </button>
+                                    </div>
+
+                                    {/* JavaScript Code */}
+                                    {activeTab === 'javascript' && (
+                                        <pre>
                                         <code>
 {`const idcRegion = formData.iamIdcRegion;
 const oauthState = btoa(JSON.stringify(formData));
 const clientId = formData.idcApplicationArn;
 
 const authUrl = \`https://oidc.\${idcRegion}.amazonaws.com/authorize?\`
-  + \`response_type=code&redirect_uri=\${encodeURIComponent(formData.redirectUrl)}&state=\${encodeURIComponent(oauthState)}&client_id=\${clientId}\`;
++ \`response_type=code&redirect_uri=\${encodeURIComponent(formData.redirectUrl)}&state=\${encodeURIComponent(oauthState)}&client_id=\${clientId}\`;
 
 window.location.href = authUrl;`}
                                         </code>
-                                    </pre>
+                                        </pre>
+                                    )}
+
+                                    {/* Python Code */}
+                                    {activeTab === 'python' && (
+                                        <pre>
+                                        <code>
+{`idc_region = form_data['iamIdcRegion']
+oauth_state = base64.b64encode(json.dumps(form_data).encode()).decode()
+client_id = form_data['idcApplicationArn']
+
+auth_params = {
+    'response_type': 'code',
+    'redirect_uri': form_data['redirectUrl'],
+    'state': oauth_state,
+    'client_id': client_id
+}
+
+auth_url = f'https://oidc.{idc_region}.amazonaws.com/authorize?{urlencode(auth_params)}'
+# Redirect to auth_url`}
+                                        </code>
+                                        </pre>
+                                    )}
                                 </div>
                             </div>
                             <form onSubmit={handleSubmit} className="auth-form">
@@ -804,8 +842,26 @@ window.location.href = authUrl;`}
                                             </div>
                                             <div className="code-snippet">
                                                 <h4 className="snippet-title">Authentication Code</h4>
-                                                <pre>
-                                                <code>
+                                                {/* Add Tab Navigation */}
+                                                <div className="code-tabs">
+                                                    <button 
+                                                    className={`tab-button ${activeTab === 'javascript' ? 'active' : ''}`}
+                                                    onClick={() => setActiveTab('javascript')}
+                                                    >
+                                                    JavaScript
+                                                    </button>
+                                                    <button 
+                                                    className={`tab-button ${activeTab === 'python' ? 'active' : ''}`}
+                                                    onClick={() => setActiveTab('python')}
+                                                    >
+                                                    Python
+                                                    </button>
+                                                </div>
+
+                                                {/* JavaScript Code */}
+                                                {activeTab === 'javascript' && (
+                                                    <pre>
+                                                    <code>
 {`// Get Authorization Code from URL
 const params = new URLSearchParams(window.location.search);
 const authCode = params.get('code');
@@ -819,10 +875,31 @@ if (state) {
 
 // Store the authorization code
 setCode(authCode);`}
-                                                </code>
-                                                </pre>
+                                                    </code>
+                                                    </pre>
+                                                )}
+
+                                                {/* Python Code */}
+                                                {activeTab === 'python' && (
+                                                    <pre>
+                                                    <code>
+{`# Get Authorization Code from URL
+query_params = parse_qs(request.query_string.decode())
+auth_code = query_params.get('code', [None])[0]
+state = query_params.get('state', [None])[0]
+
+# Process state parameter if present
+if state:
+    decoded_state = json.loads(base64.b64decode(state))
+    form_data.update(decoded_state)
+
+# Store the authorization code
+code = auth_code`}
+                                                    </code>
+                                                    </pre>
+                                                )}
+                                                </div>
                                             </div>
-                                        </div>
                                         <div className="auth-status-container">
                                             <div className="auth-code-display">
                                                 <h4>Authorization Code</h4>
@@ -832,7 +909,7 @@ setCode(authCode);`}
                                                 Authentication Complete
                                             </div>
                                         </div>
-                                    </div>
+                                        </div>
                                     </div>
                                 )}
                                 </div>
@@ -873,8 +950,26 @@ setCode(authCode);`}
                                     </div>
                                     <div className="code-snippet">
                                         <h4 className="snippet-title">Token Generation Code</h4>
-                                        <pre>
-                                        <code>
+                                        {/* Add Tab Navigation */}
+                                        <div className="code-tabs">
+                                            <button 
+                                            className={`tab-button ${activeTab === 'javascript' ? 'active' : ''}`}
+                                            onClick={() => setActiveTab('javascript')}
+                                            >
+                                            JavaScript
+                                            </button>
+                                            <button 
+                                            className={`tab-button ${activeTab === 'python' ? 'active' : ''}`}
+                                            onClick={() => setActiveTab('python')}
+                                            >
+                                            Python
+                                            </button>
+                                        </div>
+
+                                        {/* JavaScript Code */}
+                                        {activeTab === 'javascript' && (
+                                            <pre>
+                                            <code>
 {`const client = new SSOOIDCClient({
   region: formData.iamIdcRegion,
   credentials: assumeRoleResponse.Credentials
@@ -889,9 +984,36 @@ const command = new CreateTokenWithIAMCommand({
 
 const response = await client.send(command);
 setIdToken(response.idToken);`}
-                                        </code>
-                                        </pre>
-                                    </div>
+                                            </code>
+                                            </pre>
+                                        )}
+
+                                        {/* Python Code */}
+                                        {activeTab === 'python' && (
+                                            <pre>
+                                            <code>
+{`# Create SSOOIDC client
+client = boto3.client('sso-oidc',
+    region_name=form_data['iam_idc_region'],
+    aws_access_key_id=assume_role_response['Credentials']['AccessKeyId'],
+    aws_secret_access_key=assume_role_response['Credentials']['SecretAccessKey'],
+    aws_session_token=assume_role_response['Credentials']['SessionToken']
+)
+
+# Create token with IAM
+response = client.create_token(
+    clientId=form_data['idc_application_arn'],
+    code=auth_code,
+    grantType='authorization_code',
+    redirectUri=form_data['redirect_url']
+)
+
+# Get the ID token from response
+id_token = response['idToken']`}
+                                            </code>
+                                            </pre>
+                                        )}
+                                        </div>
                                     </div>
                                     <div className="auth-status-container">
                                     <div className="auth-code-display">
@@ -943,8 +1065,26 @@ setIdToken(response.idToken);`}
                                     </div>
                                     <div className="code-snippet">
                                         <h4 className="snippet-title">STS Credentials Code</h4>
-                                        <pre>
-                                        <code>
+                                        {/* Add Tab Navigation */}
+                                        <div className="code-tabs">
+                                            <button 
+                                            className={`tab-button ${activeTab === 'javascript' ? 'active' : ''}`}
+                                            onClick={() => setActiveTab('javascript')}
+                                            >
+                                            JavaScript
+                                            </button>
+                                            <button 
+                                            className={`tab-button ${activeTab === 'python' ? 'active' : ''}`}
+                                            onClick={() => setActiveTab('python')}
+                                            >
+                                            Python
+                                            </button>
+                                        </div>
+
+                                        {/* JavaScript Code */}
+                                        {activeTab === 'javascript' && (
+                                            <pre>
+                                            <code>
 {`const assumeRoleCommand = new AssumeRoleCommand({
   RoleArn: formData.iamRole,
   RoleSessionName: 'automated-session',
@@ -959,8 +1099,34 @@ const credentials = {
   sessionToken: assumeRoleResponse.Credentials.SessionToken,
   expiration: new Date(assumeRoleResponse.Credentials.Expiration)
 };`}
-                                        </code>
-                                        </pre>
+                                            </code>
+                                            </pre>
+                                        )}
+
+                                        {/* Python Code */}
+                                        {activeTab === 'python' && (
+                                            <pre>
+                                            <code>
+{`# Create STS client
+sts_client = boto3.client('sts')
+
+# Assume role
+assume_role_response = sts_client.assume_role(
+    RoleArn=form_data['iam_role'],
+    RoleSessionName='automated-session',
+    ProvidedContexts=provided_contexts
+)
+
+# Create credentials dictionary
+credentials = {
+    'accessKeyId': assume_role_response['Credentials']['AccessKeyId'],
+    'secretAccessKey': assume_role_response['Credentials']['SecretAccessKey'],
+    'sessionToken': assume_role_response['Credentials']['SessionToken'],
+    'expiration': assume_role_response['Credentials']['Expiration']
+}`}
+                                            </code>
+                                            </pre>
+                                        )}
                                     </div>
                                     </div>
                                     <div className="auth-status-container">
@@ -1024,8 +1190,26 @@ const credentials = {
                                         </div>
                                         <div className="code-snippet">
                                             <h4 className="snippet-title">Search API Code</h4>
-                                            <pre>
-                                            <code>
+                                            {/* Add Tab Navigation */}
+                                            <div className="code-tabs">
+                                                <button 
+                                                className={`tab-button ${activeTab === 'javascript' ? 'active' : ''}`}
+                                                onClick={() => setActiveTab('javascript')}
+                                                >
+                                                JavaScript
+                                                </button>
+                                                <button 
+                                                className={`tab-button ${activeTab === 'python' ? 'active' : ''}`}
+                                                onClick={() => setActiveTab('python')}
+                                                >
+                                                Python
+                                                </button>
+                                            </div>
+
+                                            {/* JavaScript Code */}
+                                            {activeTab === 'javascript' && (
+                                                <pre>
+                                                <code>
 {`const qbusinessClient = new QBusinessClient({
     region: formData.applicationRegion,
     credentials: stsCredentials
@@ -1042,8 +1226,35 @@ const searchCommand = new SearchRelevantContentCommand({
 });
 
 const searchResponse = await qbusinessClient.send(searchCommand);`}
-                                            </code>
-                                            </pre>
+                                                </code>
+                                                </pre>
+                                            )}
+
+                                            {/* Python Code */}
+                                            {activeTab === 'python' && (
+                                                <pre>
+                                                <code>
+{`# Create QBusiness client
+qbusiness_client = boto3.client('qbusiness',
+    region_name=form_data['application_region'],
+    aws_access_key_id=sts_credentials['AccessKeyId'],
+    aws_secret_access_key=sts_credentials['SecretAccessKey'],
+    aws_session_token=sts_credentials['SessionToken']
+)
+
+# Search relevant content
+search_response = qbusiness_client.search_relevant_content(
+    applicationId=form_data['qbusiness_app_id'],
+    queryText=query_text,
+    contentSource={
+        'retriever': {
+            'retrieverId': form_data['retriever_id']
+        }
+    }
+)`}
+                                                </code>
+                                                </pre>
+                                            )}
                                         </div>
                                         </div>
 
@@ -1187,7 +1398,7 @@ const searchResponse = await qbusinessClient.send(searchCommand);`}
                                                     />
                                                     <div className="tooltip">Click to zoom</div>
                                                     <div
-                                                    className={`fullscreen-overlay ${zoomedImages.step5 ? 'active' : ''}`}
+                                                    className={`fullscreen-overlay ${zoomedImages.step6 ? 'active' : ''}`}
                                                     onClick={() => handleImageClick('step6')}
                                                     >
                                                     <img
@@ -1201,8 +1412,26 @@ const searchResponse = await qbusinessClient.send(searchCommand);`}
                                             </div>
                                             <div className="code-snippet">
                                                 <h4 className="snippet-title">Bedrock Integration Code</h4>
-                                                <pre>
-                                                <code>
+                                                {/* Add Tab Navigation */}
+                                                <div className="code-tabs">
+                                                    <button 
+                                                    className={`tab-button ${activeTab === 'javascript' ? 'active' : ''}`}
+                                                    onClick={() => setActiveTab('javascript')}
+                                                    >
+                                                    JavaScript
+                                                    </button>
+                                                    <button 
+                                                    className={`tab-button ${activeTab === 'python' ? 'active' : ''}`}
+                                                    onClick={() => setActiveTab('python')}
+                                                    >
+                                                    Python
+                                                    </button>
+                                                </div>
+
+                                                {/* JavaScript Code */}
+                                                {activeTab === 'javascript' && (
+                                                    <pre>
+                                                    <code>
 {`const bedrockClient = new BedrockRuntimeClient({
     region: formData.applicationRegion,
     credentials: stsCredentials
@@ -1223,8 +1452,37 @@ const command = new InvokeModelCommand({
         }]
     })
 });`}
-                                                </code>
-                                                </pre>
+                                                    </code>
+                                                    </pre>
+                                                )}
+
+                                                {/* Python Code */}
+                                                {activeTab === 'python' && (
+                                                    <pre>
+                                                    <code>
+{`bedrock_client = boto3.client('bedrock-runtime',
+    region_name=form_data['application_region'],
+    credentials=sts_credentials
+)
+
+prompt = f'Please provide a concise summary for the search query "{current_query_text}" based on the following search results: {content_to_summarize}'
+
+# Invoke model directly using boto3
+response = bedrock_client.invoke_model(
+    modelId='amazon.nova-pro-v1:0',
+    contentType='application/json',
+    body=json.dumps({
+        'messages': [{
+            'role': 'user',
+            'content': [{
+                'text': prompt
+            }]
+        }]
+    })
+)`}
+                                                    </code>
+                                                    </pre>
+                                                )}
                                             </div>
                                         </div>
 
