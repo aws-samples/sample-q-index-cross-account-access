@@ -17,7 +17,7 @@ This solution demonstrates cross-account data retrieval functionality for Amazon
 
 ## Features
 
-- Deploy locally Cross-Account Data Retrieval Tester application in ISV environment which helps demonstrate the user authentication, token generation and credential retrieval to make Search Content Retrieval (SRC) API call. The application then leverages SRC index responses with Bedrock LLM models to generate summarization output. You can easily switch with different LLM models to see the different outputs."
+- Deploy locally Cross-Account Data Retrieval Tester application in ISV environment which helps demonstrate the user authentication, token generation and credential retrieval to make Search Content Retrieval (SRC) API call. The application then leverages SRC index responses with Bedrock LLM models to generate summarization output. You can easily switch with different LLM models to see the different outputs.
 - [optional] CDK helps deploy Amazon Q Business with assigned IAM IDC instance you prepared and ingests a sample data to test with. This step is not required with you have Amazon Q Business application already running with IAM IDC as access management.
 
 ![Feature](assets/feature-image.png)
