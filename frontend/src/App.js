@@ -8,6 +8,36 @@ import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedroc
 import { BedrockClient, ListFoundationModelsCommand } from "@aws-sdk/client-bedrock";
 import ReactMarkdown from 'react-markdown';
 
+// Helper functions for localStorage
+const saveToLocalStorage = (key, value, expirationHours = 1) => {
+    const item = {
+      value: value,
+      timestamp: new Date().getTime(),
+      expirationHours: expirationHours
+    };
+    localStorage.setItem(key, JSON.stringify(item));
+
+    // Verify immediately after saving
+    const savedItem = localStorage.getItem(key);
+  };
+  
+  const getFromLocalStorage = (key) => {
+    const item = localStorage.getItem(key);
+
+    if (!item) return null;
+  
+    const parsedItem = JSON.parse(item);
+    const now = new Date().getTime();
+    const hours = (now - parsedItem.timestamp) / (1000 * 60 * 60);
+
+    if (hours > parsedItem.expirationHours) {
+      localStorage.removeItem(key);
+      return null;
+    }
+  
+    return parsedItem.value;
+  };
+
 function App() {
     // UI Step 1: Form Input Configuration - State Management
     const [currentStep, setCurrentStep] = useState(1);
@@ -21,15 +51,36 @@ function App() {
     });
     const [activeTab, setActiveTab] = useState('javascript');
 
-    // State for manual credentials
-    const [manualCredentials, setManualCredentials] = useState({
-        accessKeyId: '',
-        secretAccessKey: '',
-        sessionToken: ''
+    // State for manual credentials with localStorage integration
+    const [manualCredentials, setManualCredentials] = useState(() => {
+        const savedCredentials = getFromLocalStorage('manualCredentials');
+        return savedCredentials || {
+            accessKeyId: '',
+            secretAccessKey: '',
+            sessionToken: ''
+        };
     });
 
+    // Function to check if environment credentials exist
+    const checkEnvCredentials = () => {
+        return !!(
+        process.env.REACT_APP_AWS_ACCESS_KEY_ID &&
+        process.env.REACT_APP_AWS_SECRET_ACCESS_KEY
+        );
+    };
+
     // State to check if manual credentials are needed
-    const [needsManualCredentials, setNeedsManualCredentials] = useState(false);
+    const [needsManualCredentials, setNeedsManualCredentials] = useState(() => {
+        // Initialize with the check for environment credentials
+        return !checkEnvCredentials();
+    });
+
+    // Function to update manual credentials
+    const updateManualCredentials = (credentials) => {
+        setManualCredentials(credentials);
+        saveToLocalStorage('manualCredentials', credentials);
+    };
+  
 
     const [formData, setFormData] = useState(() => {
         const savedData = localStorage.getItem('formData');
@@ -94,10 +145,6 @@ function App() {
         }));
     };
 
-    const isRunningOnAmplify = () => {
-        return process.env.REACT_APP_ENV === 'amplify';
-    };
-
     const handleItemClick = (item) => {
         setSelectedResultItem(item);
     };
@@ -113,9 +160,7 @@ function App() {
             setIsGeneratingSummary(true);
             const bedrockClient = new BedrockRuntimeClient({
                 region: formData.applicationRegion,
-                credentials: isRunningOnAmplify()
-                      ? undefined // When undefined, AWS SDK will use the Amplify role credentials
-                      : needsManualCredentials
+                credentials: needsManualCredentials
                         ? {
                             accessKeyId: manualCredentials.accessKeyId,
                             secretAccessKey: manualCredentials.secretAccessKey,
@@ -237,7 +282,6 @@ function App() {
             const responseBody = new Uint8Array(Object.values(response.body));
             const decodedResponse = new TextDecoder('utf-8').decode(responseBody);
             const parsedResponse = JSON.parse(decodedResponse);
-            //console.log('Decoded Response:', parsedResponse);
 
             // Handle different response formats based on model
             let summaryText;
@@ -279,9 +323,7 @@ function App() {
         try {
             const bedrockClient = new BedrockClient({  // Changed from BedrockRuntimeClient
                 region: formData.applicationRegion,
-                credentials: isRunningOnAmplify()
-                  ? undefined
-                  : needsManualCredentials
+                credentials: needsManualCredentials
                   ? {
                       accessKeyId: manualCredentials.accessKeyId,
                       secretAccessKey: manualCredentials.secretAccessKey,
@@ -331,13 +373,11 @@ function App() {
         needsManualCredentials
     ]);
 
-    // Check for environment credentials
+    // Use effect to keep checking environment credentials status
     useEffect(() => {
-        const hasEnvCredentials = process.env.REACT_APP_AWS_ACCESS_KEY_ID && 
-                                process.env.REACT_APP_AWS_SECRET_ACCESS_KEY && 
-                                process.env.REACT_APP_AWS_SESSION_TOKEN;
+        const hasEnvCredentials = checkEnvCredentials();
         setNeedsManualCredentials(!hasEnvCredentials);
-    }, []);
+    }, []); // Run once on component mount
 
     useEffect(() => {
         if (stsCredentials) {
@@ -374,23 +414,23 @@ function App() {
 
         const getIdToken = async (authCode) => {
             try {
+                const credentials = needsManualCredentials
+                ? {
+                    accessKeyId: String(manualCredentials.accessKeyId),
+                    secretAccessKey: String(manualCredentials.secretAccessKey),
+                    sessionToken: String(manualCredentials.sessionToken)
+                    }
+                : {
+                    accessKeyId: String(process.env.REACT_APP_AWS_ACCESS_KEY_ID || ''),
+                    secretAccessKey: String(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''),
+                    sessionToken: String(process.env.REACT_APP_AWS_SESSION_TOKEN || '')
+                    };
+
                 // 1. Obtain STS Temporary Credentials (First Role Assumption)
                 // Initialize STS Client with IAM credentials
                 const stsClient = new STSClient({
                     region: formData.iamIdcRegion,
-                    credentials: isRunningOnAmplify()
-                      ? undefined // When undefined, AWS SDK will use the Amplify role credentials
-                      : needsManualCredentials
-                        ? {
-                            accessKeyId: manualCredentials.accessKeyId,
-                            secretAccessKey: manualCredentials.secretAccessKey,
-                            sessionToken: manualCredentials.sessionToken
-                          }
-                        : {
-                            accessKeyId: String(process.env.REACT_APP_AWS_ACCESS_KEY_ID || ''),
-                            secretAccessKey: String(process.env.REACT_APP_AWS_SECRET_ACCESS_KEY || ''),
-                            sessionToken: String(process.env.REACT_APP_AWS_SESSION_TOKEN || '')
-                          }
+                    credentials: credentials
                 });
 
                 // First role assumption to get temporary credentials
@@ -704,11 +744,11 @@ auth_url = f'https://oidc.{idc_region}.amazonaws.com/authorize?{urlencode(auth_p
                                             type="text"
                                             name="accessKeyId"
                                             value={manualCredentials.accessKeyId}
-                                            onChange={(e) => setManualCredentials(prev => ({
-                                                ...prev,
+                                            onChange={(e) => updateManualCredentials({
+                                                ...manualCredentials,
                                                 accessKeyId: e.target.value
-                                            }))}
-                                            placeholder="AWS Access Key ID"
+                                            })}
+                                            placeholder="AWS Access Key ID (locally saved 1hr)"
                                             className="form-input"
                                             />
                                         </div>
@@ -717,11 +757,11 @@ auth_url = f'https://oidc.{idc_region}.amazonaws.com/authorize?{urlencode(auth_p
                                             type="password"
                                             name="secretAccessKey"
                                             value={manualCredentials.secretAccessKey}
-                                            onChange={(e) => setManualCredentials(prev => ({
-                                                ...prev,
+                                            onChange={(e) => updateManualCredentials({
+                                                ...manualCredentials,
                                                 secretAccessKey: e.target.value
-                                            }))}
-                                            placeholder="AWS Secret Access Key"
+                                            })}
+                                            placeholder="AWS Secret Access Key (locally saved 1hr)"
                                             className="form-input"
                                             />
                                         </div>
@@ -730,11 +770,11 @@ auth_url = f'https://oidc.{idc_region}.amazonaws.com/authorize?{urlencode(auth_p
                                             type="text"
                                             name="sessionToken"
                                             value={manualCredentials.sessionToken}
-                                            onChange={(e) => setManualCredentials(prev => ({
-                                                ...prev,
+                                            onChange={(e) => updateManualCredentials({
+                                                ...manualCredentials,
                                                 sessionToken: e.target.value
-                                            }))}
-                                            placeholder="AWS Session Token"
+                                            })}
+                                            placeholder="AWS Session Token (locally saved 1hr)"
                                             className="form-input"
                                             />
                                         </div>
