@@ -17,7 +17,7 @@ This solution demonstrates cross-account data retrieval functionality for Amazon
 
 ## Features
 
-- Deploy locally Cross-Account Data Retrieval Tester application in ISV environment which helps demonstrate the user authentication, token generation and credential retrieval to make Search Content Retrieval (SRC) API call. The application then leverages SRC index responses with Bedrock LLM models to generate summarization output. You can easily switch with different LLM models to see the different outputs."
+- Deploy locally (or option to deploy and host via AWS Amplify with CDK) Cross-Account Data Retrieval Tester application in ISV environment which helps demonstrate the user authentication, token generation and credential retrieval to make Search Content Retrieval (SRC) API call. The application then leverages SRC index responses with Bedrock LLM models to generate summarization output. You can easily switch with different LLM models to see the different outputs.
 - [optional] CDK helps deploy Amazon Q Business with assigned IAM IDC instance you prepared and ingests a sample data to test with. This step is not required with you have Amazon Q Business application already running with IAM IDC as access management.
 
 ![Feature](assets/feature-image.png)
@@ -98,6 +98,16 @@ REACT_APP_AWS_SESSION_TOKEN=<<replace with your AWS_SESSION_TOKEN>>
     - In your terminal, navigate to `cross-account-qindex-demo/frontend`
     - Run `npm install` & `npm run build`
     - Run `npm start` which will run the server in `https://localhost:8081`
+
+#### [Optional] Deploy the frontend through AWS Amplify
+
+**Note:** You will need to request the Amplify's deployed url to be added in the data accessor registration in order to make this work. Another option is to use custom domain applied to your Amplify endpoint to make this url registration added to your data accessor easier.
+
+1. In your terminal, navigate to `cross-account-qindex-demo/cdk-stack`
+2. Run `npm install`
+3. Run `cdk deploy FrontendStack`
+4. Once deployed, find the value of `FrontendStack.AmplifyDeployCommand` from the CDK output and run it. It should be formatted like this, `aws amplify start-deployment --app-id <your app id> --branch-name main --source-url s3://<your S3 bucket>/deployment.zip`
+6. Open the URL from the CDK output `FrontendStack.AmplifyAppURL`
 
 
 ## Usage
