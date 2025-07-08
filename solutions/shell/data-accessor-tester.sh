@@ -2,15 +2,15 @@
 
 # Configuration
 ## ISV provided data
-IAM_ROLE=""
+IAM_ROLE="arn:aws:iam::820242917643:role/QIndexCrossAccountRole"
 REDIRECT_URL="https://localhost:8081"
 BEDROCK_REGION="us-east-1"
 BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
 
 ## Enterprise provided data
-QBUSINESS_APPLICATION_ID=""
-RETRIEVER_ID=""
-IDC_APPLICATION_ARN=""
+QBUSINESS_APPLICATION_ID="71260e1d-1db6-4db1-b4e0-ee1a68d53d57"
+RETRIEVER_ID="f60fd64a-752a-4f5d-99f6-fccc132552b1"
+IDC_APPLICATION_ARN="arn:aws:sso::554763683011:application/ssoins-7223ad318d059f6d/apl-027e49779fa0c39f"
 QBUSINESS_REGION="us-east-1"
 IAM_IDC_REGION="us-east-1"
 
@@ -70,10 +70,10 @@ get_auth_code() {
     echo "4. From the redirect URL, copy the 'code' parameter value"
     echo
     
-    # Get authorization code
-    echo -n "Enter the authorization code from the redirect URL: "
-    read -r AUTH_CODE </dev/tty
-    
+    # Enable proper line editing and read authorization code
+    stty erase '^?'
+    read -e -p "Enter the authorization code from the redirect URL: " AUTH_CODE
+
     if [ -z "$AUTH_CODE" ]; then
         echo "Error: Authorization code cannot be empty"
         exit 1

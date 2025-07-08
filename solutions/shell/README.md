@@ -22,3 +22,104 @@ This flow illustrates user authentication process in order for ISV application t
 
 ## Usage Steps
 
+1. Provide required information for data accessor in the shell script
+### ISV
+IAM_ROLE - IAM Role ARN of the data accessor
+REDIRECT_URL - Callback URL that will provide authentication code
+### Enterprise
+QBUSINESS_APPLICATION_ID - QBiz application ID of the enterprise account
+RETRIEVER_ID - Retrieval ID of the above QBiz application
+IDC_APPLICATION_ARN - ARN provided on data accessor configuration
+
+![Configuration](assets/shell-configuration.png)
+
+2. Run the shell script
+```
+# ./data-accessor-tester.sh                                                                                           [/
+Enter your prompt (or 'exit' to quit):
+```
+
+3. Enter the query prompt that you want to query against the Q index
+```
+# ./data-accessor-tester.sh
+Enter your prompt (or 'exit' to quit): find out the status of project x
+```
+
+4. Authenticate against IAM IDC + IDP from your browser as prompted and provide the authorization code
+
+
+```
+=== AWS OIDC Authentication ===
+
+Please follow these steps:
+------------------------
+1. Copy and paste this URL in your browser:
+
+https://oidc.us-east-1.amazonaws.com/authorize?response_type=code&client_id=******&redirect_uri=******&state=******
+
+2. Complete the authentication process in your browser
+3. After authentication, you will be redirected to: <your redirect url>
+4. From the redirect URL, copy the 'code' parameter value
+
+Enter the authorization code from the redirect URL:
+```
+
+5. The script goes through the rest of proper authentication flow and calls Search Relevant Content API to retrieve the Q index information that matched against your query
+
+```
+Calling SearchRelevantContent API...
+SRC API Response (High/Very High confidence only)
+=================
+{
+  "relevantContent": [
+    {
+      "content": "\nProject X Status Report - RED Overall Status: RED  Key Issues:  1. Schedule: Project is currently 3 weeks behind critical milestones............",
+      "documentId": "s3://xxxxxx/Project X Status Report.docx",
+      "documentTitle": "Project X Status Report.docx",
+      "documentUri": "https://xxxxxx.s3.amazonaws.com/Project%20X%20Status%20Report.docx",
+      "documentAttributes": [
+        {
+          "name": "_source_uri",
+          "value": {
+            "stringValue": "https://xxxxxx.s3.amazonaws.com/Project%20X%20Status%20Report.docx"
+          }
+        },
+        {
+          "name": "_data_source_id",
+          "value": {
+            "stringValue": "xxxxxxx"
+          }
+        }
+      ],
+      "scoreAttributes": {
+        "scoreConfidence": "VERY_HIGH"
+      }
+    },
+    ......
+```
+
+6. Final section of the script calls Amazon Bedrock to summarize the Q index data with the query 
+
+```
+Summarizing results with Amazon Bedrock (model - amazon.nova-pro-v1:0)...
+Calling Bedrock API...
+Summary
+=================
+**Summary for the search query "project x":**
+
+Project X is currently facing significant challenges as indicated by two status reports:
+
+1. **RED Status Report** (Source [1]):
+.............
+
+**URI Links:**
+- RED Status Report: https://*******.s3.amazonaws.com/Project%20X%20Status%20Report.docx
+```
+
+## Clean Up
+
+To remove the solution from your account, please follow these steps:
+
+1. Remove data accessor
+    - Go to the AWS Management Console, navigate to Amazon Q Business >  Data accessors
+    - Select your data accessor and click 'Delete'
