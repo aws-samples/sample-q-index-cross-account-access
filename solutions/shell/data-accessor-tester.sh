@@ -2,15 +2,15 @@
 
 # Configuration
 ## ISV provided data
-IAM_ROLE="arn:aws:iam::820242917643:role/QIndexCrossAccountRole"
+IAM_ROLE=""
 REDIRECT_URL="https://localhost:8081"
 BEDROCK_REGION="us-east-1"
 BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
 
 ## Enterprise provided data
-QBUSINESS_APPLICATION_ID="71260e1d-1db6-4db1-b4e0-ee1a68d53d57"
-RETRIEVER_ID="f60fd64a-752a-4f5d-99f6-fccc132552b1"
-IDC_APPLICATION_ARN="arn:aws:sso::554763683011:application/ssoins-7223ad318d059f6d/apl-027e49779fa0c39f"
+QBUSINESS_APPLICATION_ID=""
+RETRIEVER_ID=""
+IDC_APPLICATION_ARN=""
 QBUSINESS_REGION="us-east-1"
 IAM_IDC_REGION="us-east-1"
 
