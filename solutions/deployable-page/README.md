@@ -1,5 +1,7 @@
 # Deployable Sample ISV webpage to access Q index
 
+This is a deployable sample ISV webpage that can be run locally on https://localhost:8081 or deploy it through AWS Amplify helps showcase each steps for Authorization Code authentication flow to access Q index with SearchRelevantContent API through browser.
+
 ## Features
 
 - Deploy locally (or option to deploy and host via AWS Amplify with CDK) Cross-Account Data Retrieval Tester application in ISV environment which helps demonstrate the user authentication, token generation and credential retrieval to make Search Content Retrieval (SRC) API call. The application then leverages SRC index responses with Bedrock LLM models to generate summarization output. You can easily switch with different LLM models to see the different outputs.
@@ -124,25 +126,3 @@ To remove the solution from your account, please follow these steps:
 1. Remove CDK Stacks
     - In your terminal, navigate to appfabric-data-analytics/cdk-stacks
     - Run `cdk destroy --all`
-
-# Authors
-
-- [Takeshi Kobayashi](https://www.linkedin.com/in/takeshikobayashi/)
-- [Siddhant Gupta](https://www.linkedin.com/in/siddhant-gupta-a43a7b53/)
-- [Akhilesh Amara](https://www.linkedin.com/in/akhilesh-amara/)
-
-# License
-
-This library is licensed under the MIT-0 License. See the LICENSE file.
-
-- [Changelog](CHANGELOG.md) of the project.
-- [License](LICENSE) of the project.
-- [Code of Conduct](CODE_OF_CONDUCT.md) of the project.
-
-## Using This In Production
-
-It is critical that before you use any of this code in Production that you work with your own internal Security and Governance teams to get the appropriate Code and AppSec reviews for your organization. 
-
-Although the code has been written with best practices in mind, your own company may require different ones, or have additional rules and restrictions.
-
-You take full ownership and responsibility for the code running in your environment, and are free to make whatever changes you need to.
