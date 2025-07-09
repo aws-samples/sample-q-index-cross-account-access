@@ -49,11 +49,11 @@ learn more on [put-application-assignment-configuration](https://docs.aws.amazon
 
 1. First, go to IAM Identity Center console page, and at the Settings > Authentication, click on 'Create trusted token issuer'.
 
- ```
+```
 Issuer URL - <Issuer URL of the ISV's OAuth authentication server>
 Trusted token issuer name - <put in any name>
 Identity provider attribute - Email maps to Email
- ```
+```
 
 Once trusted token issuer is created, copy the TTI ARN for later use.
 
