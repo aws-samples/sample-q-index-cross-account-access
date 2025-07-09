@@ -47,12 +47,14 @@ learn more on [put-application-assignment-configuration](https://docs.aws.amazon
 <details>
 <summary>details</summary>
 
-1. First, go to IAM Identity Center console page, and at the Settings > Authentication, click on 'Create trusted token issuer'. 
+1. First, go to IAM Identity Center console page, and at the Settings > Authentication, click on 'Create trusted token issuer'.
+
  ```
 Issuer URL - <Issuer URL of the ISV's OAuth authentication server>
 Trusted token issuer name - <put in any name>
 Identity provider attribute - Email maps to Email
  ```
+
 Once trusted token issuer is created, copy the TTI ARN for later use.
 
 2. Initiate below 3 commands to enable data accessor under your Amazon Q Business application
