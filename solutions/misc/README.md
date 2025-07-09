@@ -21,7 +21,7 @@ aws qbusiness create-data-accessor \
   "action": "qbusiness:SearchRelevantContent"
 }]'
 ```
-learn more on (create-data-accessor](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/create-data-accessor.html)
+learn more on [create-data-accessor](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/create-data-accessor.html)
 
 ```
 aws qbusiness associate-permission \
@@ -72,7 +72,7 @@ aws qbusiness create-data-accessor \
   "action": "qbusiness:SearchRelevantContent"
 }]'
 ```
-learn more on (create-data-accessor](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/create-data-accessor.html)
+learn more on [create-data-accessor](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/create-data-accessor.html)
 
 ```
 aws qbusiness associate-permission \
