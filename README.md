@@ -29,6 +29,9 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 #### [MCP Server](https://github.com/awslabs/mcp/tree/main/src/amazon-qindex-mcp-server)
 - The AWS Labs amazon-qindex MCP Server is a Model Context Protocol (MCP) server designed to facilitate integration with Amazon Q Business's SearchRelevantContent API. While the server provides essential tools and functions for authentication and search capabilities using Amazon Q index, it currently serves for Independent Software Vendors (ISVs) who are AWS registered data accessors. The server enables cross-account search capabilities, allowing ISVs who are data accessors to search through enterprise customers' Q index and access relevant content across their data sources using specific authentication and authorization flows.
 
+#### [Misc](/solutions/misc/)
+- List of helpful commands related to data accessor & requesting Search Relevant Content API
+
 # Authors
 
 - [Takeshi Kobayashi](https://www.linkedin.com/in/takeshikobayashi/)
