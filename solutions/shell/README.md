@@ -22,30 +22,30 @@ This flow illustrates user authentication process in order for ISV application t
 
 ## Usage Steps
 
-1. Provide required information for data accessor in the shell script
-### ISV
+### Provide required information for data accessor in the shell script
+- ISV
 IAM_ROLE - IAM Role ARN of the data accessor
 REDIRECT_URL - Callback URL that will provide authentication code
-### Enterprise
+- Enterprise
 QBUSINESS_APPLICATION_ID - QBiz application ID of the enterprise account
 RETRIEVER_ID - Retrieval ID of the above QBiz application
 IDC_APPLICATION_ARN - ARN provided on data accessor configuration
 
 ![Configuration](assets/shell-configuration.png)
 
-2. Run the shell script
+### Run the shell script
 ```
 # ./data-accessor-tester.sh                                                                                           [/
 Enter your prompt (or 'exit' to quit):
 ```
 
-3. Enter the query prompt that you want to query against the Q index
+### Enter the query prompt that you want to query against the Q index
 ```
 # ./data-accessor-tester.sh
 Enter your prompt (or 'exit' to quit): find out the status of project x
 ```
 
-4. Authenticate against IAM IDC + IDP from your browser as prompted and provide the authorization code
+### Authenticate against IAM IDC + IDP from your browser as prompted and provide the authorization code
 
 
 ```
@@ -64,7 +64,7 @@ https://oidc.us-east-1.amazonaws.com/authorize?response_type=code&client_id=****
 Enter the authorization code from the redirect URL:
 ```
 
-5. The script goes through the rest of proper authentication flow and calls Search Relevant Content API to retrieve the Q index information that matched against your query
+### The script goes through the rest of proper authentication flow and calls Search Relevant Content API to retrieve the Q index information that matched against your query
 
 ```
 Calling SearchRelevantContent API...
@@ -98,7 +98,7 @@ SRC API Response (High/Very High confidence only)
     ......
 ```
 
-6. Final section of the script calls Amazon Bedrock to summarize the Q index data with the query 
+### Final section of the script calls Amazon Bedrock to summarize the Q index data with the query 
 
 ```
 Summarizing results with Amazon Bedrock (model - amazon.nova-pro-v1:0)...
