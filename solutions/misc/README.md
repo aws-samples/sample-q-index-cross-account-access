@@ -90,3 +90,12 @@ aws sso-admin put-application-assignment-configuration \
 --region us-east-1
 ```
 learn more on [put-application-assignment-configuration](https://docs.aws.amazon.com/cli/latest/reference/sso-admin/put-application-assignment-configuration.html)
+
+### Get Data Accessor configuration information 
+
+```
+aws qbusiness get-data-accessor \
+--application-id <Q Business application ID> \
+--data-accessor-id <Data Accessor ID>
+```
+lear more on [get-data-accessor](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/get-data-accessor.html)
