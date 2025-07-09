@@ -2,7 +2,8 @@
 
 ## AWS CLI 
 
-### Enable Data Accessor (Auth Code)
+<details>
+<summary>### Enable Data Accessor (Auth Code)</summary>
 
 1. Initiate below 3 commands to enable data accessor under your Amazon Q Business application
 
@@ -39,7 +40,7 @@ aws sso-admin put-application-assignment-configuration \
 --region us-east-1
 ```
 learn more on [put-application-assignment-configuration](https://docs.aws.amazon.com/cli/latest/reference/sso-admin/put-application-assignment-configuration.html)
-
+</details>
 ### Enable Data Accessor (TTI Auth)
 
 1. First, go to IAM Identity Center console page, and at the Settings > Authentication, click on 'Create trusted token issuer'. 
