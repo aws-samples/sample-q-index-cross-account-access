@@ -21,6 +21,7 @@ aws qbusiness create-data-accessor \
   "action": "qbusiness:SearchRelevantContent"
 }]'
 ```
+learn more on (create-data-accessor](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/create-data-accessor.html)
 
 ```
 aws qbusiness associate-permission \
@@ -29,6 +30,7 @@ aws qbusiness associate-permission \
 --actions qbusiness:SearchRelevantContent \
 --principal <ISV's data accessor principal role>
 ```
+learn more on [associate-permission](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/associate-permission.html)
 
 ```
 aws sso-admin put-application-assignment-configuration \
@@ -36,6 +38,7 @@ aws sso-admin put-application-assignment-configuration \
 --no-assignment-required \
 --region us-east-1
 ```
+learn more on [put-application-assignment-configuration](https://docs.aws.amazon.com/cli/latest/reference/sso-admin/put-application-assignment-configuration.html)
 
 ### Enable Data Accessor (TTI Auth)
 
@@ -69,6 +72,7 @@ aws qbusiness create-data-accessor \
   "action": "qbusiness:SearchRelevantContent"
 }]'
 ```
+learn more on (create-data-accessor](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/create-data-accessor.html)
 
 ```
 aws qbusiness associate-permission \
@@ -77,6 +81,7 @@ aws qbusiness associate-permission \
 --actions qbusiness:SearchRelevantContent \
 --principal <data accessor IAM role>
 ```
+learn more on [associate-permission](https://docs.aws.amazon.com/cli/latest/reference/qbusiness/associate-permission.html)
 
 ```
 aws sso-admin put-application-assignment-configuration \
@@ -84,3 +89,4 @@ aws sso-admin put-application-assignment-configuration \
 --no-assignment-required \
 --region us-east-1
 ```
+learn more on [put-application-assignment-configuration](https://docs.aws.amazon.com/cli/latest/reference/sso-admin/put-application-assignment-configuration.html)
