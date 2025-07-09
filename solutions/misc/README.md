@@ -2,6 +2,41 @@
 
 ## AWS CLI 
 
+### Enable Data Accessor (Auth Code)
+
+1. Initiate below 3 commands to enable data accessor under your Amazon Q Business application
+
+ISV's data accessor principal role can be found from this page: [ISV data accessor principal role ARNs for the CreateDataAccessor API](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/data-accessors-granting-permissions-cli.html#data-accessors-granting-permissions-cli-principal-arns)
+
+```
+aws qbusiness create-data-accessor \
+--application-id <your Q business application ID> \
+--principal <ISV's data accessor principal role> \
+--display-name <name of data accessor> \
+--authentication-detail '{
+  "authenticationType": "AWS_IAM_IDC_AUTH_CODE",
+  "externalIds": ["<ISV's tenant ID that will be used for this account>"]
+}' \
+--action-configurations '[{
+  "action": "qbusiness:SearchRelevantContent"
+}]'
+```
+
+```
+aws qbusiness associate-permission \
+--application-id <Q Business application ID \
+--statement-id <unique identifier for policy statement> \
+--actions qbusiness:SearchRelevantContent \
+--principal <ISV's data accessor principal role>
+```
+
+```
+aws sso-admin put-application-assignment-configuration \
+--application-arn <value of idcApplicationArn, returned from create-data-accessor> \
+--no-assignment-required \
+--region us-east-1
+```
+
 ### Enable Data Accessor (TTI Auth)
 
 1. First, go to IAM Identity Center console page, and at the Settings > Authentication, click on 'Create trusted token issuer'. 
@@ -37,7 +72,7 @@ aws qbusiness create-data-accessor \
 
 ```
 aws qbusiness associate-permission \
---application-id <Q Business application ID \
+--application-id <Q Business application ID> \
 --statement-id <name of statement> \
 --actions qbusiness:SearchRelevantContent \
 --principal <data accessor IAM role>
@@ -46,6 +81,6 @@ aws qbusiness associate-permission \
 ```
 aws sso-admin put-application-assignment-configuration \
 --application-arn <value of idcApplicationArn, returned from create-data-accessor> \
---no-assignment-required\
+--no-assignment-required \
 --region us-east-1
 ```
