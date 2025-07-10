@@ -20,8 +20,11 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 #### [Sample ISV Webpage](/solutions/deployable-page) 
 - Deployable sample ISV webpage that teaches each steps for Authorization Code authentication flow to access Q index with SearchRelevantContent API
 
-#### [Shell script](/solutions/shell) 
-- Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API
+#### [Shell script - cross account](/solutions/shell) 
+- Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
+
+#### [Shell script - same account](/solutions/shell/same-account-access/) 
+- Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the same account access
 
 #### Lambda function 
 - coming soon

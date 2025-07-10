@@ -4,13 +4,13 @@ This shell script by using AWS CLI goes through neccessary authorization code au
 
 ## Prerequisites
 
-- Node (v18) and NPM (v8.19) installed and configured on your computer
 - AWS CLI (v2) installed and configured on your computer
 
 - Two AWS Accounts (one account as ISV running this tester application, another account acting as enterprise customer running Amazon Q Business)
 - Data accessor registered for your ISV and make sure to add https://localhost:8081 as one of the redirect URLs ([see details from this related blogpost - Enhance enterprise productivity for your LLM solution by becoming an Amazon Q Business data accessor](https://aws.amazon.com/blogs/machine-learning/enhance-enterprise-productivity-for-your-llm-solution-by-becoming-an-amazon-q-business-data-accessor/))
 - IAM Identity Center (IDC) instance setup with user added on enterprise customer AWS account
 - Amazon Q Business application setup with IAM IDC as access management on enterprise customer AWS account 
+- Enable Nova Pro model access on Amazon Bedrock
 
 ## Key Components
 
