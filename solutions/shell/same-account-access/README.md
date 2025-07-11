@@ -91,21 +91,21 @@ The key component of this solution is to show the user authentication flow step-
 - **RETRIEVER_ID** : Retrieval ID of the above QBiz application
 - **IDC_APPLICATION_ARN** : ARN provided on data accessor configuration
 
-![Configuration](assets/shell-configuration.png)
+![Configuration](assets/shell-configuration-sameaccount.png)
 
 ### Run the shell script
 ```
-# ./data-accessor-tester.sh                                                                                           [/
+# ./src-api-tester.sh                                                                                           [/
 Enter your prompt (or 'exit' to quit):
 ```
 
 ### Enter the query prompt that you want to query against the Q index
 ```
-# ./data-accessor-tester.sh
+# ./src-api-tester.sh   
 Enter your prompt (or 'exit' to quit): find out the status of project x
 ```
 
-### Authenticate against IAM IDC + IDP from your browser as prompted and provide the authorization code
+### Authenticate against IAM IDC + IDP from your browser as prompted and provide the access token
 
 
 ```
@@ -115,13 +115,13 @@ Please follow these steps:
 ------------------------
 1. Copy and paste this URL in your browser:
 
-https://oidc.us-east-1.amazonaws.com/authorize?response_type=code&client_id=******&redirect_uri=******&state=******
+https://*****.okta.com/oauth2/default/v1/authorize?client_id=***&redirect_uri=https://localhost:8081&response_type=token&scope=openid email profile&state=***&nonce=***
 
 2. Complete the authentication process in your browser
 3. After authentication, you will be redirected to: <your redirect url>
-4. From the redirect URL, copy the 'code' parameter value
+4. From the redirect URL, copy the 'access_token' parameter value
 
-Enter the authorization code from the redirect URL:
+Enter the access token from the redirect URL:
 ```
 
 ### The script goes through the rest of proper authentication flow and calls Search Relevant Content API to retrieve the Q index information that matched against your query
@@ -180,6 +180,6 @@ Project X is currently facing significant challenges as indicated by two status 
 
 To remove the solution from your account, please follow these steps:
 
-1. Remove data accessor
-    - Go to the AWS Management Console, navigate to Amazon Q Business >  Data accessors
-    - Select your data accessor and click 'Delete'
+1. Remove custom application on IAM Identity Center
+    - Go to the AWS Management Console, navigate to IAM Identity Center >  Applications > Customer managed
+    - Select application and click 'Remove'
