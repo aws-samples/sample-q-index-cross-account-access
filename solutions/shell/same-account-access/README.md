@@ -28,7 +28,7 @@ The key component of this solution is to show the user authentication flow step-
   - Then, choose **Next**.
 4. On the **New Web App Integration** page, do the following:
   - In **General Settings**, for **App name**, enter a name for the application.
-  - In **Grant type**, for **Core grants**, ensure that **Authorization Code** is selected.
+  - In **Grant type**, for **Core grants**, ensure that **Authorization Code** is selected. Expand **Advanced** and select on **Implicit (hybrid)** and **Allow Access Token with implicit grant type**.
   - In **Sign-in-redirect URIs**, add a URL that Okta will send the authentication response and ID token for the user's sign in request.
   - In **Assignements** > **Controlled access**, select **Allow everyone ins your organization to access**
   - Then, select **Save**.
@@ -55,7 +55,7 @@ The key component of this solution is to show the user authentication flow step-
   - In **Trusted token issuer name**, enter the name of your application
   - Choose **Create trusted token issuer**
   - Go back to the previous window and click **refresh** to see the issuer just created
-  - Select the *issuer** and in **Aud claim** enter the value retrieved from Okta
+  - Select the **issuer** and in **Aud claim** enter the value retrieved from Okta
   - Choose **Next**
   - Select **Edit the application policy**
   - Enter the following policy:
@@ -83,13 +83,13 @@ The key component of this solution is to show the user authentication flow step-
   - Choose **Submit**
 
 ### Provide required information for data accessor in the shell script
-ISSUER_URL - Issuer URL of the IDP
-IDP_CLIENT_ID - Client ID of the IDP
-REDIRECT_URL - Callback URL that will provide authentication code
-IAM_ROLE - IAM Role ARN of the data accessor
-QBUSINESS_APPLICATION_ID - QBiz application ID of the enterprise account
-RETRIEVER_ID - Retrieval ID of the above QBiz application
-IDC_APPLICATION_ARN - ARN provided on data accessor configuration
+**ISSUER_URL** - Issuer URL of the IDP
+**IDP_CLIENT_ID** - Client ID of the IDP
+**REDIRECT_URL** - Callback URL that will provide authentication code
+**IAM_ROLE** - IAM Role ARN of the data accessor
+**QBUSINESS_APPLICATION_ID** - QBiz application ID of the enterprise account
+**RETRIEVER_ID** - Retrieval ID of the above QBiz application
+**IDC_APPLICATION_ARN** - ARN provided on data accessor configuration
 
 ![Configuration](assets/shell-configuration.png)
 

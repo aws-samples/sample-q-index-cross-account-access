@@ -7,7 +7,7 @@ REDIRECT_URL="https://localhost:8081"
 IAM_ROLE="arn:aws:iam::643286473409:role/single-account-tester-tool"
 QBUSINESS_APPLICATION_ID="726cbda5-33f1-4205-8fe8-4fd6731f4653"
 RETRIEVER_ID="e9deada6-603f-471a-86f6-098f7520e2d6"
-IDC_APPLICATION_ARN="arn:aws:sso::643286473409:application/ssoins-18085ee3c45c8716/apl-9981313f11e05d9a"
+IDC_APPLICATION_ARN="arn:aws:sso::643286473409:application/ssoins-18085ee3c45c8716/apl-c54d3461cfcf45ca"
 QBUSINESS_REGION="us-east-1"
 IAM_IDC_REGION="us-east-1"
 
@@ -54,8 +54,8 @@ get_auth_code() {
     
     # Generate authorization URL
     local NONCE=$(openssl rand -base64 32)
-    local AUTH_URL="${ISSUER_URL}?client_id=${IDP_CLIENT_ID}&redirect_uri=${REDIRECT_URL}&response_type=code&scope=openid email profile&state=$(urlencode "$STATE")&nonce=${NONCE}"
-
+    local AUTH_URL="${ISSUER_URL}?client_id=${IDP_CLIENT_ID}&redirect_uri=${REDIRECT_URL}&response_type=token&scope=openid email profile&state=$(urlencode "$STATE")&nonce=${NONCE}"
+    
     # Display instructions using echo
     echo
     echo "=== AWS OIDC Authentication ==="
@@ -116,13 +116,6 @@ get_idc_token() {
     local AUTH_CODE=$1
     echo "Getting IDC token..."
 
-    # Debug logging
-    echo "Debug: Configuration values:"
-    echo "- IDC Application ARN: $IDC_APPLICATION_ARN"
-    echo "- Redirect URI: $REDIRECT_URL"
-    echo "- Region: $IAM_IDC_REGION"
-    echo "- Auth Code: $AUTH_CODE"
-
     # Save original credentials if they exist
     local ORIG_ACCESS_KEY="$AWS_ACCESS_KEY_ID"
     local ORIG_SECRET_KEY="$AWS_SECRET_ACCESS_KEY"
@@ -135,8 +128,8 @@ get_idc_token() {
     
     TOKEN_RESPONSE=$(aws sso-oidc create-token-with-iam \
         --client-id "$IDC_APPLICATION_ARN" \
-        --code "$AUTH_CODE" \
-        --grant-type "authorization_code" \
+        --assertion "$AUTH_CODE" \
+        --grant-type "urn:ietf:params:oauth:grant-type:jwt-bearer" \
         --redirect-uri "$REDIRECT_URL" \
         --region "$IAM_IDC_REGION" \
         --output json)
