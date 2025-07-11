@@ -115,7 +115,7 @@ Please follow these steps:
 ------------------------
 1. Copy and paste this URL in your browser:
 
-https://*****.okta.com/oauth2/default/v1/authorize?client_id=***&redirect_uri=https://localhost:8081&response_type=token&scope=openid email profile&state=***&nonce=***
+https://*****.okta.com/oauth2/*****/v1/authorize?client_id=***&redirect_uri=https://localhost:8081&response_type=token&scope=openid email profile&state=***&nonce=***
 
 2. Complete the authentication process in your browser
 3. After authentication, you will be redirected to: <your redirect url>
