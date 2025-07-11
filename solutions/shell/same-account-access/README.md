@@ -50,10 +50,12 @@ The key component of this solution is to show the user authentication flow step-
   - Select **Do not require assignements**
   - In **Application visiblity in AWS access portal**, select **Not visible**
   - Choose **Next**
+4. Create **trusted token issuer**
   - In **Authentication with trusted token issuer**, select **Create trusted token issuer**
   - In **Issuer URL**, enter the Issuer URI retrieved from Okta
   - In **Trusted token issuer name**, enter the name of your application
   - Choose **Create trusted token issuer**
+5. Continue creating **application**
   - Go back to the previous window and click **refresh** to see the issuer just created
   - Select the **issuer** and in **Aud claim** enter the value retrieved from Okta
   - Choose **Next**
