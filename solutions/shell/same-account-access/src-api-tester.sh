@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Configuration
-ISSUER_URL="https://*****.okta.com/oauth2/default/v1/authorize"
-IDP_CLIENT_ID=""
+ISSUER_URL="https://trial-9951435.okta.com/oauth2/default/v1/authorize"
+IDP_CLIENT_ID="0oat59ms6io12Fi79697"
 REDIRECT_URL="https://localhost:8081"
-IAM_ROLE=""
-QBUSINESS_APPLICATION_ID=""
-RETRIEVER_ID=""
-IDC_APPLICATION_ARN=""
+IAM_ROLE="arn:aws:iam::643286473409:role/single-account-tester-tool"
+QBUSINESS_APPLICATION_ID="543557b9-f2fc-4708-8eb5-e89963837319"
+RETRIEVER_ID="83284b6d-11f3-4b9d-aba5-e4fb0da735b1"
+IDC_APPLICATION_ARN="arn:aws:sso::643286473409:application/ssoins-18085ee3c45c8716/apl-4cc1d0561133a618"
 QBUSINESS_REGION="us-east-1"
 IAM_IDC_REGION="us-east-1"
 
@@ -38,7 +38,7 @@ get_user_query() {
 }
 
 
-# Function to generate authorization URL and get auth code
+# Function to generate authorization URL and get access token
 get_auth_code() {
     # Save original stdout
     exec 3>&1
@@ -68,20 +68,20 @@ get_auth_code() {
     echo
     echo "2. Complete the authentication process in your browser"
     echo "3. After authentication, you will be redirected to: $REDIRECT_URL"
-    echo "4. From the redirect URL, copy the 'code' parameter value"
+    echo "4. From the redirect URL, copy the 'access_token' parameter value"
     echo
     
-    # Enable proper line editing and read authorization code
+    # Enable proper line editing and read access token
     stty erase '^?'
-    read -e -p "Enter the authorization code from the redirect URL: " AUTH_CODE
+    read -e -p "Enter the access token from the redirect URL: " AUTH_CODE
 
     if [ -z "$AUTH_CODE" ]; then
-        echo "Error: authorization code cannot be empty"
+        echo "Error: access token cannot be empty"
         exit 1
     fi
     
     echo
-    echo "Received authorization code"
+    echo "Received access token"
     echo "================="
     echo "$AUTH_CODE"
     echo "================="

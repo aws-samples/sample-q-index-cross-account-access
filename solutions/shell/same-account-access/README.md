@@ -29,14 +29,23 @@ The key component of this solution is to show the user authentication flow step-
 4. On the **New Web App Integration** page, do the following:
   - In **General Settings**, for **App name**, enter a name for the application.
   - In **Grant type**, for **Core grants**, ensure that **Authorization Code** is selected. Expand **Advanced** and select on **Implicit (hybrid)** and **Allow Access Token with implicit grant type**.
-  - In **Sign-in-redirect URIs**, add a URL that Okta will send the authentication response and ID token for the user's sign in request.
+  - In **Sign-in-redirect URIs**, add a URL that Okta will send the authentication response and ID token for the user's sign in request (example https://localhost:8081).
   - In **Assignements** > **Controlled access**, select **Allow everyone ins your organization to access**
   - Then, select **Save**.
 5. From the application summary page, from General, do the following:
   - From **Client Credentials**, copy and save the **Client ID**. You will input this as the **Audience** when you create an identity provider in AWS Identity and Access Management in the next step.
 6. From the left navigation menu, select **Security**, and then select **API**.
-7. Then, from **Authorization Servers**, do the following:
+7. Then, from **Authorization Servers**,select the **default**, do the following:
+  - Paste the **Client ID** from previous step into **Audience** value.
   - Copy the **Issuer URI**, for example https://trial-okta-instance-id.okta.com/oauth2/default, and **Audience**. You will need to input this value as the **Provider URL** when you add your identity provider in IAM in Step 2.
+  - Choose **Claims** tab and choose **Add Claim**
+  - For name, enter **email** and for value enter **user.email**
+  - Choose **Create**
+  - Choose **Access Policies** tab and choose **Add New Access Policy**
+  - Insert **Name** and **Description** and keep Assign to **All cients**, then choose **Create Policy**
+  - Choose **Add rule** and insert **rule name**
+  - Select **Advanced**, and enable **Implicit (hybrid)**, then choose **Create rule**
+
 
 ### Setup Trusted Token Issuer
 
@@ -73,9 +82,6 @@ The key component of this solution is to show the user authentication flow step-
           },
           "Action": [
             "sso-oauth:CreateTokenWithIAM"
-          ],
-          "Resource": [
-            "<your-identity-center-custom-application-arn>"
           ]
         }
       ]
@@ -83,6 +89,14 @@ The key component of this solution is to show the user authentication flow step-
     ```
   - Choose **Next**
   - Choose **Submit**
+  - Once applicaiton is created, go to **Trusted applications for identity propagation** section and click on **Specify trusted applications**
+  - Select **Specify trusted applications** and choose **Next**
+  - Under **Services**, select **Amazon Q** and choose **Next**
+  - Click on your Q Business application from the list and choose **Next**
+  - Choose **qbusiness:content:access** and choose **Next**
+  - Choose **Trust applications** 
+
+
 
 ### Provide required information for data accessor in the shell script
 - **ISSUER_URL** : Issuer URL of the IDP
