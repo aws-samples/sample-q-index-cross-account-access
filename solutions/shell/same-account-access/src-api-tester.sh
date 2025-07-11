@@ -7,15 +7,12 @@ REDIRECT_URL="https://localhost:8081"
 IAM_ROLE="arn:aws:iam::643286473409:role/single-account-tester-tool"
 QBUSINESS_APPLICATION_ID="726cbda5-33f1-4205-8fe8-4fd6731f4653"
 RETRIEVER_ID="e9deada6-603f-471a-86f6-098f7520e2d6"
-IDC_APPLICATION_ARN="arn:aws:sso::643286473409:application/ssoins-18085ee3c45c8716/apl-c54d3461cfcf45ca"
+IDC_APPLICATION_ARN="arn:aws:sso::643286473409:application/ssoins-18085ee3c45c8716/apl-9981313f11e05d9a"
 QBUSINESS_REGION="us-east-1"
 IAM_IDC_REGION="us-east-1"
 
 BEDROCK_REGION="us-east-1"
 BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
-
-
-
 
 # Function to capture user query
 get_user_query() {
@@ -59,7 +56,6 @@ get_auth_code() {
     local NONCE=$(openssl rand -base64 32)
     local AUTH_URL="${ISSUER_URL}?client_id=${IDP_CLIENT_ID}&redirect_uri=${REDIRECT_URL}&response_type=code&scope=openid email profile&state=$(urlencode "$STATE")&nonce=${NONCE}"
 
-
     # Display instructions using echo
     echo
     echo "=== AWS OIDC Authentication ==="
@@ -72,24 +68,27 @@ get_auth_code() {
     echo
     echo "2. Complete the authentication process in your browser"
     echo "3. After authentication, you will be redirected to: $REDIRECT_URL"
-    echo "4. From the redirect URL, copy the 'access_token' parameter value"
+    echo "4. From the redirect URL, copy the 'code' parameter value"
     echo
     
-    # Enable proper line editing and read access token
+    # Enable proper line editing and read authorization code
     stty erase '^?'
-    read -e -p "Enter the access token from the redirect URL: " AUTH_CODE
+    read -e -p "Enter the authorization code from the redirect URL: " AUTH_CODE
 
     if [ -z "$AUTH_CODE" ]; then
-        echo "Error: Access token cannot be empty"
+        echo "Error: authorization code cannot be empty"
         exit 1
     fi
     
     echo
-    echo "Received access token"
+    echo "Received authorization code"
     echo "================="
     echo "$AUTH_CODE"
     echo "================="
     echo
+
+    # Export for use in other functions
+    export AUTH_CODE
 }
 
 # Function to assume first role
@@ -116,6 +115,13 @@ assume_first_role() {
 get_idc_token() {
     local AUTH_CODE=$1
     echo "Getting IDC token..."
+
+    # Debug logging
+    echo "Debug: Configuration values:"
+    echo "- IDC Application ARN: $IDC_APPLICATION_ARN"
+    echo "- Redirect URI: $REDIRECT_URL"
+    echo "- Region: $IAM_IDC_REGION"
+    echo "- Auth Code: $AUTH_CODE"
 
     # Save original credentials if they exist
     local ORIG_ACCESS_KEY="$AWS_ACCESS_KEY_ID"
@@ -149,6 +155,8 @@ get_idc_token() {
     
     if [ $? -ne 0 ]; then
         echo "Error getting IDC token"
+        echo "Response: $TOKEN_RESPONSE"
+        echo "Exit code: $AWS_RESULT"
         exit 1
     fi
 
