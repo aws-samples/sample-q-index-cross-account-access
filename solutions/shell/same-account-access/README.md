@@ -83,13 +83,13 @@ The key component of this solution is to show the user authentication flow step-
   - Choose **Submit**
 
 ### Provide required information for data accessor in the shell script
-**ISSUER_URL** - Issuer URL of the IDP
-**IDP_CLIENT_ID** - Client ID of the IDP
-**REDIRECT_URL** - Callback URL that will provide authentication code
-**IAM_ROLE** - IAM Role ARN of the data accessor
-**QBUSINESS_APPLICATION_ID** - QBiz application ID of the enterprise account
-**RETRIEVER_ID** - Retrieval ID of the above QBiz application
-**IDC_APPLICATION_ARN** - ARN provided on data accessor configuration
+- **ISSUER_URL** : Issuer URL of the IDP
+- **IDP_CLIENT_ID** : Client ID of the IDP
+- **REDIRECT_URL** : Callback URL that will provide authentication code
+- **IAM_ROLE** : IAM Role ARN of the data accessor
+- **QBUSINESS_APPLICATION_ID** : QBiz application ID of the enterprise account
+- **RETRIEVER_ID** : Retrieval ID of the above QBiz application
+- **IDC_APPLICATION_ARN** : ARN provided on data accessor configuration
 
 ![Configuration](assets/shell-configuration.png)
 
