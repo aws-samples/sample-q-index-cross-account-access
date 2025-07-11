@@ -107,11 +107,11 @@ Enter your prompt (or 'exit' to quit):
 Enter your prompt (or 'exit' to quit): find out the status of project x
 ```
 
-### Authenticate against IAM IDC + IDP from your browser as prompted and provide the access token
+### Authenticate against IDP from your browser as prompted and provide the access token
 
 
 ```
-=== AWS OIDC Authentication ===
+=== OIDC Authentication ===
 
 Please follow these steps:
 ------------------------
