@@ -18,6 +18,55 @@ The key component of this solution is to show the user authentication flow step-
 
 ## Usage Steps
 
+*** IAM Rule and Policy
+
+1. Go to AWS Management Console, go to **Identity and Access Management(IAM)**
+2. In the left navigation pane, choose **Policies** and click **Create Policy**
+3. Select **JSON**, and copy the below policy and replace **region**, **source_account**, **application_id** with your values.
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "QBusinessConversationPermission",
+            "Effect": "Allow",
+            "Action": [
+                "qbusiness:SearchRelevantContent"
+            ],
+            "Resource": "arn:aws:qbusiness:{{region}}:{{source_account}}:application/{{application_id}}"
+        }
+    ]
+}
+```
+4. Insert **Policy name** and select **Create policy**
+5. In the left navigation pane, choose **Roles** and click **Create role**
+6. Select **Custom trust policy**
+7. Copy the below trust policy and select **next**
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "QCLITrustPolicy",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "{{source_account}}",
+                "Service": "qbusiness.amazonaws.com"
+            },
+            "Action": [
+                "sts:AssumeRole",
+                "sts:SetContext",
+                "sts:TagSession"
+            ]
+        }
+    ]
+}
+```
+8. Select **Next**
+9. For **Add permisions**, selec the policy you just created and click **Next**
+10. Insert **Role name**, then click **Create role**
+11. Once IAM role is created, click on the role and copy **ARN** of the IAM role. You will use this IAM role ARN when running the shell script.
+
 ### Setup Okta
 
 1. Sign into Okta and go to the admin console.
