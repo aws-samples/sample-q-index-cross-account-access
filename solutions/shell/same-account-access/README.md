@@ -27,14 +27,24 @@ The key component of this solution is to show the user authentication flow step-
 {
     "Version": "2012-10-17",
     "Statement": [
-        {
-            "Sid": "QBusinessConversationPermission",
-            "Effect": "Allow",
-            "Action": [
-                "qbusiness:SearchRelevantContent"
-            ],
-            "Resource": "arn:aws:qbusiness:{{region}}:{{source_account}}:application/{{application_id}}"
+      {
+        "Effect": "Allow",
+        "Action": "sso-oauth:CreateTokenWithIAM",
+        "Resource": "*",
+        "Condition": {
+            "StringEquals": {
+                "aws:ResourceAccount": "{{source_account}}"
+            }
         }
+      },
+      {
+        "Sid": "QBusinessConversationPermission",
+        "Effect": "Allow",
+        "Action": [
+            "qbusiness:SearchRelevantContent"
+        ],
+        "Resource": "arn:aws:qbusiness:{{region}}:{{source_account}}:application/{{application_id}}"
+      }
     ]
 }
 ```
@@ -44,22 +54,25 @@ The key component of this solution is to show the user authentication flow step-
 7. Copy the below trust policy and select **next**
 ```
 {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "QCLITrustPolicy",
-            "Effect": "Allow",
-            "Principal": {
-                "AWS": "{{source_account}}",
-                "Service": "qbusiness.amazonaws.com"
-            },
-            "Action": [
-                "sts:AssumeRole",
-                "sts:SetContext",
-                "sts:TagSession"
-            ]
-        }
-    ]
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "QCLITrustPolicy",
+			"Effect": "Allow",
+			"Principal": {
+				"AWS": "arn:aws:iam::643286473409:root",
+				"Service": [
+                    "qbusiness.amazonaws.com",
+                    "sso.amazonaws.com"
+                ]
+			},
+			"Action": [
+				"sts:AssumeRole",
+				"sts:SetContext",
+				"sts:TagSession"
+			]
+		}
+	]
 }
 ```
 8. Select **Next**

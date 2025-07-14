@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # Configuration
-ISSUER_URL="https://trial-9951435.okta.com/oauth2/default/v1/authorize"
-IDP_CLIENT_ID="0oat59ms6io12Fi79697"
+ISSUER_URL=""
+IDP_CLIENT_ID=""
 REDIRECT_URL="https://localhost:8081"
-IAM_ROLE="arn:aws:iam::643286473409:role/single-account-tester-tool"
-QBUSINESS_APPLICATION_ID="543557b9-f2fc-4708-8eb5-e89963837319"
-RETRIEVER_ID="83284b6d-11f3-4b9d-aba5-e4fb0da735b1"
-IDC_APPLICATION_ARN="arn:aws:sso::643286473409:application/ssoins-18085ee3c45c8716/apl-4cc1d0561133a618"
+IAM_ROLE=""
+QBUSINESS_APPLICATION_ID=""
+RETRIEVER_ID=""
+IDC_APPLICATION_ARN=""
 QBUSINESS_REGION="us-east-1"
 IAM_IDC_REGION="us-east-1"
 
