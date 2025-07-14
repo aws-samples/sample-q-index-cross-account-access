@@ -62,9 +62,9 @@ The key component of this solution is to show the user authentication flow step-
 			"Principal": {
 				"AWS": "arn:aws:iam::643286473409:root",
 				"Service": [
-                    "qbusiness.amazonaws.com",
-                    "sso.amazonaws.com"
-                ]
+            "qbusiness.amazonaws.com",
+            "sso.amazonaws.com"
+        ]
 			},
 			"Action": [
 				"sts:AssumeRole",
