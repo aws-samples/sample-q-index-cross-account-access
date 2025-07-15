@@ -24,15 +24,15 @@ This flow illustrates user authentication process in order for ISV application t
 
 ### Provide required information for data accessor in the shell script
 - ISV
-**IAM_ROLE** - IAM Role ARN of the data accessor
-**TENANT_ID** - This Tenant ID needs to be same ID that was used when registering this data accessor on enterprise account
-**COGNITO_USER_POOL_ID** - The ID of your Cognito User Pool (e.g., "us-east-1_xxxxxx"). Found in AWS Console > Cognito > User Pools > Your Pool > User pool overview
-**COGNITO_CLIENT_ID** - The App client ID from your Cognito User Pool. Found in AWS Console > Cognito > User Pools > Your Pool > App integration > App clients
-**COGNITO_CLIENT_SECRET** - The client secret for your app client. Found in AWS Console > Cognito > User Pools > Your Pool > App integration > App clients > Show client secret
+  - **IAM_ROLE** - IAM Role ARN of the data accessor
+  - **TENANT_ID** - This Tenant ID needs to be same ID that was used when registering this data accessor on enterprise account
+  - **COGNITO_USER_POOL_ID** - The ID of your Cognito User Pool (e.g., "us-east-1_xxxxxx"). Found in AWS Console > Cognito > User Pools > Your Pool > User pool overview
+  - **COGNITO_CLIENT_ID** - The App client ID from your Cognito User Pool. Found in AWS Console > Cognito > User Pools > Your Pool > App integration > App clients
+  - **COGNITO_CLIENT_SECRET** - The client secret for your app client. Found in AWS Console > Cognito > User Pools > Your Pool > App integration > App clients > Show client secret
 - Enterprise
-**QBUSINESS_APPLICATION_ID** - QBiz application ID of the enterprise account
-**RETRIEVER_ID** - Retrieval ID of the above QBiz application
-**IDC_APPLICATION_ARN** - ARN provided on data accessor configuration
+  - **QBUSINESS_APPLICATION_ID** - QBiz application ID of the enterprise account
+  - **RETRIEVER_ID** - Retrieval ID of the above QBiz application
+  - **IDC_APPLICATION_ARN** - ARN provided on data accessor configuration
 
 ![Configuration](assets/shell-tti-configuration.png)
 
