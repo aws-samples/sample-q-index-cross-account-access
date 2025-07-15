@@ -18,7 +18,7 @@ The key component of this solution is to show the user authentication flow step-
 
 ## Usage Steps
 
-*** IAM Rule and Policy
+### IAM Rule and Policy
 
 1. Go to AWS Management Console, go to **Identity and Access Management(IAM)**
 2. In the left navigation pane, choose **Policies** and click **Create Policy**

@@ -17,11 +17,14 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 
 ## Available Samples
 
-#### [Sample ISV Webpage](/solutions/deployable-page) 
+#### [Sample ISV Webpage (AuthCode)](/solutions/deployable-page) 
 - Deployable sample ISV webpage that teaches each steps for Authorization Code authentication flow to access Q index with SearchRelevantContent API
 
-#### [Shell script - cross account](/solutions/shell) 
+#### [Shell script - cross account (AuthCode)](/solutions/shell) 
 - Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
+
+#### [Shell script - cross account (TTI)](/solutions/shell/tti-auth/)
+- (still in progress) Shell script that goes through Trusted Token Issuer (TTI) authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
 
 #### [Shell script - same account](/solutions/shell/same-account-access/) 
 - Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the same account access
@@ -29,7 +32,7 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 #### Lambda function 
 - coming soon
 
-#### [MCP Server](https://github.com/awslabs/mcp/tree/main/src/amazon-qindex-mcp-server)
+#### [MCP Server (AuthCode)](https://github.com/awslabs/mcp/tree/main/src/amazon-qindex-mcp-server)
 - The AWS Labs amazon-qindex MCP Server is a Model Context Protocol (MCP) server designed to facilitate integration with Amazon Q Business's SearchRelevantContent API. While the server provides essential tools and functions for authentication and search capabilities using Amazon Q index, it currently serves for Independent Software Vendors (ISVs) who are AWS registered data accessors. The server enables cross-account search capabilities, allowing ISVs who are data accessors to search through enterprise customers' Q index and access relevant content across their data sources using specific authentication and authorization flows.
 
 #### [Misc](/solutions/misc/)
