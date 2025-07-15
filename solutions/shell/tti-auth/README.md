@@ -7,8 +7,9 @@ This shell script by using AWS CLI goes through neccessary [trusted token issuer
 - AWS CLI (v2) installed and configured on your computer
 
 - Two AWS Accounts (one account as ISV running this tester application, another account acting as enterprise customer running Amazon Q Business)
-- Data accessor registered for your ISV and make sure to register as TTI (not Auth code)
-- Amazon Q Business application setup with IAM IDC as access management on enterprise customer AWS account 
+- [On enterprise account] Data accessor registered for your ISV and make sure to register as TTI (not Auth code)
+- [On enterprise account] Amazon Q Business application setup with IAM IDC as access management on enterprise customer AWS account 
+- [On ISV account] As demo purpose, this sample assume ISV is using [AWS Cognito](https://aws.amazon.com/cognito/) as [OAuth 2.0 authorization server registered with data accessor](https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv-info-to-provide.html)
 - Enable Nova Pro model access on Amazon Bedrock
 
 ## Key Components
@@ -23,14 +24,17 @@ This flow illustrates user authentication process in order for ISV application t
 
 ### Provide required information for data accessor in the shell script
 - ISV
-IAM_ROLE - IAM Role ARN of the data accessor
-REDIRECT_URL - Callback URL that will provide authentication code
+**IAM_ROLE** - IAM Role ARN of the data accessor
+**TENANT_ID** - This Tenant ID needs to be same ID that was used when registering this data accessor on enterprise account
+**COGNITO_USER_POOL_ID** - The ID of your Cognito User Pool (e.g., "us-east-1_xxxxxx"). Found in AWS Console > Cognito > User Pools > Your Pool > User pool overview
+**COGNITO_CLIENT_ID** - The App client ID from your Cognito User Pool. Found in AWS Console > Cognito > User Pools > Your Pool > App integration > App clients
+**COGNITO_CLIENT_SECRET** - The client secret for your app client. Found in AWS Console > Cognito > User Pools > Your Pool > App integration > App clients > Show client secret
 - Enterprise
-QBUSINESS_APPLICATION_ID - QBiz application ID of the enterprise account
-RETRIEVER_ID - Retrieval ID of the above QBiz application
-IDC_APPLICATION_ARN - ARN provided on data accessor configuration
+**QBUSINESS_APPLICATION_ID** - QBiz application ID of the enterprise account
+**RETRIEVER_ID** - Retrieval ID of the above QBiz application
+**IDC_APPLICATION_ARN** - ARN provided on data accessor configuration
 
-![Configuration](assets/shell-configuration.png)
+![Configuration](assets/shell-tti-configuration.png)
 
 ### Run the shell script
 ```
