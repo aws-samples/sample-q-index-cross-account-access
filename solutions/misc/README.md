@@ -50,7 +50,7 @@ learn more on [put-application-assignment-configuration](https://docs.aws.amazon
 1. First, go to IAM Identity Center console page, and at the Settings > Authentication, click on 'Create trusted token issuer'.
 
 ```
-Issuer URL - <Issuer URL of the ISV's OAuth authentication server>
+Issuer URL - <Issuer URL of the ISV's OAuth authentication server> hint: remove /.well-known/openid-configuration from url
 Trusted token issuer name - <put in any name>
 Identity provider attribute - Email maps to Email
 ```
