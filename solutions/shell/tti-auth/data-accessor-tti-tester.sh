@@ -6,6 +6,12 @@ IAM_ROLE=""
 REDIRECT_URL="https://localhost:8081"
 BEDROCK_REGION="us-east-1"
 BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
+TENANT_ID="CLI-Test"
+
+## ISV's IDP data (cognito)
+COGNITO_USER_POOL_ID=""
+COGNITO_CLIENT_ID=""
+COGNITO_CLIENT_SECRET=""
 
 ## Enterprise provided data
 QBUSINESS_APPLICATION_ID=""
@@ -38,51 +44,33 @@ get_user_query() {
 }
 
 
-# Function to generate authorization URL and get auth code
-get_auth_code() {
-    # Save original stdout
-    exec 3>&1
-    
-    # Redirect stdout to stderr for prompts/messages
-    exec 1>&2
+# Function to authenticate against ISV's IDP and get ISV token
+get_isv_token() {
+    # Prompt for username and password
+    echo
+    echo "Cognito Authentication"
+    read -p "Enter username: " COGNITO_USERNAME
+    read -s -p "Enter password: " COGNITO_PASSWORD
+    echo  # Add a newline after password input
+ 
+    # Calculate SECRET_HASH 
+    COGNITO_SECRET_HASH=$(echo -n "${COGNITO_USERNAME}${COGNITO_CLIENT_ID}" | \
+        openssl dgst -sha256 -hmac "${COGNITO_CLIENT_SECRET}" -binary | \
+        base64)
 
-    # Create state parameter with configuration
-    local STATE_DATA="{\"iamIdcRegion\":\"$IAM_IDC_REGION\",\"iamRole\":\"$IAM_ROLE\",\"idcApplicationArn\":\"$IDC_APPLICATION_ARN\",\"redirectUrl\":\"$REDIRECT_URL\"}"
-    
-    # Encode state to base64
-    local STATE=$(echo -n "$STATE_DATA" | base64)
-    
-    # Generate authorization URL
-    local AUTH_URL="https://oidc.${IAM_IDC_REGION}.amazonaws.com/authorize?response_type=code&client_id=$(urlencode "$IDC_APPLICATION_ARN")&redirect_uri=$(urlencode "$REDIRECT_URL")&state=$(urlencode "$STATE")"
-    
-    # Display instructions using echo
-    echo
-    echo "=== AWS OIDC Authentication ==="
-    echo
-    echo "Please follow these steps:"
-    echo "------------------------"
-    echo "1. Copy and paste this URL in your browser:"
-    echo
-    echo "$AUTH_URL"
-    echo
-    echo "2. Complete the authentication process in your browser"
-    echo "3. After authentication, you will be redirected to: $REDIRECT_URL"
-    echo "4. From the redirect URL, copy the 'code' parameter value"
-    echo
-    
-    # Enable proper line editing and read authorization code
-    stty erase '^?'
-    read -e -p "Enter the authorization code from the redirect URL: " AUTH_CODE
+    # Authenticate against Cognito and receive IdToken
+    ISV_TOKEN=$(aws cognito-idp admin-initiate-auth \
+        --user-pool-id $COGNITO_USER_POOL_ID \
+        --client-id $COGNITO_CLIENT_ID \
+        --auth-flow ADMIN_USER_PASSWORD_AUTH \
+        --auth-parameters USERNAME=$COGNITO_USERNAME,PASSWORD=$COGNITO_PASSWORD,SECRET_HASH=$COGNITO_SECRET_HASH \
+        --query 'AuthenticationResult.IdToken' \
+        --output text)
 
-    if [ -z "$AUTH_CODE" ]; then
-        echo "Error: Authorization code cannot be empty"
-        exit 1
-    fi
-    
     echo
-    echo "Received authorization code"
+    echo "Received ISV token"
     echo "================="
-    echo "$AUTH_CODE"
+    echo "$ISV_TOKEN"
     echo "================="
     echo
 }
@@ -93,7 +81,7 @@ assume_first_role() {
     TEMP_CREDENTIALS=$(aws sts assume-role \
         --role-arn "$IAM_ROLE" \
         --role-session-name "automated-session" \
-        --tags Key=qbusiness-dataaccessor:ExternalId,Value=CLI-Test \
+        --tags Key=qbusiness-dataaccessor:ExternalId,Value=$TENANT_ID \
         --output json)
     
     if [ $? -ne 0 ]; then
@@ -109,7 +97,6 @@ assume_first_role() {
 
 # Function to get IDC token
 get_idc_token() {
-    local AUTH_CODE=$1
     echo "Getting IDC token..."
 
     # Save original credentials if they exist
@@ -121,11 +108,11 @@ get_idc_token() {
     export AWS_ACCESS_KEY_ID="$TEMP_ACCESS_KEY"
     export AWS_SECRET_ACCESS_KEY="$TEMP_SECRET_KEY"
     export AWS_SESSION_TOKEN="$TEMP_SESSION_TOKEN"
-    
+
     TOKEN_RESPONSE=$(aws sso-oidc create-token-with-iam \
         --client-id "$IDC_APPLICATION_ARN" \
-        --code "$AUTH_CODE" \
-        --grant-type "authorization_code" \
+        --assertion "$ISV_TOKEN" \
+        --grant-type "urn:ietf:params:oauth:grant-type:jwt-bearer" \
         --redirect-uri "$REDIRECT_URL" \
         --region "$IAM_IDC_REGION" \
         --output json)
@@ -141,24 +128,30 @@ get_idc_token() {
         unset AWS_SECRET_ACCESS_KEY
         unset AWS_SESSION_TOKEN
     fi
-    
-    if [ $? -ne 0 ]; then
-        echo "Error getting IDC token"
+
+    # Try to parse the response as JSON
+    if ! echo "$TOKEN_RESPONSE" | jq empty 2>/dev/null; then
+        echo "Error: Response is not valid JSON"
+        echo "Raw response:"
+        echo "$TOKEN_RESPONSE"
         exit 1
     fi
 
-    # Extract tokens using jq, with error checking
-    if ! ID_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.idToken' 2>/dev/null); then
-        echo "Error: Failed to parse ID token" >&2
-        echo "$TOKEN_RESPONSE" >&2
+    # Extract the token
+    IDC_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.idToken // empty')
+    if [ -z "$IDC_TOKEN" ]; then
+        echo "Error: No ID token in response"
+        echo "Full response:"
+        echo "$TOKEN_RESPONSE"
         exit 1
     fi
 
     echo "Received IDC token"
     echo "================="
-    echo "${ID_TOKEN}"
+    echo "${IDC_TOKEN}"
     echo "================="
     echo
+
 }
 
 # Function to process IDC token and assume role with identity context
@@ -166,7 +159,7 @@ process_token_and_assume_role() {
     echo "Processing IDC token and assuming role with identity context..."
     
     # Extract identity context from IDC token
-    TOKEN_PAYLOAD=$(echo "$ID_TOKEN" | cut -d'.' -f2 | tr -d '-' | tr '_' '/' | sed -e 's/$/\=\=/' | base64 -d 2>/dev/null)
+    TOKEN_PAYLOAD=$(echo "$IDC_TOKEN" | cut -d'.' -f2 | tr -d '-' | tr '_' '/' | sed -e 's/$/\=\=/' | base64 -d 2>/dev/null)
     
     # Extract identity context with error checking
     if ! IDENTITY_CONTEXT=$(echo "$TOKEN_PAYLOAD" | jq -r '."sts:identity_context"' 2>/dev/null); then
@@ -186,7 +179,7 @@ process_token_and_assume_role() {
         --role-arn "$IAM_ROLE" \
         --role-session-name "automated-session" \
         --provided-contexts '[{"ProviderArn":"arn:aws:iam::aws:contextProvider/IdentityCenter","ContextAssertion":"'"$IDENTITY_CONTEXT"'"}]' \
-        --tags Key=qbusiness-dataaccessor:ExternalId,Value=CLI-Test \
+        --tags Key=qbusiness-dataaccessor:ExternalId,Value=$TENANT_ID \
         --output json)
     
     # Extract temporary credentials
@@ -269,12 +262,10 @@ call_src_api() {
         exit 1
     fi
 
-    # Check if we have any results after filtering
-    local result_count
-    result_count=$(echo "$SRC_API_RESPONSE" | jq '.relevantContent | length')
-    
-    if [ "$result_count" -eq 0 ]; then
-        echo "Warning: No results with High or Very High confidence found" >&2
+    # Check for results
+    RESULT_COUNT=$(echo "$SRC_API_RESPONSE" | jq '.relevantContent | length')
+    if [ "$RESULT_COUNT" -eq 0 ]; then
+        echo "No results with High or Very High confidence found"
     fi
 
     # Output the filtered SRC API response
@@ -433,14 +424,14 @@ main() {
     # Capture user prompt
     get_user_query
 
-    # Get Authorization Code from IAM IDC
-    get_auth_code
+    # Get ID Token from ISV's IDP
+    get_isv_token
 
     # Assume Role with IAM role registered as data accessor
     assume_first_role
 
-    # Get IDC token with Authorization Code
-    get_idc_token "$AUTH_CODE"
+    # Get IDC token with ID Token
+    get_idc_token
 
     # Process IDC token and assume role 
     process_token_and_assume_role
