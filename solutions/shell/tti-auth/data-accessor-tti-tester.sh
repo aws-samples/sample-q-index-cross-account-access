@@ -48,10 +48,10 @@ get_user_query() {
 get_isv_token() {
     # Prompt for username and password
     echo
-    echo "Cognito Authentication"
+    echo "=== Cognito Authentication ==="
     read -p "Enter username: " COGNITO_USERNAME
     read -s -p "Enter password: " COGNITO_PASSWORD
-    echo  # Add a newline after password input
+    echo
  
     # Calculate SECRET_HASH 
     COGNITO_SECRET_HASH=$(echo -n "${COGNITO_USERNAME}${COGNITO_CLIENT_ID}" | \
