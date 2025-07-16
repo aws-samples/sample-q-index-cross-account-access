@@ -3,10 +3,9 @@
 # Configuration
 ## ISV provided data
 IAM_ROLE=""
-REDIRECT_URL="https://localhost:8081"
 BEDROCK_REGION="us-east-1"
 BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
-TENANT_ID="CLI-Test"
+TENANT_ID=""
 
 ## ISV's IDP data (cognito)
 COGNITO_USER_POOL_ID=""
@@ -48,7 +47,7 @@ get_user_query() {
 get_isv_token() {
     # Prompt for username and password
     echo
-    echo "=== Cognito Authentication ==="
+    echo "=== AWS Cognito Authentication ==="
     read -p "Enter username: " COGNITO_USERNAME
     read -s -p "Enter password: " COGNITO_PASSWORD
     echo
@@ -113,7 +112,6 @@ get_idc_token() {
         --client-id "$IDC_APPLICATION_ARN" \
         --assertion "$ISV_TOKEN" \
         --grant-type "urn:ietf:params:oauth:grant-type:jwt-bearer" \
-        --redirect-uri "$REDIRECT_URL" \
         --region "$IAM_IDC_REGION" \
         --output json)
 
@@ -380,9 +378,9 @@ summarize_with_bedrock() {
 
 # Validate configuration
 validate_config() {
-    if [ -z "$IAM_IDC_REGION" ] || [ -z "$IAM_ROLE" ] || [ -z "$IDC_APPLICATION_ARN" ] || [ -z "$REDIRECT_URL" ] || [ -z "$QBUSINESS_APPLICATION_ID" ] || [ -z "$RETRIEVER_ID" ]; then
+    if [ -z "$IAM_IDC_REGION" ] || [ -z "$IAM_ROLE" ] || [ -z "$IDC_APPLICATION_ARN" ] || [ -z "$QBUSINESS_APPLICATION_ID" ] || [ -z "$RETRIEVER_ID" ]; then
         echo "Error: Please set all required configuration variables at the top of the script:"
-        echo "IAM_IDC_REGION, IAM_ROLE, IDC_APPLICATION_ARN, REDIRECT_URL, QBUSINESS_APPLICATION_ID, RETRIEVER_ID"
+        echo "IAM_IDC_REGION, IAM_ROLE, IDC_APPLICATION_ARN, QBUSINESS_APPLICATION_ID, RETRIEVER_ID"
         exit 1
     fi
 }
