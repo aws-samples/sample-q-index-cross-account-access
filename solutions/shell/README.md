@@ -35,7 +35,7 @@ IDC_APPLICATION_ARN - ARN provided on data accessor configuration
 
 ### Run the shell script
 ```
-# ./data-accessor-tester.sh                                                                                           [/
+# ./data-accessor-tester.sh
 Enter your prompt (or 'exit' to quit):
 ```
 

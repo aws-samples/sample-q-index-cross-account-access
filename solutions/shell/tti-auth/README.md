@@ -16,7 +16,7 @@ This shell script by using AWS CLI goes through neccessary [trusted token issuer
 
 The key component of this solution is to show the user authentication flow step-by-step (OIDC authentication with ISV's OAuth 2.0 authorization server, token generation and management, STS credential handling) required to make Amazon Q Business's [SearchRelevantContent API](https://docs.aws.amazon.com/amazonq/latest/api-reference/API_SearchRelevantContent.html) requests to cross-account Q index on customer's environment.
 
-![User Authentication Flow](assets/shell-authentication-flow.png)
+![User Authentication Flow](assets/shell-tti-auth-flow.png)
 
 This flow illustrates user authentication process in order for ISV application to make SearchRelevantContent API to access customer's Q index that this frontend solution demonstrates in steps.
 
@@ -38,33 +38,22 @@ This flow illustrates user authentication process in order for ISV application t
 
 ### Run the shell script
 ```
-# ./data-accessor-tester.sh                                                                                           [/
+# ./data-accessor-tti-tester.sh
 Enter your prompt (or 'exit' to quit):
 ```
 
 ### Enter the query prompt that you want to query against the Q index
 ```
-# ./data-accessor-tester.sh
+# ./data-accessor-tti-tester.sh
 Enter your prompt (or 'exit' to quit): find out the status of project x
 ```
 
-### Authenticate against IAM IDC + IDP from your browser as prompted and provide the authorization code
-
+### Authenticate against ISV's IDP (ie Cognito) as prompted and retrieves ISV ID Token
 
 ```
-=== AWS OIDC Authentication ===
-
-Please follow these steps:
-------------------------
-1. Copy and paste this URL in your browser:
-
-https://oidc.us-east-1.amazonaws.com/authorize?response_type=code&client_id=******&redirect_uri=******&state=******
-
-2. Complete the authentication process in your browser
-3. After authentication, you will be redirected to: <your redirect url>
-4. From the redirect URL, copy the 'code' parameter value
-
-Enter the authorization code from the redirect URL:
+=== AWS Cognito Authentication ===
+Enter username: xxx@amazon.com
+Enter password: 
 ```
 
 ### The script goes through the rest of proper authentication flow and calls Search Relevant Content API to retrieve the Q index information that matched against your query
