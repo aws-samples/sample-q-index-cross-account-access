@@ -3,9 +3,9 @@
 # Configuration
 ## ISV provided data
 IAM_ROLE=""
+TENANT_ID=""
 BEDROCK_REGION="us-east-1"
 BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
-TENANT_ID=""
 
 ## ISV's IDP data (cognito)
 COGNITO_USER_POOL_ID=""
