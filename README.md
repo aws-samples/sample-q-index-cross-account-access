@@ -24,7 +24,7 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 - Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
 
 #### [Shell script - cross account (TTI)](/solutions/shell/tti-auth/)
-- **(still in progress)** Shell script that goes through Trusted Token Issuer (TTI) authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
+- Shell script that goes through Trusted Token Issuer (TTI) authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
 
 #### [Shell script - same account](/solutions/shell/same-account-access/) 
 - Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the same account access
