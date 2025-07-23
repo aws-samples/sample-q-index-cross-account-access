@@ -438,7 +438,13 @@ function App() {
                 try {
                     const assumeRoleCommand = new AssumeRoleCommand({
                         RoleArn: formData.iamRole,
-                        RoleSessionName: 'automated-session'
+                        RoleSessionName: 'automated-session',
+                        Tags: [
+                            {
+                                Key: 'qbusiness-dataaccessor:ExternalId',
+                                Value: 'SSA-Test' // Replace with your actual tenant ID variable
+                            }
+                        ]
                     });
                     assumeRoleResponse = await stsClient.send(assumeRoleCommand);
                     setErrors(prev => ({ ...prev, step4: null }));
@@ -495,7 +501,13 @@ function App() {
                         const assumeRoleCommand = new AssumeRoleCommand({
                             RoleArn: formData.iamRole,
                             RoleSessionName: 'automated-session',
-                            ProvidedContexts: providedContexts
+                            ProvidedContexts: providedContexts,
+                            Tags: [
+                                {
+                                    Key: 'qbusiness-dataaccessor:ExternalId',
+                                    Value: 'SSA-Test' // Replace with your actual tenant ID variable
+                                }
+                            ]
                         });
 
                         const assumeRoleResponse = await stsClient.send(assumeRoleCommand);
