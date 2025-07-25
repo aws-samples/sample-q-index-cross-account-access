@@ -13,7 +13,7 @@ How does an ISV’s access to customers’ Amazon Q index data work? The process
 
 Provided sample solution demonstrates cross-account data retrieval functionality for Amazon Q index using AWS IAM Identity Center (IDC) authentication setup on Amazon Q Business. The application implements a step-by-step process for user authentication, token generation, obatain temporary credential and data retrieval through Search Content Retrieval API.
 
-![Overall Architecture](assets/overall-architecture.png)
+![Overall Architecture](/assets/overall-architecture.png)
 
 ## Available Samples
 

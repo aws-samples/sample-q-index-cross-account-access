@@ -169,7 +169,7 @@ The key component of this solution is to show the user authentication flow step-
 - **RETRIEVER_ID** : Retrieval ID of the above QBiz application
 - **IDC_APPLICATION_ARN** : ARN provided on data accessor configuration
 
-![Configuration](assets/shell-configuration-sameaccount.png)
+![Configuration](/assets/shell-configuration-sameaccount.png)
 
 ### Run the shell script
 ```
