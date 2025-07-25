@@ -7,7 +7,7 @@ This is a deployable sample ISV webpage that can be run locally on https://local
 - Deploy locally (or option to deploy and host via AWS Amplify with CDK) Cross-Account Data Retrieval Tester application in ISV environment which helps demonstrate the user authentication, token generation and credential retrieval to make Search Content Retrieval (SRC) API call. The application then leverages SRC index responses with Bedrock LLM models to generate summarization output. You can easily switch with different LLM models to see the different outputs.
 - [optional] CDK helps deploy Amazon Q Business with assigned IAM IDC instance you prepared and ingests a sample data to test with. This step is not required with you have Amazon Q Business application already running with IAM IDC as access management.
 
-![Feature](assets/feature-image.png)
+![Feature](/assets/feature-image.png)
 
 ## Prerequisites
 
@@ -25,7 +25,7 @@ This is a deployable sample ISV webpage that can be run locally on https://local
 
 The key component of this solution is to show the user authentication flow step-by-step (OIDC authentication with AWS IAM Identity Center, token generation and management, STS credential handling) required to make Amazon Q Business's [SearchRelevantContent API](https://docs.aws.amazon.com/amazonq/latest/api-reference/API_SearchRelevantContent.html) requests to cross-account Q index on customer's environment.
 
-![User Authentication Flow](assets/authentication-flow.png)
+![User Authentication Flow](/assets/authentication-flow.png)
 
 This flow illustrates user authentication process in order for ISV application to make SearchRelevantContent API to access customer's Q index that this frontend solution demonstrates in steps.
 
@@ -46,13 +46,13 @@ This step assumes you already have IAM Identity Center (IDC) instance setup on y
 cdk deploy EnterpriseStack --parameters IdentityCenterInstanceArn=<<insert your IDC instance ARN>>
 ```
 To find your IDC instance ARN, go to AWS Management Console and navigate to IAM Identity Center > Settings
-![IDC Settings](assets/IDC-Setting.png)
+![IDC Settings](/assets/IDC-Setting.png)
 
 **Note:** If you are seeing CDK deployment errors, re-confirm IDC instance ARN is correct and your AWS credentials that you are using to deploy CDK is from AWS account on customer environment.
 
 5. Wait for all resources to be provisioned before continuing to the next step
 6. Navigate to Amazon Q Business application that was just created and click on `Manage user access`
-![User Management](assets/qbusiness-user-management.png)
+![User Management](/assets/qbusiness-user-management.png)
 7. Select `Add groups and users` and search for the user or group from IAM IDC that you want to add for this
 
 ### Setup data accessor (ISV) in Amazon Q Business on customer environment
@@ -60,9 +60,9 @@ To find your IDC instance ARN, go to AWS Management Console and navigate to IAM 
 1. Navigate to your Amazon Q Business application on AWS Management console 
 2. Select `Data accessors` from the left menu, and select `Add data accessor`
 3. Select your data accessor from the list (If you don't have your ISV application registered as data accessor, (follow this post on the steps[https://aws.amazon.com/blogs/machine-learning/enhance-enterprise-productivity-for-your-llm-solution-by-becoming-an-amazon-q-business-data-accessor/]))
-![Data Accessor](assets/data-accessor-setup.png)
+![Data Accessor](/assets/data-accessor-setup.png)
 4. Select `All users with application access` on User access
-![Data Accessor Setting](assets/data-accessor-setup2.png)
+![Data Accessor Setting](/assets/data-accessor-setup2.png)
 5. Once your data accessor is added, you will see the parameter details on the screen. Note these values as you will need these values in the next step
 ![Data Accessor Details](assets/data-accessor-setup3.png)
 

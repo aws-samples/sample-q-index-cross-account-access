@@ -31,7 +31,7 @@ QBUSINESS_APPLICATION_ID - QBiz application ID of the enterprise account
 RETRIEVER_ID - Retrieval ID of the above QBiz application
 IDC_APPLICATION_ARN - ARN provided on data accessor configuration
 
-![Configuration](assets/shell-configuration.png)
+![Configuration](/assets/shell-configuration.png)
 
 ### Run the shell script
 ```
