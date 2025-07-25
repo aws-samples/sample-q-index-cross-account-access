@@ -34,7 +34,7 @@ This flow illustrates user authentication process in order for ISV application t
   - **RETRIEVER_ID** - Retrieval ID of the above QBiz application
   - **IDC_APPLICATION_ARN** - ARN provided on data accessor configuration
 
-![Configuration](assets/shell-tti-configuration.png)
+![Configuration](/assets/shell-tti-configuration.png)
 
 ### Run the shell script
 ```
