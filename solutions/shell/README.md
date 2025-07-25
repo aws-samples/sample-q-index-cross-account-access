@@ -16,7 +16,7 @@ This shell script by using AWS CLI goes through neccessary authorization code au
 
 The key component of this solution is to show the user authentication flow step-by-step (OIDC authentication with AWS IAM Identity Center, token generation and management, STS credential handling) required to make Amazon Q Business's [SearchRelevantContent API](https://docs.aws.amazon.com/amazonq/latest/api-reference/API_SearchRelevantContent.html) requests to cross-account Q index on customer's environment.
 
-![User Authentication Flow](assets/shell-authentication-flow.png)
+![User Authentication Flow](/assets/shell-authentication-flow.png)
 
 This flow illustrates user authentication process in order for ISV application to make SearchRelevantContent API to access customer's Q index that this frontend solution demonstrates in steps.
 
