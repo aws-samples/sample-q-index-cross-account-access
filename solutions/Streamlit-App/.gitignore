@@ -1,0 +1,5 @@
+.env.dev
+.env.tti
+.env.auth
+.info.txt
+__pycache__
