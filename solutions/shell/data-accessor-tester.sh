@@ -2,15 +2,15 @@
 
 # Configuration
 ## ISV provided data
-IAM_ROLE="arn:aws:iam::820242917643:role/QIndexCrossAccountRole"
+IAM_ROLE=""
 REDIRECT_URL="https://localhost:8081"
 BEDROCK_REGION="us-east-1"
 BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
 
 ## Enterprise provided data
-QBUSINESS_APPLICATION_ID="168769e9-5960-4eac-a829-c967e4a79f51"
-RETRIEVER_ID="d2994da6-2f80-487a-9d15-5c7de4089e48"
-IDC_APPLICATION_ARN="arn:aws:sso::592995829936:application/ssoins-72236fd71f13872d/apl-83c9a878e99a4f69"
+QBUSINESS_APPLICATION_ID=""
+RETRIEVER_ID=""
+IDC_APPLICATION_ARN=""
 QBUSINESS_REGION="us-east-1"
 IAM_IDC_REGION="us-east-1"
 
@@ -82,7 +82,7 @@ get_auth_code() {
     echo
     echo "Received authorization code"
     echo "================="
-    echo "$AUTH_CODE"
+    echo "Authorization code received successfully"
     echo "================="
     echo
 }

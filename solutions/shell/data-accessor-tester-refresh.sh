@@ -25,16 +25,16 @@
 
 ## ISV PROVIDED DATA
 # These are configured by the ISV (your organization) when registering as a data accessor
-IAM_ROLE="arn:aws:iam::820242917643:role/QIndexCrossAccountRole"  # Role ISV assumes for cross-account access
+IAM_ROLE=""  # Role ISV assumes for cross-account access
 REDIRECT_URL="https://localhost:8081"                              # OAuth redirect URL (ISV controls this)
 BEDROCK_REGION="us-east-1"                                         # Region where ISV wants to use Bedrock
 BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"                          # AI model for summarizing results
 
 ## ENTERPRISE CUSTOMER PROVIDED DATA  
 # These are provided by the customer who owns the Q Business application
-QBUSINESS_APPLICATION_ID="168769e9-5960-4eac-a829-c967e4a79f51"  # Customer's Q Business app ID
-RETRIEVER_ID="d2994da6-2f80-487a-9d15-5c7de4089e48"             # Customer's data retriever ID
-IDC_APPLICATION_ARN="arn:aws:sso::592995829936:application/ssoins-72236fd71f13872d/apl-83c9a878e99a4f69"  # Customer's Identity Center app
+QBUSINESS_APPLICATION_ID=""  # Customer's Q Business app ID
+RETRIEVER_ID=""             # Customer's data retriever ID
+IDC_APPLICATION_ARN=""  # Customer's Identity Center app
 QBUSINESS_REGION="us-east-1"                                      # Region where customer's Q Business runs
 IAM_IDC_REGION="us-east-1"                                        # Region where customer's Identity Center runs
 
@@ -387,7 +387,7 @@ get_idc_token() {
 
     echo "Received IDC token"
     echo "================="
-    echo "${ID_TOKEN}"
+    echo "ID token received successfully"
     echo "================="
     if [ -n "$REFRESH_TOKEN" ]; then
         echo "Refresh token captured for automatic renewal"
@@ -425,7 +425,10 @@ get_auth_code() {
         exit 1
     fi
     
-    echo "Received authorization code: $AUTH_CODE"
+    echo "Received authorization code"
+    echo "================="
+    echo "Authorization code received successfully"
+    echo "================="
 }
 
 # =============================================================================
