@@ -22,7 +22,6 @@ created by the service team and registered. Thirdly, in a seperate account where
 allow listed so that the data accessor is displayed in the Q Business console for testing.
 See https://docs.aws.amazon.com/amazonq/latest/qbusiness-ug/isv.html for ISV information
 
-See https://t.corp.amazon.com/create/templates/7b562ce3-e770-4d45-8a76-0c73eaca7eff for new data accessor SIM request.
 
 
 ## Installation
