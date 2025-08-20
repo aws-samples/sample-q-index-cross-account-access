@@ -2,22 +2,22 @@
 
 # Configuration
 ## ISV provided data
-IAM_ROLE="arn:aws:iam::820242917643:role/QIndexCrossAccountRole"
-TENANT_ID="poc"
-BEDROCK_REGION="us-east-1"
-BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
+IAM_ROLE=""
+TENANT_ID=""
+BEDROCK_REGION=""
+BEDROCK_MODEL_ID=""
 
 ## ISV's IDP data (cognito)
-COGNITO_USER_POOL_ID="us-east-1_t74xj31GS"
-COGNITO_CLIENT_ID="2q35d808a9afn3olfv01l1hq0i"
-COGNITO_CLIENT_SECRET="1me48uv24ibj62s3hh8791jjemlhfnje5cj82eo3fd1fsh10862g"
+COGNITO_USER_POOL_ID=""
+COGNITO_CLIENT_ID=""
+COGNITO_CLIENT_SECRET=""
 
 ## Enterprise provided data
-QBUSINESS_APPLICATION_ID="71260e1d-1db6-4db1-b4e0-ee1a68d53d57"
-RETRIEVER_ID="f60fd64a-752a-4f5d-99f6-fccc132552b1"
-IDC_APPLICATION_ARN="arn:aws:sso::554763683011:application/ssoins-7223ad318d059f6d/apl-49b949a6cbf60f71"
-QBUSINESS_REGION="us-east-1"
-IAM_IDC_REGION="us-east-1"
+QBUSINESS_APPLICATION_ID=""
+RETRIEVER_ID=""
+IDC_APPLICATION_ARN=""
+QBUSINESS_REGION=""
+IAM_IDC_REGION=""
 
 # Function to capture user query
 get_user_query() {
