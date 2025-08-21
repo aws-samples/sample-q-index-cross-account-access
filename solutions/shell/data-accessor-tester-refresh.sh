@@ -74,9 +74,16 @@ save_credentials() {
             expires_at: ($expires_at | tonumber)
         }')
     
-    # Save to file with restricted permissions (only user can read)
-    echo "$credentials_json" > "$CREDENTIALS_FILE"
-    chmod 600 "$CREDENTIALS_FILE"  # Security: Only owner can read/write
+    # SECURITY FIX: Create file with secure permissions from the start
+    # WHY: The original approach had a race condition vulnerability where the file
+    # was created with default permissions (potentially 644 - readable by others)
+    # and then chmod was applied afterward. This creates a window where sensitive
+    # credentials could be readable by other users on the system.
+    # 
+    # SOLUTION: Use umask to ensure the file is created with restrictive permissions
+    # (600 - owner read/write only) from the moment it's created, eliminating the
+    # race condition entirely.
+    (umask 077; echo "$credentials_json" > "$CREDENTIALS_FILE")
     echo "Credentials saved for future use"
 }
 
