@@ -28,7 +28,7 @@
 IAM_ROLE=""  # Role ISV assumes for cross-account access
 REDIRECT_URL="https://localhost:8081"                              # OAuth redirect URL (ISV controls this)
 BEDROCK_REGION="us-east-1"                                         # Region where ISV wants to use Bedrock
-BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"                          # AI model for summarizing results
+BEDROCK_MODEL_ID="" # amazon.nova-pro-v1:0                          # AI model for summarizing results
 
 ## ENTERPRISE CUSTOMER PROVIDED DATA  
 # These are provided by the customer who owns the Q Business application
@@ -298,7 +298,7 @@ get_auth_code() {
     echo
     echo "Received authorization code"
     echo "================="
-    echo "$AUTH_CODE"
+    #echo "$AUTH_CODE"
     echo "================="
     echo
 }

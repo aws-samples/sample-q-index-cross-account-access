@@ -5,7 +5,7 @@
 IAM_ROLE=""
 REDIRECT_URL="https://localhost:8081"
 BEDROCK_REGION="us-east-1"
-BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
+BEDROCK_MODEL_ID="" # amazon.nova-pro-v1:0
 
 ## Enterprise provided data
 QBUSINESS_APPLICATION_ID=""
@@ -82,6 +82,7 @@ get_auth_code() {
     echo
     echo "Received authorization code"
     echo "================="
+    #echo "$AUTH_CODE"
     echo "Authorization code received successfully"
     echo "================="
     echo
