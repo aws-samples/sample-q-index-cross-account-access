@@ -23,6 +23,9 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 #### [Shell script - cross account (AuthCode)](/solutions/shell) 
 - Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
 
+#### [Shell script - cross account (AuthCode) Enhanced with Refresh Token Support](/solutions/shell/README-refresh.md) 
+- Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
+
 #### [Shell script - cross account (TTI)](/solutions/shell/tti-auth/)
 - Shell script that goes through Trusted Token Issuer (TTI) authentication flow to access Q index with SearchRelevantContent API for the cross-account (using data accessor) access
 
