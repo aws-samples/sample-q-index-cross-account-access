@@ -29,6 +29,10 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 #### [Shell script - same account](/solutions/shell/same-account-access/) 
 - Shell script that goes through Authorization Code authentication flow to access Q index with SearchRelevantContent API for the same account access
 
+#### [Python Streamlit App - Can be used with AuthCode or TTI](/solutions/Streamlit-App/)
+- Python Streamlit application that demonstrates both Authorization Code and TTI. Also includes a quick set of tests that can be viewed from a dashboard
+
+
 #### Lambda function 
 - coming soon
 
@@ -44,6 +48,7 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 - [Siddhant Gupta](https://www.linkedin.com/in/siddhant-gupta-a43a7b53/)
 - [Akhilesh Amara](https://www.linkedin.com/in/akhilesh-amara/)
 - [Vishnu Elangovan](https://www.linkedin.com/in/vishnu-elangovan/)
+- [David Girling](https://www.linkedin.com/in/david-girling-4a71485/)
 
 # License
 
