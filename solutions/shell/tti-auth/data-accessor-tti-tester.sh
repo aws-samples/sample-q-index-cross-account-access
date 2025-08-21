@@ -5,7 +5,7 @@
 IAM_ROLE=""
 TENANT_ID=""
 BEDROCK_REGION=""
-BEDROCK_MODEL_ID=""
+BEDROCK_MODEL_ID="" # amazon.nova-pro-v1:0
 
 ## ISV's IDP data (cognito)
 COGNITO_USER_POOL_ID=""
