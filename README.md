@@ -47,6 +47,7 @@ Provided sample solution demonstrates cross-account data retrieval functionality
 - [Takeshi Kobayashi](https://www.linkedin.com/in/takeshikobayashi/)
 - [Siddhant Gupta](https://www.linkedin.com/in/siddhant-gupta-a43a7b53/)
 - [Akhilesh Amara](https://www.linkedin.com/in/akhilesh-amara/)
+- [Vishnu Elangovan](https://www.linkedin.com/in/vishnu-elangovan/)
 - [David Girling](https://www.linkedin.com/in/david-girling-4a71485/)
 
 # License

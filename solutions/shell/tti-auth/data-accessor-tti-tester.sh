@@ -4,8 +4,8 @@
 ## ISV provided data
 IAM_ROLE=""
 TENANT_ID=""
-BEDROCK_REGION="us-east-1"
-BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
+BEDROCK_REGION=""
+BEDROCK_MODEL_ID="" # amazon.nova-pro-v1:0
 
 ## ISV's IDP data (cognito)
 COGNITO_USER_POOL_ID=""
@@ -16,8 +16,8 @@ COGNITO_CLIENT_SECRET=""
 QBUSINESS_APPLICATION_ID=""
 RETRIEVER_ID=""
 IDC_APPLICATION_ARN=""
-QBUSINESS_REGION="us-east-1"
-IAM_IDC_REGION="us-east-1"
+QBUSINESS_REGION=""
+IAM_IDC_REGION=""
 
 # Function to capture user query
 get_user_query() {

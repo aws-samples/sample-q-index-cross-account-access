@@ -5,7 +5,7 @@
 IAM_ROLE=""
 REDIRECT_URL="https://localhost:8081"
 BEDROCK_REGION="us-east-1"
-BEDROCK_MODEL_ID="amazon.nova-pro-v1:0"
+BEDROCK_MODEL_ID="" # amazon.nova-pro-v1:0
 
 ## Enterprise provided data
 QBUSINESS_APPLICATION_ID=""
@@ -82,7 +82,8 @@ get_auth_code() {
     echo
     echo "Received authorization code"
     echo "================="
-    echo "$AUTH_CODE"
+    #echo "$AUTH_CODE"
+    echo "Authorization code received successfully"
     echo "================="
     echo
 }
@@ -398,9 +399,20 @@ validate_config() {
 
 # Function to check if required environment variables are set
 check_credentials() {
-    if [ -z "$AWS_ACCESS_KEY_ID" ] || [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+    # Check if AWS credentials are available either via environment variables or AWS CLI
+    if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
+        echo "Using AWS credentials from environment variables"
+        return 0
+    elif aws sts get-caller-identity >/dev/null 2>&1; then
+        echo "Using AWS credentials from AWS CLI configuration"
+        return 0
+    else
         echo "Error: AWS credentials not set"
-        exit 1
+        echo "Please configure AWS credentials using one of these methods:"
+        echo "1. Environment variables: export AWS_ACCESS_KEY_ID=... && export AWS_SECRET_ACCESS_KEY=..."
+        echo "2. AWS CLI: aws configure"
+        echo "3. AWS profiles: aws configure --profile <profile-name>"
+        return 1
     fi
 }
 
