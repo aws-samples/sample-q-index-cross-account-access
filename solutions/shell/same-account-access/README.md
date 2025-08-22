@@ -18,7 +18,7 @@ The key component of this solution is to show the user authentication flow step-
 
 ## Usage Steps
 
-### IAM Rule and Policy
+### IAM Role and Policy
 
 1. Go to AWS Management Console, go to **Identity and Access Management(IAM)**
 2. In the left navigation pane, choose **Policies** and click **Create Policy**
@@ -60,7 +60,7 @@ The key component of this solution is to show the user authentication flow step-
 			"Sid": "QCLITrustPolicy",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::643286473409:root",
+				"AWS": "{{arn:aws:iam::111122223333:role/YourApplicationRole}}",
 				"Service": [
             "qbusiness.amazonaws.com",
             "sso.amazonaws.com"
