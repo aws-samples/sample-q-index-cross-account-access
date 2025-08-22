@@ -51,7 +51,7 @@ The key component of this solution is to show the user authentication flow step-
 4. Insert **Policy name** and select **Create policy**
 5. In the left navigation pane, choose **Roles** and click **Create role**
 6. Select **Custom trust policy**
-7. Copy the below trust policy and select **next**
+7. Copy the below trust policy and replace **arn:aws:iam::111122223333:role/YourApplicationRole** with your value and select **next**
 ```
 {
 	"Version": "2012-10-17",
