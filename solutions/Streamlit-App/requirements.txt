@@ -1,5 +1,5 @@
 boto3==1.35.79
-streamlit==1.44.1
+streamlit==1.54.0
 streamlit-chat==0.1.1
 streamlit_pdf_viewer==0.0.20
 pydantic==2.6.4
